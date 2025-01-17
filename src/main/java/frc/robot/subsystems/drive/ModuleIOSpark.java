@@ -245,4 +245,8 @@ public class ModuleIOSpark implements ModuleIO {
             rotation.plus(zeroRotation).getRadians(), turnPIDMinInput, turnPIDMaxInput);
     turnController.setReference(setpoint, ControlType.kPosition);
   }
+
+  public void followAprilTagRotate() { //Demonstration function
+
+  }
 }
