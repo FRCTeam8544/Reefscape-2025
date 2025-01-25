@@ -54,7 +54,7 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
