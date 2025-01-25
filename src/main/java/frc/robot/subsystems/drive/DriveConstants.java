@@ -68,8 +68,9 @@ public class DriveConstants {
       (2 * Math.PI) / 60.0 / driveMotorReduction; // Rotor RPM -> Wheel Rad/Sec
 
   // Drive PID configuration
-  public static final double driveKp = 0.0;
-  public static final double driveKd = 0.0;
+  // Drive motor is really sensitive, keep pids small.
+  public static final double driveKp = 0.00008; // 2e-4 okish
+  public static final double driveKd = 0.000004;
   public static final double driveKs = 0.0;
   public static final double driveKv = 0.1;
   public static final double driveSimP = 0.05;
@@ -90,7 +91,7 @@ public class DriveConstants {
 
   // Turn PID configuration
   public static final double turnKp = 1.0;
-  public static final double turnKd = 0.0;
+  public static final double turnKd = 0.05;
   public static final double turnSimP = 8.0;
   public static final double turnSimD = 0.0;
   public static final double turnPIDMinInput = 0; // Radians
