@@ -135,7 +135,7 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive, () -> -romeo.getLeftY(), () -> -romeo.getLeftX(), () -> -romeo.getRightX()));
+            drive, () -> romeo.getLeftY(), () -> romeo.getLeftX(), () -> -romeo.getRightX()));
 
     // Lock to 0° when A button is held
     romeo
