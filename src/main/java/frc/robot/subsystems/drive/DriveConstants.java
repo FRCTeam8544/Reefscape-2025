@@ -21,7 +21,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
-  public static final double maxSpeedMetersPerSec = 4.8;
+  public static final double maxSpeedMetersPerSec = 4.8 / 3.0; // TODO for safety
   public static final double odometryFrequency = 100.0; // Hz
   // TrackWidth and wheelBase must be dimensions between the wheel axle, not chassis
   public static final double trackWidth = Units.inchesToMeters(23.5); // 27 inches wide
@@ -37,13 +37,10 @@ public class DriveConstants {
 
   // Zeroed rotation values for each module, see setup instructions
   public static final Rotation2d frontLeftZeroRotation =
-      new Rotation2d(Units.degreesToRadians(0.0));
-  public static final Rotation2d frontRightZeroRotation =
-      new Rotation2d(Units.degreesToRadians(0.0));
-  public static final Rotation2d backLeftZeroRotation = 
-      new Rotation2d(Units.degreesToRadians(0.0));
-  public static final Rotation2d backRightZeroRotation =
-      new Rotation2d(Units.degreesToRadians(0.0));
+      new Rotation2d(Units.degreesToRadians(270.0));
+  public static final Rotation2d frontRightZeroRotation = new Rotation2d(Units.degreesToRadians(0));
+  public static final Rotation2d backLeftZeroRotation = new Rotation2d(Units.degreesToRadians(180));
+  public static final Rotation2d backRightZeroRotation = new Rotation2d(Units.degreesToRadians(90));
 
   // Device CAN IDs
 
@@ -58,7 +55,7 @@ public class DriveConstants {
   public static final int backRightTurnCanId = 8;
 
   // Drive motor configuration
-  public static final int driveMotorCurrentLimit = 50;
+  public static final int driveMotorCurrentLimit = 40;
   public static final double wheelRadiusMeters = Units.inchesToMeters(1.5);
   public static final double driveMotorReduction =
       (45.0 * 22.0) / (14.0 * 15.0); // MAXSwerve with 14 pinion teeth and 22 spur teeth
@@ -92,7 +89,7 @@ public class DriveConstants {
   public static final double turnEncoderVelocityFactor = (2 * Math.PI) / 60.0; // RPM -> Rad/Sec
 
   // Turn PID configuration
-  public static final double turnKp = 2.0;
+  public static final double turnKp = 1.0;
   public static final double turnKd = 0.0;
   public static final double turnSimP = 8.0;
   public static final double turnSimD = 0.0;
