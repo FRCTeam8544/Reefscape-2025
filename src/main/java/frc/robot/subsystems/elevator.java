@@ -25,8 +25,8 @@ public class elevator extends SubsystemBase {
   //private SparkClosedLoopController leftMotorPid = leftMotorController.getClosedLoopController();
   private static DigitalInput upLimit = new DigitalInput(0); //limit switches
   private static DigitalInput downLimit = new DigitalInput(1);
-  private boolean upStopHit;
-  private boolean downStopHit;
+  public boolean upStopHit;
+  public boolean downStopHit;
 
   public BooleanSupplier upStop = () -> {
     return upLimit.get();
@@ -55,7 +55,7 @@ public class elevator extends SubsystemBase {
     else{downStopHit = false;}
   }
   
-    public void climberMove(boolean up){
+    public void elevatorMove(boolean up){
       if(!upStopHit && up){
         motorController.set(.5);
         leftMotorController.set(.5);}
