@@ -25,12 +25,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.elevatorUp;
+import frc.robot.commands.elevatorDown;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.elevator;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -47,12 +50,15 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-
+  private final elevator elevator = new elevator();
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private final elevatorUp elevatorUp = new elevatorUp(elevator, juliet);
+  private final elevatorDown elevatorDown = new elevatorDown(elevator, juliet);
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -157,6 +163,8 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+    juliet.a().whileTrue(elevatorUp);
+    juliet.b().whileTrue(elevatorDown);
   }
 
   /**
