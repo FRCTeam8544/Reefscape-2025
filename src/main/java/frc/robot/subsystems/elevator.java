@@ -10,9 +10,13 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 //import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 //import com.revrobotics.spark.SparkClosedLoopController; //pid 
+=======
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+>>>>>>> Stashed changes
 =======
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 >>>>>>> Stashed changes
@@ -24,10 +28,14 @@ public class elevator extends SubsystemBase {
   private static SparkMax motorController = new SparkMax(10, MotorType.kBrushless);
   private static SparkMax leftMotorController = new SparkMax(11, MotorType.kBrushless);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   //private RelativeEncoder elevatorEncoder = motorController.getAlternateEncoder();
   private static SparkMaxConfig config = new SparkMaxConfig();
   //private SparkClosedLoopController motorPid = motorController.getClosedLoopController(); //looks like use if no limit switch...
   //private SparkClosedLoopController leftMotorPid = leftMotorController.getClosedLoopController();
+=======
+  private static SparkMaxConfig config = new SparkMaxConfig();
+>>>>>>> Stashed changes
 =======
   private static SparkMaxConfig config = new SparkMaxConfig();
 >>>>>>> Stashed changes
