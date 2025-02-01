@@ -290,6 +290,10 @@ public class DriveCommands {
                     })));
   }
 
+  public static Command rotateToAprilTag() {
+    return null;
+  }
+
   private static class WheelRadiusCharacterizationState {
     double[] positions = new double[4];
     Rotation2d lastAngle = new Rotation2d();
