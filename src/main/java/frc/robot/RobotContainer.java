@@ -27,6 +27,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.elevatorUp;
 import frc.robot.commands.elevatorDown;
+import frc.robot.commands.ClawWrist;
+import frc.robot.commands.Rollers;
+import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -51,14 +54,12 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final elevator elevator = new elevator();
+  private final ClawIntake clawIntake = new ClawIntake();
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-
-  private final elevatorUp elevatorUp = new elevatorUp(elevator, juliet);
-  private final elevatorDown elevatorDown = new elevatorDown(elevator, juliet);
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -163,8 +164,12 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    juliet.a().whileTrue(elevatorUp);
-    juliet.b().whileTrue(elevatorDown);
+    juliet.a().whileTrue(new elevatorUp(elevator, juliet));
+    juliet.b().whileTrue(new elevatorDown(elevator, juliet));
+    juliet.x().whileTrue(new ClawWrist(clawIntake, juliet));
+    juliet.y().whileTrue(new ClawWrist(clawIntake, juliet));
+    juliet.rightBumper().whileTrue(new Rollers(clawIntake, juliet));
+    juliet.leftBumper().whileTrue(clawIntake.Rollers());
   }
 
   /**

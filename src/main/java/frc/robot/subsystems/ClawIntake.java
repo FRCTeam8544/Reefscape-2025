@@ -4,17 +4,17 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
-  private static SparkMax roller = new SparkMax(12, null);
-
-  private static SparkMax wrist = new SparkMax(13, null);
-  private SparkMaxConfig config = new SparkMaxConfig();
+  public static SparkFlex roller = new SparkFlex(12, MotorType.kBrushless);
+  public SparkFlex wrist = new SparkFlex(13, MotorType.kBrushless);
+  private static SparkFlexConfig config = new SparkFlexConfig();
 
   public ClawIntake() {
     roller.configure(config, null, null);
@@ -30,6 +30,8 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public void wristTurn(boolean forward){ 
+    if(forward)wrist.set(.1);
+    if(!forward)wrist.set(-.1); 
   }
 
   @Override

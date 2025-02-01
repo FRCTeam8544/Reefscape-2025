@@ -5,21 +5,25 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
 
 public class elevator extends SubsystemBase {
   /** Creates a new elevator. */
-  private static SparkMax motorController = new SparkMax(10, MotorType.kBrushless);
-
-  private static SparkMax leftMotorController = new SparkMax(11, MotorType.kBrushless);
-  private static SparkMaxConfig config = new SparkMaxConfig();
+  private static SparkFlex motorController = new SparkFlex(10, MotorType.kBrushless);
+  private static SparkFlex leftMotorController = new SparkFlex(11, MotorType.kBrushless);
+  private static SparkFlexConfig config = new SparkFlexConfig();
   private static DigitalInput upLimit = new DigitalInput(0); // limit switches
   private static DigitalInput downLimit = new DigitalInput(1);
+  public double positionFactor = motorController.configAccessor.encoder.getPositionConversionFactor();
+  public double velocityFactor = motorController.configAccessor.encoder.getVelocityConversionFactor();
+  public double leftPostitionFactor = leftMotorController.configAccessor.encoder.getPositionConversionFactor();
+  public double leftVelocityFactor = leftMotorController.configAccessor.encoder.getVelocityConversionFactor();
   public boolean upStopHit;
   public boolean downStopHit;
 
@@ -71,5 +75,10 @@ public class elevator extends SubsystemBase {
         leftMotorController.set(0);
       }
     }
+  }
+  public void updateDashboard(){
+    SmartDashboard.putNumber("left elevator velocity", leftVelocityFactor);
+    SmartDashboard.putNumber("right elevator velocity", velocityFactor);
+    SmartDashboard.putNumber("elevator position", positionFactor);
   }
 }
