@@ -5,14 +5,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Rollers extends Command {
   ClawIntake clawIntake;
-  XboxController juliet;
-  public Rollers(ClawIntake clawIntake, XboxController juliet) {
+  CommandXboxController juliet;
+  Trigger xButton = juliet.x();
+
+  public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -23,10 +26,11 @@ public class Rollers extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(juliet.getRightBumperButtonPressed()){
+    if(xButton.getAsBoolean()){
       clawIntake.rollerRoll(true);}
+      else{ClawIntake.roller.set(0);}
 
-    if(juliet.getLeftBumperButtonPressed()){
+    if(xButton.getAsBoolean()){
       clawIntake.rollerRoll(false);}
   }
 

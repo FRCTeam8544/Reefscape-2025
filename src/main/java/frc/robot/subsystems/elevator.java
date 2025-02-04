@@ -17,6 +17,8 @@ public class elevator extends SubsystemBase {
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(10, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(11, MotorType.kBrushless);
+  private static SparkFlex spinMotorRight = new SparkFlex(14, MotorType.kBrushless);
+  private static SparkFlex spinMotorLeft = new SparkFlex(15, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
   private static DigitalInput upLimit = new DigitalInput(0); // limit switches
   private static DigitalInput downLimit = new DigitalInput(1);
@@ -44,38 +46,48 @@ public class elevator extends SubsystemBase {
     config.idleMode(IdleMode.kBrake);
   }
 
+  public void spin() {
+    spinMotorRight.configure(config, null, null);
+    config.idleMode(IdleMode.kBrake);
+
+    spinMotorLeft.configure(config, null, null);
+    config.idleMode(IdleMode.kBrake);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (upStop.getAsBoolean()) {
-      upStopHit = true;
-    } else {
-      upStopHit = false;
-    }
+    if (upStop.getAsBoolean()) {upStopHit = true;} 
+    else {upStopHit = false;}
 
-    if (downStop.getAsBoolean()) {
-      downStopHit = true;
-    } else {
-      downStopHit = false;
-    }
+    if (downStop.getAsBoolean()) {downStopHit = true;} 
+    else {downStopHit = false;}
   }
 
   public void elevatorMove(boolean up) {
     if (!upStopHit && up) {
       motorController.set(.2);
-      leftMotorController.set(.2);
-    }
+      leftMotorController.set(.2);}
 
     if (!downStopHit && !up) {
       motorController.set(-.2);
-      leftMotorController.set(-.2);
+      leftMotorController.set(-.2);}
 
       if (upStopHit || downStopHit) {
         motorController.set(0);
-        leftMotorController.set(0);
-      }
-    }
+        leftMotorController.set(0);}
   }
+  
+  public static void spinElbow(boolean go){
+    if(go){
+      spinMotorLeft.set(.2);
+      spinMotorRight.set(.2);}
+
+    if(!go){
+      spinMotorLeft.set(-.2);
+      spinMotorRight.set(-.2);}
+  }
+
   public void updateDashboard(){
     SmartDashboard.putNumber("left elevator velocity", leftVelocityFactor);
     SmartDashboard.putNumber("right elevator velocity", velocityFactor);

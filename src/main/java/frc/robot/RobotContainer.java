@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.elevatorUp;
@@ -58,6 +59,12 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
+  private final Trigger aButton = new Trigger(null);
+  private final Trigger bButton = new Trigger(null);
+  private final Trigger yButton = new Trigger(null);
+  private final Trigger xButton = new Trigger(null);
+  private final Trigger rightBack = new Trigger(null);
+  private final Trigger leftBack = new Trigger(null);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -164,12 +171,12 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    juliet.a().whileTrue(new elevatorUp(elevator, juliet));
-    juliet.b().whileTrue(new elevatorDown(elevator, juliet));
-    juliet.x().whileTrue(new ClawWrist(clawIntake, juliet));
-    juliet.y().whileTrue(new ClawWrist(clawIntake, juliet));
-    juliet.rightBumper().whileTrue(new Rollers(clawIntake, juliet));
-    juliet.leftBumper().whileTrue(clawIntake.Rollers());
+    juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton));
+    juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton));
+    juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack));
+    juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack));
+    juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton));
+    juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton));
   }
 
   /**

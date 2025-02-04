@@ -4,17 +4,19 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevator;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class elevatorDown extends Command {
   /** Creates a new elevatorDown. */
-  XboxController operator;
+  CommandXboxController juliet;
   elevator elevator;
+  Trigger aButton = juliet.a();
 
-  public elevatorDown(elevator elevator, XboxController juliet) {
+  public elevatorDown(elevator elevator, CommandXboxController juliet, Trigger aButton) {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -25,7 +27,7 @@ public class elevatorDown extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!elevator.downStop.getAsBoolean() && operator.getBButtonPressed()) {
+    if (!elevator.downStop.getAsBoolean() && aButton.getAsBoolean()) {
       elevator.elevatorMove(true);
     } else {
       elevator.elevatorMove(false);

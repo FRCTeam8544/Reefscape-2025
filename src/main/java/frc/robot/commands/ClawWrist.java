@@ -5,15 +5,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ClawIntake;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ClawWrist extends Command {
   ClawIntake clawIntake;
-  XboxController juliet;
+  CommandXboxController juliet;
+  Trigger rightBack = juliet.rightBumper();
+  Trigger leftBack = juliet.leftBumper();
 
-  public ClawWrist(ClawIntake clawIntake, XboxController juliet) {
+  public ClawWrist(ClawIntake clawIntake, CommandXboxController juliet, Trigger RightBack) {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -24,20 +27,20 @@ public class ClawWrist extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(juliet.getXButtonPressed()){
+    if(rightBack.getAsBoolean()){
       clawIntake.wristTurn(true);}
-      else{clawIntake.wrist.set(0);}
+      else{ClawIntake.wrist.set(0);}
 
-    if(juliet.getYButtonPressed()){
+    if(leftBack.getAsBoolean()){
       clawIntake.wristTurn(false);}
-      else{clawIntake.wrist.set(0);}
+      else{ClawIntake.wrist.set(0);}
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     if(interrupted){
-      clawIntake.wrist.set(0);}
+      ClawIntake.wrist.set(0);}
     }
 
   // Returns true when the command should end.

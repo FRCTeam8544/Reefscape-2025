@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
   public static SparkFlex roller = new SparkFlex(12, MotorType.kBrushless);
-  public SparkFlex wrist = new SparkFlex(13, MotorType.kBrushless);
+  public static SparkFlex wrist = new SparkFlex(13, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
 
   public ClawIntake() {

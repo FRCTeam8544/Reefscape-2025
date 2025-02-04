@@ -4,40 +4,38 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.elevator;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class elevatorUp extends Command {
+public class SpinForward extends Command {
+  /** Creates a new SpinForward. */
+  elevator climber;
   CommandXboxController juliet;
-  elevator elevator;
-  Trigger yButton = juliet.y(); 
+  Trigger rightBackTop = juliet.rightTrigger();
+  Trigger leftBackTop = juliet.leftTrigger();
 
-  public elevatorUp(elevator elevator, CommandXboxController juliet, Trigger yButton) {
+  public SpinForward(elevator climber, CommandXboxController juliet, Trigger rightBackTop) {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   @Override
-  public void initialize() {
-    //called when command is initially scheduled
+  public void initialize() { // Called when the command is initially scheduled.
     }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (yButton.getAsBoolean() && !elevator.upStop.getAsBoolean()) {
-      elevator.elevatorMove(true);} 
-       else {elevator.elevatorMove(false);}
+    if(rightBackTop.getAsBoolean()){
+      elevator.spinElbow(true);}
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    if (interrupted) {elevator.elevatorMove(false);}
-  }
-  
+  public void end(boolean interrupted) {}
+
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
