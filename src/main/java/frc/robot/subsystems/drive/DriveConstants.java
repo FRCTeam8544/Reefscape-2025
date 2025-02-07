@@ -58,7 +58,7 @@ public class DriveConstants {
   public static final int backRightTurnCanId = 8;
 
   // Drive motor configuration
-  //See https://www.revrobotics.com/rev-21-1652/
+  // See https://www.revrobotics.com/rev-21-1652/
   public static final double freeSpeedRpm = 6784;
   public static final int driveMotorCurrentLimit = 40;
 

@@ -47,6 +47,8 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+  private static final double MAX_DPAD_VELOCITY_GAIN =
+      DEADBAND + 0.05; // 0 to 1.0 percent of max drive speed
 
   private DriveCommands() {}
 
@@ -155,6 +157,72 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  private static Translation2d getLinearVelocityFromDpad(int dpadAngle) {
+    if (dpadAngle >= 0.0) {
+      // Normalized range was used to echo joystick controls.
+      // Effectively this is a "joystick" with hardcoded directions and velocity limited.
+      // The use case is perform small movements at controllable speeds.
+
+      Rotation2d dpadRotation = new Rotation2d(Units.degreesToRadians(-dpadAngle));
+      return new Translation2d(1.0, 0.0)
+          .rotateBy(dpadRotation)
+          .times(MAX_DPAD_VELOCITY_GAIN); // Limit normalized speed
+    } else {
+      return new Translation2d(); // Do not move on invalid inputs
+    }
+  }
+
+  public static Command dpadDriveRobot(Drive drive, int dpadAngle) {
+    return Commands.run(
+        () -> {
+          // dpad normalized "stick" velocity values limited to zero or MAX_DPAD_VELOCITY_GAIN
+          Translation2d linearVelocity = getLinearVelocityFromDpad(dpadAngle);
+
+          // Convert "stick" velocity into drive speeds
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                  0.0);
+
+          // Send drive command
+          drive.runVelocity(speeds);
+        },
+        drive);
+  }
+
+  public static Command dpadDriveField(Drive drive, int dpadAngle) {
+    return Commands.run(
+        () -> {
+
+          // Get normalized dpad "stick" velocities
+          Translation2d linearVelocity = getLinearVelocityFromDpad(dpadAngle);
+
+          // Convert from normalized robot speeds to field relative speeds
+          // ChassisSpeeds speeds = convertToFieldChassisSpeeds(drive, linearVelocity, 0.0);
+
+          // Convert to field relative speeds & send command
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                  0.0);
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds,
+                  isFlipped
+                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                      : drive.getRotation()));
+
+          // Send drive command
+          drive.runVelocity(speeds);
+        },
+        drive);
   }
 
   /**
