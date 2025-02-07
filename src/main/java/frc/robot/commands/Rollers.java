@@ -14,6 +14,7 @@ public class Rollers extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
   Trigger xButton = juliet.x();
+  Trigger bButton = juliet.b();
 
   public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -28,10 +29,11 @@ public class Rollers extends Command {
   public void execute() {
     if(xButton.getAsBoolean()){
       clawIntake.rollerRoll(true);}
-      else{ClawIntake.roller.set(0);}
+      else{clawIntake.rollerRoll(false);}
 
-    if(xButton.getAsBoolean()){
-      clawIntake.rollerRoll(false);}
+    if(bButton.getAsBoolean()){
+      clawIntake.rollerRollBack(true);}
+    else{clawIntake.rollerRollBack(false);}
   }
 
   // Called once the command ends or is interrupted.

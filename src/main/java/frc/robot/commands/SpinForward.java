@@ -17,7 +17,7 @@ public class SpinForward extends Command {
   Trigger rightBackTop = juliet.rightTrigger();
   Trigger leftBackTop = juliet.leftTrigger();
 
-  public SpinForward(elevator climber, CommandXboxController juliet, Trigger rightBackTop) {
+  public SpinForward(elevator climber, CommandXboxController juliet, Trigger rightBackTop, Trigger leftBackTop) {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -29,7 +29,12 @@ public class SpinForward extends Command {
   @Override
   public void execute() {
     if(rightBackTop.getAsBoolean()){
-      elevator.spinElbow(true);}
+      elevator.spinElbowForward(true);}
+    else{elevator.spinElbowForward(false);}
+
+    if(leftBackTop.getAsBoolean()){
+      elevator.spinElbowBackwards(true);}
+      else{elevator.spinElbowBackwards(false);}
   }
 
   // Called once the command ends or is interrupted.

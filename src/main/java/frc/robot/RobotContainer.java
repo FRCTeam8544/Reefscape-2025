@@ -30,6 +30,7 @@ import frc.robot.commands.elevatorUp;
 import frc.robot.commands.elevatorDown;
 import frc.robot.commands.ClawWrist;
 import frc.robot.commands.Rollers;
+import frc.robot.commands.SpinForward;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -65,6 +66,8 @@ public class RobotContainer {
   private final Trigger xButton = new Trigger(null);
   private final Trigger rightBack = new Trigger(null);
   private final Trigger leftBack = new Trigger(null);
+  private final Trigger rightBackTop = new Trigger(null);
+  private final Trigger leftBackTop = new Trigger(null);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -171,12 +174,14 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton));
-    juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton));
-    juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack));
-    juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack));
-    juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton));
-    juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton));
+    juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); //elevator up
+    juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); //elevator down
+    juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack)); //spin forward claw
+    juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack)); //spin back claw
+    juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton)); //forward roll
+    juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton)); //back roll
+    juliet.rightTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist forward
+    juliet.leftTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop));
   }
 
   /**

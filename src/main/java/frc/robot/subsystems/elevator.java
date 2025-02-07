@@ -78,15 +78,24 @@ public class elevator extends SubsystemBase {
         leftMotorController.set(0);}
   }
   
-  public static void spinElbow(boolean go){
+  public static void spinElbowForward(boolean go){
     if(go){
       spinMotorLeft.set(.2);
       spinMotorRight.set(.2);}
+    else{
+      spinMotorLeft.set(0);
+      spinMotorRight.set(0);}
+  }
 
-    if(!go){
+  public static void spinElbowBackwards(boolean execute){
+    if(execute){
       spinMotorLeft.set(-.2);
       spinMotorRight.set(-.2);}
-  }
+    else{
+      spinMotorLeft.set(0);
+      spinMotorRight.set(0);}
+    }
+
 
   public void updateDashboard(){
     SmartDashboard.putNumber("left elevator velocity", leftVelocityFactor);

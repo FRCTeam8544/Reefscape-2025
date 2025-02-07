@@ -26,12 +26,21 @@ public class ClawIntake extends SubsystemBase {
 
   public void rollerRoll(boolean go) {
   if(go){roller.set(.5);}
-  if(!go){roller.set(-.5);}
+  else{roller.set(0);}
+  }
+
+  public void rollerRollBack(boolean roll){
+    if(roll){roller.set(-.5);}
+    else{roller.set(0);}
   }
 
   public void wristTurn(boolean forward){ 
     if(forward)wrist.set(.1);
-    if(!forward)wrist.set(-.1); 
+  else{wrist.set(0);}}
+
+  public void wristTurnBack(boolean backwards){
+    if(backwards){wrist.set(-.1);}
+    else{wrist.set(0);}
   }
 
   @Override
