@@ -34,4 +34,20 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+  //laserCAN id is 9 + where you set pids
+  public static final class elevatorConstants{
+    public static final int rightElevatorCANID = 10;
+    public static final int leftElevatorCANID = 11;
+    public static final int rightElbowCANID = 12;
+    public static final int leftElbowCANID = 13;
+
+  }
+  public static final class clawIntakeConstants{
+    public static final int rollerCANID = 14;
+    public static final int wristCANID = 15;
+  }
+  public static final class climberConstants{
+    public static final int climberCANID = 16;
+  }
+
 }

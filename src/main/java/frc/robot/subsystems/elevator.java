@@ -12,13 +12,14 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
+import frc.robot.Constants;
 
 public class elevator extends SubsystemBase {
   /** Creates a new elevator. */
-  private static SparkFlex motorController = new SparkFlex(10, MotorType.kBrushless);
-  private static SparkFlex leftMotorController = new SparkFlex(11, MotorType.kBrushless);
-  private static SparkFlex spinMotorRight = new SparkFlex(14, MotorType.kBrushless);
-  private static SparkFlex spinMotorLeft = new SparkFlex(15, MotorType.kBrushless);
+  private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
+  private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
+  private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
+  private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
   private static DigitalInput upLimit = new DigitalInput(0); // limit switches
   private static DigitalInput downLimit = new DigitalInput(1);

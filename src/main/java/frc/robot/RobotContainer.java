@@ -32,6 +32,7 @@ import frc.robot.commands.ClawWrist;
 import frc.robot.commands.Rollers;
 import frc.robot.commands.SpinForward;
 import frc.robot.subsystems.ClawIntake;
+import frc.robot.commands.Climb;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -44,6 +45,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.Climber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -57,6 +59,7 @@ public class RobotContainer {
   private final Vision vision;
   private final elevator elevator = new elevator();
   private final ClawIntake clawIntake = new ClawIntake();
+  private final Climber climber = new Climber();
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
@@ -68,6 +71,7 @@ public class RobotContainer {
   private final Trigger leftBack = new Trigger(null);
   private final Trigger rightBackTop = new Trigger(null);
   private final Trigger leftBackTop = new Trigger(null);
+  private final Trigger startButton = new Trigger(null);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -181,7 +185,8 @@ public class RobotContainer {
     juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton)); //forward roll
     juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton)); //back roll
     juliet.rightTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist forward
-    juliet.leftTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop));
+    juliet.leftTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist backwards
+    juliet.start().whileTrue(new Climb(juliet, climber, startButton)); //climber
   }
 
   /**

@@ -9,17 +9,21 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import frc.robot.Constants;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
-  private static SparkFlex pusher = new SparkFlex(16, MotorType.kBrushless);
+  private static SparkFlex pusher = new SparkFlex(Constants.climberConstants.climberCANID, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
 
   public Climber() {
     pusher.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
   }
-  public void climberClimb() {
+  public void climberClimb(boolean go) {
+    if(go){ 
+      pusher.set(.1);}
+      else{pusher.set(0);}
   }
 
   @Override

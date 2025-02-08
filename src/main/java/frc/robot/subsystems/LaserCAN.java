@@ -9,7 +9,7 @@ public class LaserCAN extends TimedRobot {
 
   @Override
   public void robotInit() {
-    laser = new LaserCan(0);
+    laser = new LaserCan(9);
     // Optionally initialise the settings of the LaserCAN, if you haven't already done so in
     // GrappleHook
     try {

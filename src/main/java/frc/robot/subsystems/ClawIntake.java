@@ -9,11 +9,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import au.grapplerobotics.LaserCan;
+import frc.robot.Constants;
 
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
-  public static SparkFlex roller = new SparkFlex(12, MotorType.kBrushless);
-  public static SparkFlex wrist = new SparkFlex(13, MotorType.kBrushless);
+  public static SparkFlex roller = new SparkFlex(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushless);
+  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  public static LaserCan laser = new LaserCan(9);
   private static SparkFlexConfig config = new SparkFlexConfig();
 
   public ClawIntake() {
@@ -46,5 +49,6 @@ public class ClawIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    
   }
 }
