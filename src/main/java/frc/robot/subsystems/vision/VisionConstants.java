@@ -20,9 +20,20 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
+
+  // Vision feature enable flags
+  // TRUE - vision subsystem will send its best field relative robot
+  //        pose estimate to the Drive subsystems pose estimator
+  // FALSE - No vison based pose estimates provided, Use for lab testing without field
+  public static final boolean submitVisonObsToDrivePoseEstimate = false;
+
   // AprilTag layout
   public static AprilTagFieldLayout aprilTagLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+  // TODO Define custom school field tag setup... and a way to switch??
+
+  public static final int INVALID_APRIL_TAG = -1;
 
   // Camera names, must match names configured on coprocessor
   public static String leftChassisApriltag = "leftChassisApriltag";
