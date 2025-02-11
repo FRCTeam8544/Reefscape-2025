@@ -14,17 +14,17 @@ package frc.robot;
 
 public final class GameConstants {
 
-    // BLUE Alliance
-    public static final int[] blueReefAprilTagIDs = { 17,18,19,20,21,22 };
+  // BLUE Alliance
+  public static final int[] blueReefAprilTagIDs = {17, 18, 19, 20, 21, 22};
 
-    public static final int[] blueCoralStationAprilTagIDs = {12, 13};
+  public static final int[] blueCoralStationAprilTagIDs = {12, 13};
 
-    public static final int   blueAlgaeProcessorAprilTagID = 3;
-    
-    // RED Alliance
-    public static final int[] redReefAprilTagsIDs = { 6,7,8,9,10,11 };
+  public static final int blueAlgaeProcessorAprilTagID = 3;
 
-    public static final int[] readCoralStationAprilTagIDs = { 1, 2};
+  // RED Alliance
+  public static final int[] redReefAprilTagsIDs = {6, 7, 8, 9, 10, 11};
 
-    public static final int   redAlgaeProcessorAprilTagID = 16;
+  public static final int[] readCoralStationAprilTagIDs = {1, 2};
+
+  public static final int redAlgaeProcessorAprilTagID = 16;
 }
