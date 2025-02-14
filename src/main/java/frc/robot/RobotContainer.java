@@ -30,7 +30,7 @@ import frc.robot.commands.elevatorUp;
 import frc.robot.commands.elevatorDown;
 import frc.robot.commands.ClawWrist;
 import frc.robot.commands.Rollers;
-import frc.robot.commands.SpinForward;
+import frc.robot.commands.SpinElbow;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.commands.Climb;
 import frc.robot.subsystems.drive.Drive;
@@ -184,8 +184,8 @@ public class RobotContainer {
     juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack)); //spin back claw
     juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton)); //forward roll
     juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton)); //back roll
-    juliet.rightTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist forward
-    juliet.leftTrigger().whileTrue(new SpinForward(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist backwards
+    juliet.rightTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist forward
+    juliet.leftTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist backwards
     juliet.start().whileTrue(new Climb(juliet, climber, startButton)); //climber
   }
 

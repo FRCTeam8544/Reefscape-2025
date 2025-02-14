@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SpinForward extends Command {
+public class SpinElbow extends Command {
   /** Creates a new SpinForward. */
   elevator climber;
   CommandXboxController juliet;
   Trigger rightBackTop = juliet.rightTrigger();
   Trigger leftBackTop = juliet.leftTrigger();
 
-  public SpinForward(elevator climber, CommandXboxController juliet, Trigger rightBackTop, Trigger leftBackTop) {
+  public SpinElbow(elevator climber, CommandXboxController juliet, Trigger rightBackTop, Trigger leftBackTop) {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 

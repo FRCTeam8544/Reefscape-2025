@@ -5,25 +5,30 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
-  private static SparkFlex pusher = new SparkFlex(Constants.climberConstants.climberCANID, MotorType.kBrushless);
-  private static SparkFlexConfig config = new SparkFlexConfig();
+  private static SparkMax pusherRight = new SparkMax(Constants.climberConstants.climberCANID, MotorType.kBrushless);
+  private static SparkMax pusherLeft = new SparkMax(Constants.climberConstants.climber2CANID, MotorType.kBrushless);
+  private static SparkMaxConfig config = new SparkMaxConfig();
 
   public Climber() {
-    pusher.configure(config, null, null);
+    pusherRight.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
+
+    pusherLeft.configure(config, null, null);
+    config.idleMode(IdleMode.kBrake);
+    config.follow(Constants.climberConstants.climberCANID, true);
   }
   public void climberClimb(boolean go) {
     if(go){ 
-      pusher.set(.1);}
-      else{pusher.set(0);}
+      pusherRight.set(.1);}
+      else{pusherRight.set(0);}
   }
 
   @Override

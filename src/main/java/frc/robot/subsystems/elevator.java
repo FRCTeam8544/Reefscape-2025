@@ -23,8 +23,8 @@ public class elevator extends SubsystemBase {
   private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
   private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
-  private static DigitalInput upLimit = new DigitalInput(0); // limit switches
-  private static DigitalInput downLimit = new DigitalInput(1);
+  private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
+  private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
   public double positionFactor = motorController.configAccessor.encoder.getPositionConversionFactor();
   public double velocityFactor = motorController.configAccessor.encoder.getVelocityConversionFactor();
   public double leftPostitionFactor = leftMotorController.configAccessor.encoder.getPositionConversionFactor();
@@ -56,6 +56,7 @@ public class elevator extends SubsystemBase {
 
     spinMotorLeft.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
+    config.follow(Constants.elevatorConstants.rightElbowCANID, true);
   }
 
   @Override

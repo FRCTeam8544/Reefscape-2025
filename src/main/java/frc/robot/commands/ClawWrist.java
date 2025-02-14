@@ -24,15 +24,15 @@ public class ClawWrist extends Command {
   public void initialize() { // Called when the command is initially scheduled.
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+  // Called every time the scheduler runs while the command is scheduled. 
   @Override
   public void execute() {
-    if(rightBack.getAsBoolean()){
+    if(rightBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()){
       clawIntake.wristTurn(true);}
       else{ClawIntake.wrist.set(0);}
 
-    if(leftBack.getAsBoolean()){
-      clawIntake.wristTurn(false);}
+    if(leftBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()){
+      clawIntake.wristTurnBack(true);}
       else{ClawIntake.wrist.set(0);}
   }
 
