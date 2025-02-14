@@ -34,20 +34,33 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
-  //laserCAN id is 9 + where you set pids
-  public static final class elevatorConstants{
-    public static final int rightElevatorCANID = 10;
-    public static final int leftElevatorCANID = 11;
-    public static final int rightElbowCANID = 12;
-    public static final int leftElbowCANID = 13;
 
+  /*THESE CLASSES ARE WHERE YOU SET PIDS
+  CAN ID guide!! 
+  rio is 0
+  drive 1-9
+  elevator 10-19
+  intake 20-29
+  climber 31-39
+  misc 60-63
+  */
+
+  public static final class elevatorConstants{
+    public static final int rightElbowCANID = 10;
+    public static final int leftElbowCANID = 11;
+    public static final int rightElevatorCANID = 12;
+    public static final int leftElevatorCANID = 13;
   }
-  public static final class clawIntakeConstants{
-    public static final int rollerCANID = 14;
-    public static final int wristCANID = 15;
+  public static final class clawIntakeConstants{ 
+    public static final int rollerCANID = 20;
+    public static final int roller2CANID = 21;
+    public static final int wristCANID = 22;
+    public static final int laserCANID = 23;
+    public static final int laser2CANID = 24;
   }
   public static final class climberConstants{
-    public static final int climberCANID = 16;
+    public static final int climberCANID = 31;
+    public static final int climber2CANID = 32;
   }
 
 }

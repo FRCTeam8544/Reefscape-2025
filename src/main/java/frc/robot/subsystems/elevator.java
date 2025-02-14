@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
 import frc.robot.Constants;
+import com.revrobotics.spark.SparkClosedLoopController;
 
 public class elevator extends SubsystemBase {
   /** Creates a new elevator. */
@@ -21,6 +22,7 @@ public class elevator extends SubsystemBase {
   private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
   private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
+  private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
   private static DigitalInput upLimit = new DigitalInput(0); // limit switches
   private static DigitalInput downLimit = new DigitalInput(1);
   public double positionFactor = motorController.configAccessor.encoder.getPositionConversionFactor();
@@ -42,6 +44,7 @@ public class elevator extends SubsystemBase {
   public elevator() {
     leftMotorController.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
+    config.follow(motorController);
 
     motorController.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
