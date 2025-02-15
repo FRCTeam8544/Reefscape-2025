@@ -26,7 +26,10 @@ public class elevator extends SubsystemBase {
       new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
   private static SparkFlex spinMotorLeft =
       new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
-  private static SparkFlexConfig config = new SparkFlexConfig();
+  private static SparkFlexConfig motorConfig = new SparkFlexConfig();
+  private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
+  private static SparkFlexConfig spinConfig = new SparkFlexConfig();
+  private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
   // private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
   private static DigitalInput upLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
@@ -53,21 +56,21 @@ public class elevator extends SubsystemBase {
       };
 
   public elevator() {
-    leftMotorController.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
-    config.follow(motorController);
+    motorConfig.idleMode(IdleMode.kBrake);
+    motorController.configure(motorConfig, null, null);
 
-    motorController.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
+    leftMotorConfig.idleMode(IdleMode.kBrake);
+    leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
+    leftMotorController.configure(leftMotorConfig, null, null);
   }
 
   public void spin() {
-    spinMotorRight.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
+    spinConfig.idleMode(IdleMode.kBrake);
+    spinMotorRight.configure(spinConfig, null, null);
 
-    spinMotorLeft.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
-    config.follow(Constants.elevatorConstants.rightElbowCANID, true);
+    leftSpinConfig.idleMode(IdleMode.kBrake);
+    leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID, true);
+    spinMotorLeft.configure(leftSpinConfig, null, null);
   }
 
   @Override
@@ -88,37 +91,36 @@ public class elevator extends SubsystemBase {
 
   public void elevatorMove(boolean up) {
     if (!upStopHit && up) {
-      motorController.set(.2);
-      leftMotorController.set(.2);
+      motorController.set(.1);
     }
 
-    if (!downStopHit && !up) {
-      motorController.set(-.2);
-      leftMotorController.set(-.2);
-    }
-
-    if (upStopHit || downStopHit) {
+    if (upStopHit || !up) {
       motorController.set(0);
-      leftMotorController.set(0);
+    }
+  }
+
+  public void elevatorLow(boolean down) {
+    if (!downStopHit && down) {
+      motorController.set(-.1);
+    }
+
+    if (downStopHit || !down) {
+      motorController.set(0);
     }
   }
 
   public static void spinElbowForward(boolean go) {
     if (go) {
-      spinMotorLeft.set(.2);
       spinMotorRight.set(.2);
     } else {
-      spinMotorLeft.set(0);
       spinMotorRight.set(0);
     }
   }
 
   public static void spinElbowBackwards(boolean execute) {
     if (execute) {
-      spinMotorLeft.set(-.2);
       spinMotorRight.set(-.2);
     } else {
-      spinMotorLeft.set(0);
       spinMotorRight.set(0);
     }
   }

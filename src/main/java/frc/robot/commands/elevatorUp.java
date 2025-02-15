@@ -13,12 +13,14 @@ import frc.robot.subsystems.elevator;
 public class elevatorUp extends Command {
   CommandXboxController juliet;
   elevator elevator;
-  Trigger yButton = juliet.y();
+  Trigger yButton;
 
   public elevatorUp(elevator elevator, CommandXboxController juliet, Trigger yButton) {
     this.elevator = elevator;
     this.juliet = juliet;
     this.yButton = yButton;
+
+    yButton = juliet.y();
   }
 
   @Override
@@ -39,9 +41,7 @@ public class elevatorUp extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (interrupted) {
-      elevator.elevatorMove(false);
-    }
+    elevator.elevatorMove(false);
   }
 
   // Returns true when the command should end.

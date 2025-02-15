@@ -15,12 +15,14 @@ public class elevatorDown extends Command {
   CommandXboxController juliet;
 
   elevator elevator;
-  Trigger aButton = juliet.a();
+  Trigger aButton;
 
   public elevatorDown(elevator elevator, CommandXboxController juliet, Trigger aButton) {
     this.elevator = elevator;
     this.juliet = juliet;
     this.aButton = aButton;
+
+    aButton = juliet.a();
   }
 
   // Called when the command is initially scheduled.
@@ -31,18 +33,16 @@ public class elevatorDown extends Command {
   @Override
   public void execute() {
     if (!elevator.downStop.getAsBoolean() && aButton.getAsBoolean()) {
-      elevator.elevatorMove(true);
+      elevator.elevatorLow(true);
     } else {
-      elevator.elevatorMove(false);
+      elevator.elevatorLow(false);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (interrupted) {
-      elevator.elevatorMove(false);
-    }
+    elevator.elevatorLow(false);
   }
 
   // Returns true when the command should end.

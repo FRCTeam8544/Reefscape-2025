@@ -25,15 +25,19 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.Climb;
+// import frc.robot.commands.Climb;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.Climber;
+// import frc.robot.subsystems.Climber;
+import frc.robot.commands.elevatorDown;
+import frc.robot.commands.elevatorUp;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.elevator;
+// import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -50,21 +54,21 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  // private final elevator elevator = new elevator();
+  private final elevator elevator = new elevator();
   // private final ClawIntake clawIntake = new ClawIntake();
-  private final Climber climber = new Climber();
+  // private final Climber climber = new Climber();
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
-  // private final Trigger aButton = new Trigger(juliet.a());
+  private final Trigger aButton = new Trigger(juliet.a());
   // private final Trigger bButton = new Trigger(juliet.b());
-  // private final Trigger yButton = new Trigger(juliet.y());
+  private final Trigger yButton = new Trigger(juliet.y());
   // private final Trigger xButton = new Trigger(juliet.x());
   // private final Trigger rightBack = new Trigger(juliet.rightBumper());
   // private final Trigger leftBack = new Trigger(juliet.leftBumper());
   // private final Trigger rightBackTop = new Trigger(juliet.rightTrigger());
   // private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
-  private final Trigger startButton = new Trigger(juliet.start());
+  // private final Trigger startButton = new Trigger(juliet.start());
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -171,8 +175,8 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    // juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
-    // juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
+    juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
+    juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
     // juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack)); // spin forward
     // claw
     // juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack)); // spin back claw
@@ -182,7 +186,7 @@ public class RobotContainer {
     // // elevator wrist forward
     // juliet.leftTrigger().onTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); //
     // elevator wrist backwards
-    juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
+    // juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
   }
 
   /**
