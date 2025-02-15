@@ -13,8 +13,8 @@ import frc.robot.subsystems.elevator;
 public class SpinElbow extends Command {
   elevator climber;
   CommandXboxController juliet;
-  Trigger rightBackTop = juliet.rightTrigger();
-  Trigger leftBackTop = juliet.leftTrigger();
+  Trigger rightBackTop;
+  Trigger leftBackTop;
 
   public SpinElbow(
       elevator climber, CommandXboxController juliet, Trigger rightBackTop, Trigger leftBackTop) {
@@ -22,6 +22,9 @@ public class SpinElbow extends Command {
     this.juliet = juliet;
     this.rightBackTop = rightBackTop;
     this.leftBackTop = leftBackTop;
+
+    rightBackTop = juliet.rightTrigger();
+    leftBackTop = juliet.leftTrigger();
   }
 
   @Override

@@ -13,8 +13,8 @@ import frc.robot.subsystems.ClawIntake;
 public class ClawWrist extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
-  Trigger rightBack = juliet.rightBumper();
-  Trigger leftBack = juliet.leftBumper();
+  Trigger rightBack;
+  Trigger leftBack;
 
   public ClawWrist(
       ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack, Trigger leftBack) {
@@ -22,6 +22,9 @@ public class ClawWrist extends Command {
     this.juliet = juliet;
     this.rightBack = rightBack;
     this.leftBack = leftBack;
+
+    leftBack = juliet.leftBumper();
+    rightBack = juliet.rightBumper();
   }
 
   @Override

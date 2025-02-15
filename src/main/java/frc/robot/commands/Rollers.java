@@ -13,13 +13,16 @@ import frc.robot.subsystems.ClawIntake;
 public class Rollers extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
-  Trigger xButton = juliet.x();
-  Trigger bButton = juliet.b();
+  Trigger xButton;
+  Trigger bButton;
 
   public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
     this.xButton = xButton;
+
+    xButton = juliet.x();
+    bButton = juliet.b();
   }
 
   @Override
