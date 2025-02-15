@@ -50,8 +50,8 @@ public final class Constants {
     public static final int leftElbowCANID = 11;
     public static final int rightElevatorCANID = 12;
     public static final int leftElevatorCANID = 13;
-    public static final int limitSwitchPort = 0;
-    public static final int limitSwitch2Port = 1;
+    public static final int limitSwitchPort = 4;
+    public static final int limitSwitch2Port = 3;
   }
 
   public static final class clawIntakeConstants {
@@ -60,8 +60,8 @@ public final class Constants {
     public static final int wristCANID = 22;
     public static final int laserCANID = 23;
     public static final int laser2CANID = 24;
-    public static final int wristLimitPort = 3;
-    public static final int laserCANPort = 4;
+    public static final int wristLimitPort = 0;
+    public static final int laserCANPort = 1;
   }
 
   public static final class climberConstants {

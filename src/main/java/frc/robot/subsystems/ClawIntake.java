@@ -8,7 +8,10 @@ import au.grapplerobotics.LaserCan;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,17 +20,14 @@ import java.util.function.BooleanSupplier;
 
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
-  public static SparkMax rollerRight =
-      new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
-
-  public static SparkMax rollerLeft =
-      new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
-  public static SparkFlex wrist =
-      new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+  public static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   public static LaserCan laser = new LaserCan(Constants.clawIntakeConstants.laserCANID);
-  private static SparkMaxConfig config = new SparkMaxConfig();
-  private static DigitalInput limit =
-      new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
+  private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
+  private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
+  private static SparkFlexConfig wristConfig = new SparkFlexConfig();
+  private static DigitalInput limit = new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
   public boolean wristStopHit;
 
   public BooleanSupplier wristStop =
@@ -36,15 +36,15 @@ public class ClawIntake extends SubsystemBase {
       };
 
   public ClawIntake() {
-    rollerRight.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
+    rollerConfigR.idleMode(IdleMode.kBrake);
+    rollerRight.configure(rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    rollerLeft.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
-    config.follow(Constants.clawIntakeConstants.rollerCANID, true);
+    rollerConfigL.idleMode(IdleMode.kBrake);
+    rollerConfigL.follow(Constants.clawIntakeConstants.rollerCANID, true);
+    rollerLeft.configure(rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    wrist.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
+    wristConfig.idleMode(IdleMode.kBrake);
+    wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void rollerRoll(boolean go) {

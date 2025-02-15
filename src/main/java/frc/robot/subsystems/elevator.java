@@ -5,44 +5,30 @@
 package frc.robot.subsystems;
 
 // import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
 
 public class elevator extends SubsystemBase {
   /** Creates a new elevator. */
-  private static SparkFlex motorController =
-      new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
-
-  private static SparkFlex leftMotorController =
-      new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
-  private static SparkFlex spinMotorRight =
-      new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
-  private static SparkFlex spinMotorLeft =
-      new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
+  private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
+  private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
+  private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
+  private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
   // private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
-  private static DigitalInput upLimit =
-      new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
-  private static DigitalInput downLimit =
-      new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
-  public double positionFactor =
-      motorController.configAccessor.encoder.getPositionConversionFactor();
-  public double velocityFactor =
-      motorController.configAccessor.encoder.getVelocityConversionFactor();
-  public double leftPostitionFactor =
-      leftMotorController.configAccessor.encoder.getPositionConversionFactor();
-  public double leftVelocityFactor =
-      leftMotorController.configAccessor.encoder.getVelocityConversionFactor();
+  private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
+  private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
   public boolean upStopHit;
   public boolean downStopHit;
 
@@ -57,20 +43,24 @@ public class elevator extends SubsystemBase {
 
   public elevator() {
     motorConfig.idleMode(IdleMode.kBrake);
-    motorController.configure(motorConfig, null, null);
+    motorController.configure(
+        motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     leftMotorConfig.idleMode(IdleMode.kBrake);
     leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
-    leftMotorController.configure(leftMotorConfig, null, null);
+    leftMotorController.configure(
+        leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void spin() {
     spinConfig.idleMode(IdleMode.kBrake);
-    spinMotorRight.configure(spinConfig, null, null);
+    spinMotorRight.configure(
+        spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     leftSpinConfig.idleMode(IdleMode.kBrake);
     leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID, true);
-    spinMotorLeft.configure(leftSpinConfig, null, null);
+    spinMotorLeft.configure(
+        leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -123,11 +113,5 @@ public class elevator extends SubsystemBase {
     } else {
       spinMotorRight.set(0);
     }
-  }
-
-  public void updateDashboard() {
-    SmartDashboard.putNumber("left elevator velocity", leftVelocityFactor);
-    SmartDashboard.putNumber("right elevator velocity", velocityFactor);
-    SmartDashboard.putNumber("elevator position", positionFactor);
   }
 }

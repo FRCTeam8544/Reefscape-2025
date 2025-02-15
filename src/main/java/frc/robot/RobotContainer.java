@@ -177,12 +177,12 @@ public class RobotContainer {
                 .ignoringDisable(true));
     juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
-    // juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack)); // spin forward
+    // juliet.rightBumper().onTrue(new ClawWrist(clawIntake, juliet, rightBack)); // spin forward
     // claw
-    // juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack)); // spin back claw
-    // juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton)); // forward roll
-    // juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton)); // back roll
-    // juliet.rightTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop));
+    // juliet.leftBumper().onTrue(new ClawWrist(clawIntake, juliet, leftBack)); // spin back claw
+    // juliet.x().onTrue(new Rollers(clawIntake, juliet, xButton)); // forward roll
+    // juliet.b().onTrue(new Rollers(clawIntake, juliet, bButton)); // back roll
+    // juliet.rightTrigger().onTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop));
     // // elevator wrist forward
     // juliet.leftTrigger().onTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); //
     // elevator wrist backwards
