@@ -58,7 +58,7 @@ public final class Constants {
     public static final int rollerCANID = 20;
     public static final int roller2CANID = 21;
     public static final int wristCANID = 22;
-    public static final int laserCANID = 23;
+    public static final int laser1CANID = 23;
     public static final int laser2CANID = 24;
     public static final int wristLimitPort = 0;
     public static final int laserCANPort = 1;
