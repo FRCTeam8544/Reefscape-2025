@@ -17,30 +17,37 @@ public class Rollers extends Command {
   Trigger bButton = juliet.b();
 
   public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    this.clawIntake = clawIntake;
+    this.juliet = juliet;
+    this.xButton = xButton;
   }
 
   @Override
   public void initialize() { // Called when the command is initially scheduled.
-    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(xButton.getAsBoolean()){
-      clawIntake.rollerRoll(true);}
-      else{clawIntake.rollerRoll(false);}
+    if (xButton.getAsBoolean()) {
+      clawIntake.rollerRoll(true);
+    } else {
+      clawIntake.rollerRoll(false);
+    }
 
-    if(bButton.getAsBoolean()){
-      clawIntake.rollerRollBack(true);}
-    else{clawIntake.rollerRollBack(false);}
+    if (bButton.getAsBoolean()) {
+      clawIntake.rollerRollBack(true);
+    } else {
+      clawIntake.rollerRollBack(false);
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if(interrupted){
-      clawIntake.rollerRoll(interrupted);}
+    if (interrupted) {
+      clawIntake.rollerRoll(interrupted);
+    }
   }
 
   // Returns true when the command should end.

@@ -36,7 +36,7 @@ public final class Constants {
   }
 
   /*THESE CLASSES ARE WHERE YOU SET PIDS
-  CAN ID guide!! 
+  CAN ID guide!!
   rio is 0
   drive 1-9
   elevator 10-19
@@ -45,7 +45,7 @@ public final class Constants {
   misc 60-63
   */
 
-  public static final class elevatorConstants{
+  public static final class elevatorConstants {
     public static final int rightElbowCANID = 10;
     public static final int leftElbowCANID = 11;
     public static final int rightElevatorCANID = 12;
@@ -53,7 +53,8 @@ public final class Constants {
     public static final int limitSwitchPort = 0;
     public static final int limitSwitch2Port = 1;
   }
-  public static final class clawIntakeConstants{ 
+
+  public static final class clawIntakeConstants {
     public static final int rollerCANID = 20;
     public static final int roller2CANID = 21;
     public static final int wristCANID = 22;
@@ -62,9 +63,9 @@ public final class Constants {
     public static final int wristLimitPort = 3;
     public static final int laserCANPort = 4;
   }
-  public static final class climberConstants{
+
+  public static final class climberConstants {
     public static final int climberCANID = 31;
     public static final int climber2CANID = 32;
   }
-
 }

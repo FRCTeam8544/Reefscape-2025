@@ -5,8 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Climber;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -16,7 +16,9 @@ public class Climb extends Command {
   Trigger startButton = juliet.start();
 
   public Climb(CommandXboxController juliet, Climber climber, Trigger startButton) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    this.juliet = juliet;
+    this.climber = climber;
+    this.startButton = startButton;
   }
 
   // Called when the command is initially scheduled.
@@ -26,9 +28,11 @@ public class Climb extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(startButton.getAsBoolean()){
-      climber.climberClimb(true);}
-      else{climber.climberClimb(false);}
+    if (startButton.getAsBoolean()) {
+      climber.climberClimb(true);
+    } else {
+      climber.climberClimb(false);
+    }
   }
 
   // Called once the command ends or is interrupted.

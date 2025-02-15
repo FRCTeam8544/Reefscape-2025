@@ -4,17 +4,16 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
+import au.grapplerobotics.LaserCan;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import au.grapplerobotics.LaserCan;
-import edu.wpi.first.wpilibj.DigitalInput;
+import java.util.function.BooleanSupplier;
 
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
@@ -34,7 +33,7 @@ public class ClawIntake extends SubsystemBase {
   public ClawIntake() {
     rollerRight.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
-    
+
     rollerLeft.configure(config, null, null);
     config.idleMode(IdleMode.kBrake);
     config.follow(Constants.clawIntakeConstants.rollerCANID, true);
@@ -44,28 +43,43 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public void rollerRoll(boolean go) {
-  if(go){rollerRight.set(.5);}
-  else{rollerRight.set(0);}
+    if (go) {
+      rollerRight.set(.5);
+    } else {
+      rollerRight.set(0);
+    }
   }
 
-  public void rollerRollBack(boolean roll){
-    if(roll){rollerRight.set(-.5);}
-    else{rollerRight.set(0);}
+  public void rollerRollBack(boolean roll) {
+    if (roll) {
+      rollerRight.set(-.5);
+    } else {
+      rollerRight.set(0);
+    }
   }
 
-  public void wristTurn(boolean forward){ 
-    if(forward && !wristStopHit)wrist.set(.1);
-  else{wrist.set(0);}}
+  public void wristTurn(boolean forward) {
+    if (forward && !wristStopHit) wrist.set(.1);
+    else {
+      wrist.set(0);
+    }
+  }
 
-  public void wristTurnBack(boolean backwards){
-    if(backwards && !wristStopHit){wrist.set(-.1);}
-    else{wrist.set(0);}
+  public void wristTurnBack(boolean backwards) {
+    if (backwards && !wristStopHit) {
+      wrist.set(-.1);
+    } else {
+      wrist.set(0);
+    }
   }
 
   @Override
   public void periodic() {
-    if (wristStop.getAsBoolean()) {wristStopHit = true;} 
-    else {wristStopHit = false;}
+    if (wristStop.getAsBoolean()) {
+      wristStopHit = true;
+    } else {
+      wristStopHit = false;
+    }
     // This method will be called once per scheduler run
   }
 }

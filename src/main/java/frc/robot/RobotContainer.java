@@ -25,14 +25,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
-import frc.robot.commands.elevatorUp;
-import frc.robot.commands.elevatorDown;
-import frc.robot.commands.ClawWrist;
-import frc.robot.commands.Rollers;
-import frc.robot.commands.SpinElbow;
-import frc.robot.subsystems.ClawIntake;
 import frc.robot.commands.Climb;
+import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.ClawIntake;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -45,7 +41,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import frc.robot.subsystems.Climber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -63,15 +58,15 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
-  private final Trigger aButton = new Trigger(null);
-  private final Trigger bButton = new Trigger(null);
-  private final Trigger yButton = new Trigger(null);
-  private final Trigger xButton = new Trigger(null);
-  private final Trigger rightBack = new Trigger(null);
-  private final Trigger leftBack = new Trigger(null);
-  private final Trigger rightBackTop = new Trigger(null);
-  private final Trigger leftBackTop = new Trigger(null);
-  private final Trigger startButton = new Trigger(null);
+  private final Trigger aButton = new Trigger(juliet.a());
+  private final Trigger bButton = new Trigger(juliet.b());
+  private final Trigger yButton = new Trigger(juliet.y());
+  private final Trigger xButton = new Trigger(juliet.x());
+  private final Trigger rightBack = new Trigger(juliet.rightBumper());
+  private final Trigger leftBack = new Trigger(juliet.leftBumper());
+  private final Trigger rightBackTop = new Trigger(juliet.rightTrigger());
+  private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
+  private final Trigger startButton = new Trigger(juliet.start());
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -178,15 +173,18 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); //elevator up
-    juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); //elevator down
-    juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack)); //spin forward claw
-    juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack)); //spin back claw
-    juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton)); //forward roll
-    juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton)); //back roll
-    juliet.rightTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist forward
-    juliet.leftTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); //elevator wrist backwards
-    juliet.start().whileTrue(new Climb(juliet, climber, startButton)); //climber
+    // juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
+    // juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
+    // juliet.rightBumper().whileTrue(new ClawWrist(clawIntake, juliet, rightBack)); // spin forward
+    // claw
+    // juliet.leftBumper().whileTrue(new ClawWrist(clawIntake, juliet, leftBack)); // spin back claw
+    // juliet.x().whileTrue(new Rollers(clawIntake, juliet, xButton)); // forward roll
+    // juliet.b().whileTrue(new Rollers(clawIntake, juliet, bButton)); // back roll
+    // juliet.rightTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop));
+    // // elevator wrist forward
+    // juliet.leftTrigger().whileTrue(new SpinElbow(elevator, juliet, rightBackTop, leftBackTop));
+    // // elevator wrist backwards
+    juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
   }
 
   /**
