@@ -16,11 +16,12 @@ public class ClawWrist extends Command {
   Trigger rightBack = juliet.rightBumper();
   Trigger leftBack = juliet.leftBumper();
 
-  public ClawWrist(ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack, Trigger leftBack) {
-   this.clawIntake = clawIntake;
-   this.juliet = juliet;
-   this.rightBack = rightBack;
-   this.leftBack = leftBack;
+  public ClawWrist(
+      ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack, Trigger leftBack) {
+    this.clawIntake = clawIntake;
+    this.juliet = juliet;
+    this.rightBack = rightBack;
+    this.leftBack = leftBack;
   }
 
   @Override

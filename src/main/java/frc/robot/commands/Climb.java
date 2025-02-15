@@ -13,12 +13,14 @@ import frc.robot.subsystems.Climber;
 public class Climb extends Command {
   CommandXboxController juliet;
   Climber climber;
-  Trigger startButton = juliet.start();
+  Trigger startButton;
 
   public Climb(CommandXboxController juliet, Climber climber, Trigger startButton) {
     this.juliet = juliet;
     this.climber = climber;
     this.startButton = startButton;
+
+    startButton = juliet.start();
   }
 
   // Called when the command is initially scheduled.

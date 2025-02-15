@@ -17,12 +17,17 @@ import java.util.function.BooleanSupplier;
 
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
-  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushless);
-  public static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushless);
-  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  public static SparkMax rollerRight =
+      new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+
+  public static SparkMax rollerLeft =
+      new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  public static SparkFlex wrist =
+      new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   public static LaserCan laser = new LaserCan(Constants.clawIntakeConstants.laserCANID);
   private static SparkMaxConfig config = new SparkMaxConfig();
-  private static DigitalInput limit = new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
+  private static DigitalInput limit =
+      new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
   public boolean wristStopHit;
 
   public BooleanSupplier wristStop =

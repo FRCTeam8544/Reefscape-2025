@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -13,20 +15,23 @@ import frc.robot.Constants;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
-  private static SparkMax pusherRight =
+  public static SparkMax pusherRight =
       new SparkMax(Constants.climberConstants.climberCANID, MotorType.kBrushless);
 
-  private static SparkMax pusherLeft =
+  public static SparkMax pusherLeft =
       new SparkMax(Constants.climberConstants.climber2CANID, MotorType.kBrushless);
-  private static SparkMaxConfig config = new SparkMaxConfig();
+  private static SparkMaxConfig rightConfig = new SparkMaxConfig();
+  private static SparkMaxConfig leftConfig = new SparkMaxConfig();
 
   public Climber() {
-    pusherRight.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
+    rightConfig.idleMode(IdleMode.kBrake);
+    pusherRight.configure(
+        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    pusherLeft.configure(config, null, null);
-    config.idleMode(IdleMode.kBrake);
-    config.follow(Constants.climberConstants.climberCANID, true);
+    leftConfig.follow(31, true);
+    leftConfig.idleMode(IdleMode.kBrake);
+    pusherLeft.configure(
+        leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void climberClimb(boolean go) {

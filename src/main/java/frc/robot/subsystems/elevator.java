@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-//import com.revrobotics.spark.SparkClosedLoopController;
+// import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -27,7 +27,7 @@ public class elevator extends SubsystemBase {
   private static SparkFlex spinMotorLeft =
       new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static SparkFlexConfig config = new SparkFlexConfig();
-  //private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
+  // private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
   private static DigitalInput upLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
   private static DigitalInput downLimit =
