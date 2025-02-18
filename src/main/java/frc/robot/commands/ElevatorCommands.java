@@ -36,8 +36,8 @@ public class ElevatorCommands extends Command {
               linearVelocity.getY(); // * elevator.getMaxLinearSpeedMetersPerSec();
 
           // TODO tie elevator and wrist into one joystick?
-          elevator.runElevatorVelocity(elevatorVelocity);
-          elevator.runWristVelocity(wristVelocity);
+        //  elevator.runElevatorVelocity(elevatorVelocity);
+         // elevator.runWristVelocity(wristVelocity);
         },
         elevator);
   }
