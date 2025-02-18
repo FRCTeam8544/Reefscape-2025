@@ -5,30 +5,56 @@
 package frc.robot.subsystems;
 
 import au.grapplerobotics.LaserCan;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.LaserCAN;
+import frc.robot.subsystems.LaserCANIO;
+import frc.robot.subsystems.LaserCANIO.FieldOfView;
+import frc.robot.subsystems.LaserCANIOInputsAutoLogged;
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 public class ClawIntake extends SubsystemBase {
+
+
+  
+  // Initialize inputs
+  
   /** Creates a new ClawIntake. */
-  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
-  public static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
-  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  public static SparkMax rollerRight =
+      new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+
+  public static SparkMax rollerLeft =
+      new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  public static SparkFlex wrist =
+      new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   public static LaserCan laser = new LaserCan(Constants.clawIntakeConstants.laser1CANID);
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
-  private static DigitalInput limit = new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
+  private static DigitalInput limit =
+      new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
   public boolean wristStopHit;
+
+  // Laser beams!!
+  private boolean coralAcquired;
+  private LaserCANIOInputsAutoLogged laserInputs;
+  //private Alert[] disconnectedAlerts;
+  private static LaserCANIO seabass;
+
 
   public BooleanSupplier wristStop =
       () -> {
@@ -36,28 +62,40 @@ public class ClawIntake extends SubsystemBase {
       };
 
   public ClawIntake() {
+
+    this.coralAcquired = false;
+    
+    this.laserInputs = new LaserCANIOInputsAutoLogged();
+
     rollerConfigR.idleMode(IdleMode.kBrake);
-    rollerRight.configure(rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollerRight.configure(
+        rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     rollerConfigL.idleMode(IdleMode.kBrake);
     rollerConfigL.follow(Constants.clawIntakeConstants.rollerCANID, true);
-    rollerLeft.configure(rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollerLeft.configure(
+        rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     wristConfig.idleMode(IdleMode.kBrake);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    seabass = new LaserCAN("CoralIntake", 
+                              Constants.clawIntakeConstants.laser1CANID,
+                               FieldOfView.NARROW_4_BY_4);
+
   }
 
   public void rollerRoll(boolean go) {
-    if (go) {
-      rollerRight.set(.5);
+    if (go && !coralAcquired) {
+      rollerRight.set(.2);
     } else {
       rollerRight.set(0);
     }
   }
 
   public void rollerRollBack(boolean roll) {
-    if (roll) {
-      rollerRight.set(-.5);
+    if (roll ) {
+      rollerRight.set(-.2);
     } else {
       rollerRight.set(0);
     }
@@ -86,5 +124,25 @@ public class ClawIntake extends SubsystemBase {
       wristStopHit = false;
     }
     // This method will be called once per scheduler run
+
+    seabass.updateInputs(laserInputs);
+
+    if (laserInputs.laserConnected && 
+        laserInputs.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT)
+    {
+      coralAcquired = (laserInputs.distance_mm < 230); // About 9 inches
+    }
+    else
+    {
+      coralAcquired = false;
+    }
+
+    // Log summary data
+    Logger.recordOutput(
+        "Laser/" + seabass.getName() + "/Measurement/connected", laserInputs.laserConnected);
+    Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/ambient", laserInputs.ambient);
+    Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/status", laserInputs.status);
+    Logger.recordOutput(
+        "Laser/" + seabass.getName() + "/Measurement/distance_mm", laserInputs.distance_mm);
   }
 }

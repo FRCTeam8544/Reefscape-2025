@@ -22,4 +22,5 @@ public interface LaserCANIO {
   public default void updateInputs(LaserCANIOInputs inputs) {}
 
   public String getName();
+
 }
