@@ -32,25 +32,17 @@ public class Rollers extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (xButton.getAsBoolean()) {
-      clawIntake.rollerRoll(true);
-    } else {
-      clawIntake.rollerRoll(false);
-    }
+    if (xButton.getAsBoolean()) {clawIntake.rollerRoll(true);} 
+    else {clawIntake.rollerRoll(false);}
 
-    if (bButton.getAsBoolean()) {
-      clawIntake.rollerRollBack(true);
-    } else {
-      clawIntake.rollerRollBack(false);
-    }
+    if (bButton.getAsBoolean()) {clawIntake.rollerRollBack(true);} 
+    else {clawIntake.rollerRollBack(false);}
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (interrupted) {
-      clawIntake.rollerRoll(interrupted);
-    }
+    if (interrupted) {clawIntake.rollerRoll(interrupted);}
   }
 
   // Returns true when the command should end.

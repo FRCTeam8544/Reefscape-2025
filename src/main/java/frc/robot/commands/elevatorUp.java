@@ -31,11 +31,8 @@ public class elevatorUp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (yButton.getAsBoolean() && !elevator.upStop.getAsBoolean()) {
-      elevator.elevatorMove(true);
-    } else {
-      elevator.elevatorMove(false);
-    }
+    if (yButton.getAsBoolean() && !elevator.upStop.getAsBoolean()) {elevator.elevatorMove(true);} 
+    else {elevator.elevatorMove(false);}
   }
 
   // Called once the command ends or is interrupted.

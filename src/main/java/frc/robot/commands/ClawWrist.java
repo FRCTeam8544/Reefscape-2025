@@ -37,23 +37,19 @@ public class ClawWrist extends Command {
     if (rightBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()) {
       clawIntake.wristTurn(true);
     } else {
-      ClawIntake.wrist.set(0);
+      clawIntake.wristTurn(false);
     }
 
     if (leftBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()) {
       clawIntake.wristTurnBack(true);
     } else {
-      ClawIntake.wrist.set(0);
+      clawIntake.wristTurnBack(false);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    if (interrupted) {
-      ClawIntake.wrist.set(0);
-    }
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
