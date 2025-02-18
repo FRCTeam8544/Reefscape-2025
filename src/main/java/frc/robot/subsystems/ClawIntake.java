@@ -5,11 +5,11 @@
 package frc.robot.subsystems;
 
 import au.grapplerobotics.LaserCan;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -47,44 +47,29 @@ public class ClawIntake extends SubsystemBase {
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+  @Override
+  public void periodic() {
+    if (wristStop.getAsBoolean()) {wristStopHit = true;} 
+    else {wristStopHit = false;}
+  }
+
   public void rollerRoll(boolean go) {
-    if (go) {
-      rollerRight.set(.5);
-    } else {
-      rollerRight.set(0);
-    }
+    if (go) {rollerRight.setVoltage(7);} //in
+    else {rollerRight.setVoltage(0);}
   }
 
   public void rollerRollBack(boolean roll) {
-    if (roll) {
-      rollerRight.set(-.5);
-    } else {
-      rollerRight.set(0);
-    }
+    if (roll) {rollerRight.setVoltage(7);} //out
+    else {rollerRight.setVoltage(0);}
   }
 
   public void wristTurn(boolean forward) {
-    if (forward && !wristStopHit) wrist.set(.1);
-    else {
-      wrist.set(0);
-    }
+    if (forward && !wristStopHit) {wrist.set(.1);} 
+    else {wrist.set(0);}
   }
 
   public void wristTurnBack(boolean backwards) {
-    if (backwards && !wristStopHit) {
-      wrist.set(-.1);
-    } else {
-      wrist.set(0);
-    }
-  }
-
-  @Override
-  public void periodic() {
-    if (wristStop.getAsBoolean()) {
-      wristStopHit = true;
-    } else {
-      wristStopHit = false;
-    }
-    // This method will be called once per scheduler run
+    if (backwards && !wristStopHit) {wrist.set(-.1);} 
+    else {wrist.set(0);}
   }
 }

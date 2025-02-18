@@ -32,11 +32,8 @@ public class elevatorDown extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!elevator.downStop.getAsBoolean() && aButton.getAsBoolean()) {
-      elevator.elevatorLow(true);
-    } else {
-      elevator.elevatorLow(false);
-    }
+    if (!elevator.downStop.getAsBoolean() && aButton.getAsBoolean()) {elevator.elevatorLow(true);} 
+    else {elevator.elevatorLow(false);}
   }
 
   // Called once the command ends or is interrupted.

@@ -26,7 +26,6 @@ public class elevator extends SubsystemBase {
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
-  // private static SparkClosedLoopController maxPid = motorController.getClosedLoopController();
   private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
   private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
   public boolean upStopHit;
@@ -43,75 +42,50 @@ public class elevator extends SubsystemBase {
 
   public elevator() {
     motorConfig.idleMode(IdleMode.kBrake);
-    motorController.configure(
-        motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    motorConfig.inverted(true);
 
     leftMotorConfig.idleMode(IdleMode.kBrake);
-    leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
-    leftMotorController.configure(
-        leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID);
+    leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
-
-  public void spin() {
-    spinConfig.idleMode(IdleMode.kBrake);
-    spinMotorRight.configure(
-        spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    leftSpinConfig.idleMode(IdleMode.kBrake);
-    leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID, true);
-    spinMotorLeft.configure(
-        leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
-
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (upStop.getAsBoolean()) {
-      upStopHit = true;
-    } else {
-      upStopHit = false;
-    }
+    if (upStop.getAsBoolean()) {upStopHit = true;} 
+    else {upStopHit = false;}
 
-    if (downStop.getAsBoolean()) {
-      downStopHit = true;
-    } else {
-      downStopHit = false;
-    }
+    if (downStop.getAsBoolean()) {downStopHit = true;} 
+      else {downStopHit = false;}
+  }
+  
+  public void spin() {
+    spinConfig.idleMode(IdleMode.kBrake);
+    spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    leftSpinConfig.idleMode(IdleMode.kBrake);
+    leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID, true);
+    spinMotorLeft.configure(leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void elevatorMove(boolean up) {
-    if (!upStopHit && up) {
-      motorController.set(.1);
-    }
-
-    if (upStopHit || !up) {
-      motorController.set(0);
-    }
+    if (!upStopHit && up) {motorController.set(.15);}
+    if (upStopHit || !up) {motorController.set(0);}
   }
 
   public void elevatorLow(boolean down) {
-    if (!downStopHit && down) {
-      motorController.set(-.1);
-    }
-
-    if (downStopHit || !down) {
-      motorController.set(0);
-    }
+    if (!downStopHit && down) {motorController.set(-.15);}
+    if (downStopHit || !down) {motorController.set(0);}
   }
 
   public static void spinElbowForward(boolean go) {
-    if (go) {
-      spinMotorRight.set(.2);
-    } else {
-      spinMotorRight.set(0);
-    }
+    if (go) {spinMotorRight.set(.2);} 
+    else {spinMotorRight.set(0);}
   }
 
   public static void spinElbowBackwards(boolean execute) {
-    if (execute) {
-      spinMotorRight.set(-.2);
-    } else {
-      spinMotorRight.set(0);
-    }
+    if (execute) {spinMotorRight.set(-.2);} 
+    else {spinMotorRight.set(0);}
   }
 }
