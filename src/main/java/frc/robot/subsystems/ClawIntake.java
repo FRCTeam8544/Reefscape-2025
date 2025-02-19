@@ -32,10 +32,9 @@ public class ClawIntake extends SubsystemBase {
                                              LaserCAN.FieldOfView.NARROW_4_BY_4);
 
   /** Creates a new ClawIntake. */
-  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
-  public static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
-  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
-  public static LaserCan laser = new LaserCan(Constants.clawIntakeConstants.laser1CANID);
+  private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+  private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
