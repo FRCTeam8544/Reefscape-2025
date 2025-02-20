@@ -4,8 +4,9 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.AbsoluteEncoder;
+// import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -19,6 +20,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
+import frc.robot.subsystems.MotorJointSparkFlex;
+import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
+import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
+
 public class elevator extends SubsystemBase {
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
@@ -31,10 +38,18 @@ public class elevator extends SubsystemBase {
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
 
-  private AbsoluteEncoder encoder;
-  private static SparkClosedLoopController pid = motorController.getClosedLoopController();
-  private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
-  private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
+  
+  final static double upSoftStopValue = Math.toRadians(0);
+  final static double downSoftStopValue = Math.toRadians(90);
+
+  private MotorJointIOInputs elevatorInputs;
+  private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(motorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
+                                                                    downSoftStopValue, upSoftStopValue);
+   
+  private static DigitalInput upLimit =
+      new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
+  private static DigitalInput downLimit =
+      new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
   public boolean upStopHit;
   public boolean downStopHit;
 
@@ -63,17 +78,42 @@ public class elevator extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (upStop.getAsBoolean()) {
-      upStopHit = true;
-    } else {
-      upStopHit = false;
-    }
 
-    if (downStop.getAsBoolean()) {
-      downStopHit = true;
-    } else {
-      downStopHit = false;
-    }
+    elevatorMotorIO.updateInputs(elevatorInputs);
+   
+    // Combine Hard limit wrist check with soft limit results:
+    // TODO hook limit switches to the spark controllers directly???
+    // What about feedback to the software to let it know that a limit has been reached?
+    upStopHit = upStop.getAsBoolean() || elevatorInputs.upperSoftLimitHit;
+
+    downStopHit = downStop.getAsBoolean() || elevatorInputs.lowerSoftLimitHit;
+
+  // Hard limits
+    // Combine Hard limit wrist check with soft limit results:
+    // TODO hook limit switches to the spark controllers directly???
+    // What about feedback to the software to let it know that a limit has been reached?
+    upStopHit = upStop.getAsBoolean() || elevatorInputs.upperSoftLimitHit;
+    downStopHit = downStop.getAsBoolean() || elevatorInputs.lowerSoftLimitHit;
+
+    //if (upStopHit || downStopHit) {
+    //  motorController.set(0.0); // Stop imediately regardless of the running command
+    //}
+
+    // Log summary data
+    Logger.recordOutput(
+        "Wrist/connected", elevatorInputs.connected);
+    Logger.recordOutput(
+        "Wrist/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
+    Logger.recordOutput(
+        "Wrist/Measurement/externalPosition", elevatorInputs.externalPosition);
+    Logger.recordOutput(
+        "Wrist/Measurement/lowerSoftLimitHit", elevatorInputs.lowerSoftLimitHit);
+    Logger.recordOutput(
+        "Wrist/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
+    Logger.recordOutput(
+        "Wrist/SetPoint/position", elevatorInputs.positionSetPoint);
+
+  
   }
 
   public void spin() {

@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Rollers extends Command {
+public class RollersForward extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
   Trigger xButton;
 
-  public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
+  public RollersForward(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
     this.xButton = xButton;
