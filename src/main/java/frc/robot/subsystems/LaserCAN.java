@@ -42,7 +42,7 @@ public class LaserCAN implements LaserCANIO {
     try {
       laser.setRangingMode(LaserCan.RangingMode.SHORT);
       laser.setRegionOfInterest(new LaserCan.RegionOfInterest(fovX, fovY, fovWidth, fovHeight));
-      laser.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+      laser.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
     } catch (ConfigurationFailedException e) {
       System.out.println(
           "LaserCAN(" + String.valueOf(canId) + ") Configuration failed for " + name + "! " + e);
@@ -50,7 +50,6 @@ public class LaserCAN implements LaserCANIO {
   }
 
   public void updateInputs(LaserCANIOInputs inputs) {
-
     LaserCan.Measurement measurement = laser.getMeasurement();
 
     if (measurement != null) {
@@ -64,8 +63,6 @@ public class LaserCAN implements LaserCANIO {
       inputs.status = LaserCan.LASERCAN_STATUS_OUT_OF_BOUNDS;
       inputs.distance_mm = 0;
     }
-
-    // TODO Add more logic to reject measurements on errors?
   }
 
   public String getName() {

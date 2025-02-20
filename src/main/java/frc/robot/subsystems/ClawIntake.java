@@ -17,17 +17,24 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
+import frc.robot.subsystems.LaserCAN;
+import frc.robot.subsystems.LaserCANIO;
+import frc.robot.subsystems.LaserCANIO.LaserCANIOInputs;
+import frc.robot.subsystems.LaserCANIOInputsAutoLogged;
+import org.littletonrobotics.junction.Logger;
 
 public class ClawIntake extends SubsystemBase {
-  /** Creates a new ClawIntake. */
-  public static SparkMax rollerRight =
-      new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
 
-  public static SparkMax rollerLeft =
-      new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
-  public static SparkFlex wrist =
-      new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
-  public static LaserCan laser = new LaserCan(Constants.clawIntakeConstants.laser1CANID);
+  private boolean coralAcquired;
+  private static LaserCANIOInputsAutoLogged laserInputs;
+  private static LaserCANIO seabass = new LaserCAN("CoralIntake",
+                                             Constants.clawIntakeConstants.laser1CANID,
+                                             LaserCAN.FieldOfView.NARROW_4_BY_4);
+
+  /** Creates a new ClawIntake. */
+  private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+  private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
@@ -41,6 +48,11 @@ public class ClawIntake extends SubsystemBase {
       };
 
   public ClawIntake() {
+    coralAcquired = false;
+
+    // Initialize inputs
+    this.laserInputs = new LaserCANIOInputsAutoLogged();
+
     rollerConfigR.idleMode(IdleMode.kBrake);
     rollerRight.configure(
         rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -56,20 +68,47 @@ public class ClawIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
+  
+  
+    // Wrist check
     if (wristStop.getAsBoolean()) {
       wristStopHit = true;
-    } else {
+    } 
+    else {
       wristStopHit = false;
     }
+
+    // Check for coral
+    checkCoralIntake();
+  }
+
+  // Determine corlal intake status
+  private void checkCoralIntake() {
+    
+    // Handle laser for coral intake
+    seabass.updateInputs(laserInputs);
+
+    if (laserInputs.laserConnected && (laserInputs.status == 0)) { // LASERCAN_STATUS_VALID_MEASUREMENT)) {
+      coralAcquired = (laserInputs.distance_mm < 240);
+    }
+    else {
+      coralAcquired = false;
+    }
+    
+    // Log summary data
+    Logger.recordOutput(
+        "Laser/" + seabass.getName() + "/Measurement/connected", laserInputs.laserConnected);
+    Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/ambient", laserInputs.ambient);
+    Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/status", laserInputs.status);
+    Logger.recordOutput(
+      "Laser/" + seabass.getName() + "/Measurement/distance_mm", laserInputs.distance_mm);
+    
   }
 
   public void rollerRoll(boolean go) {
-    if (go) {
-      rollerRight.setVoltage(7);
-    } // in
-    else {
-      rollerRight.setVoltage(0);
-    }
+    // Roll until the coral is acquired
+    if (go && !coralAcquired) {rollerRight.setVoltage(7);} //in
+    else {rollerRight.setVoltage(0);}
   }
 
   public void rollerRollBack(boolean roll) {
