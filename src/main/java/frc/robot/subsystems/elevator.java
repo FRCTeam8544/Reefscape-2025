@@ -74,7 +74,7 @@ public class elevator extends SubsystemBase {
     motorConfig.inverted(true);
 
     leftMotorConfig.idleMode(IdleMode.kBrake);
-    leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID);
+    leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
     leftMotorController.configure(
         leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -153,12 +153,12 @@ public class elevator extends SubsystemBase {
   }
 
   public static void spinElbowForward(boolean go) {
-    if (go) {spinMotorRight.set(.15);} 
+    if (go) {spinMotorRight.set(.10);} 
     else {spinMotorRight.set(0);}
   }
 
   public static void spinElbowBackwards(boolean execute) {
-    if (execute) {spinMotorRight.set(-.15);} 
+    if (execute) {spinMotorRight.set(-.10);} 
     else {spinMotorRight.set(0);}
   }
 }
