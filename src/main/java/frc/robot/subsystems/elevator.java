@@ -97,8 +97,8 @@ public class elevator extends SubsystemBase {
     // Combine Hard limit wrist check with soft limit results:
     // TODO hook limit switches to the spark controllers directly???
     // What about feedback to the software to let it know that a limit has been reached?
-    upStopHit = upStop.getAsBoolean() || elevatorInputs.upperSoftLimitHit;
-    downStopHit = downStop.getAsBoolean() || elevatorInputs.lowerSoftLimitHit;
+    upStopHit = upStop.getAsBoolean(); //|| elevatorInputs.upperSoftLimitHit;
+    downStopHit = downStop.getAsBoolean(); //|| elevatorInputs.lowerSoftLimitHit;
 
     //if (upStopHit || downStopHit) {
     //  motorController.set(0.0); // Stop imediately regardless of the running command
@@ -106,17 +106,17 @@ public class elevator extends SubsystemBase {
 
     // Log summary data
     Logger.recordOutput(
-        "Elbow/connected", elevatorInputs.connected);
+        "Elevator/connected", elevatorInputs.connected);
     Logger.recordOutput(
-        "Elbow/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
+        "Elevator/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
     Logger.recordOutput(
-        "Elbow/Measurement/externalPosition", elevatorInputs.externalPosition);
+        "Elevator/Measurement/externalPosition", elevatorInputs.externalPosition);
     Logger.recordOutput(
-        "Elbow/Measurement/lowerSoftLimitHit", elevatorInputs.lowerSoftLimitHit);
+        "Elevator/Measurement/lowerSoftLimitHit", elevatorInputs.lowerSoftLimitHit);
     Logger.recordOutput(
-        "Elbow/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
+        "Elevator/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
     Logger.recordOutput(
-        "Elbow/SetPoint/position", elevatorInputs.positionSetPoint);
+        "Elevator/SetPoint/position", elevatorInputs.positionSetPoint);
 
   
   }
