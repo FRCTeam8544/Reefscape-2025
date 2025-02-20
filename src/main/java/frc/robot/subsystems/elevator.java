@@ -41,15 +41,28 @@ public class elevator extends SubsystemBase {
   
   final static double upSoftStopValue = Math.toRadians(0);
   final static double downSoftStopValue = Math.toRadians(90);
-
+  final static double backwardSoftStopValue = Math.toRadians(-10);
+  final static double forwardSoftStopValue = Math.toRadians(20);
   private MotorJointIOInputs elevatorInputs;
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(motorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
                                                                     downSoftStopValue, upSoftStopValue);
-   
+                          
+  private MotorJointIOInputs elbowInputs;
+  private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(spinMotorRight, "Elbow", Constants.elevatorConstants.rightElbowCANID,
+                                                                     backwardSoftStopValue, forwardSoftStopValue);
+
+  /*private static DigitalInput forwardLimit = 
+      new DigitalInput(Constants.elevatorConstants.forwardSwitchPort);
+  private static DigitalInput backwardLimit =
+      new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
+*/
   private static DigitalInput upLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
   private static DigitalInput downLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
+
+  public static boolean forwardStopHit;
+  public static boolean backwardStopHit; // These should not be static...
   public boolean upStopHit;
   public boolean downStopHit;
 
@@ -65,6 +78,7 @@ public class elevator extends SubsystemBase {
   public elevator() {
 
     elevatorInputs = new MotorJointIOInputsAutoLogged();
+    elbowInputs = new MotorJointIOInputsAutoLogged();
 
     motorConfig.idleMode(IdleMode.kBrake);
     motorConfig.smartCurrentLimit(10);
@@ -84,6 +98,7 @@ public class elevator extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
+    elbowMotorIO.updateInputs(elbowInputs);
     elevatorMotorIO.updateInputs(elevatorInputs);
    
     // Combine Hard limit wrist check with soft limit results:
@@ -92,6 +107,11 @@ public class elevator extends SubsystemBase {
     upStopHit = upStop.getAsBoolean() || elevatorInputs.upperSoftLimitHit;
 
     downStopHit = downStop.getAsBoolean() || elevatorInputs.lowerSoftLimitHit;
+
+    //forwardStopHit = forwardStop.getAsBoolean() || elbowInputs.upperSoftLimitHit;
+    //backwardStopHit = backwardStop.getAsBoolean() || elbowInputs.lowerSoftLimitHit;
+    forwardStopHit = false;//elbowInputs.upperSoftLimitHit;
+    backwardStopHit = false;//elbowInputs.lowerSoftLimitHit;
 
   // Hard limits
     // Combine Hard limit wrist check with soft limit results:
@@ -106,6 +126,20 @@ public class elevator extends SubsystemBase {
 
     // Log summary data
     Logger.recordOutput(
+        "Elbow/connected", elbowInputs.connected);
+    Logger.recordOutput(
+        "Elbow/Measurement/absolutionPosition", elbowInputs.absolutePosition);
+    Logger.recordOutput(
+        "Elbow/Measurement/externalPosition", elbowInputs.externalPosition);
+    Logger.recordOutput(
+        "Elbow/Measurement/lowerSoftLimitHit", elbowInputs.lowerSoftLimitHit);
+    Logger.recordOutput(
+        "Elbow/Measurement/lowerSoftLimitHit", elbowInputs.upperSoftLimitHit);
+    Logger.recordOutput(
+        "Elbow/SetPoint/position", elbowInputs.positionSetPoint);
+
+  // Log summary data
+    Logger.recordOutput(
         "Elevator/connected", elevatorInputs.connected);
     Logger.recordOutput(
         "Elevator/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
@@ -117,8 +151,6 @@ public class elevator extends SubsystemBase {
         "Elevator/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
     Logger.recordOutput(
         "Elevator/SetPoint/position", elevatorInputs.positionSetPoint);
-
-  
   }
 
   public void setupElbowConfig() {
@@ -153,12 +185,12 @@ public class elevator extends SubsystemBase {
 */
 //elbow basics
   public static void spinElbowForward(boolean go) {
-    if (go) {spinMotorRight.set(.10);} 
+    if (go && !forwardStopHit) {spinMotorRight.set(.10);} 
     else {spinMotorRight.set(0);}
   }
 
   public static void spinElbowBackwards(boolean execute) {
-    if (execute) {spinMotorRight.set(-.10);} 
+    if (execute && !backwardStopHit) {spinMotorRight.set(-.10);} 
     else {spinMotorRight.set(0);}
   }
 
