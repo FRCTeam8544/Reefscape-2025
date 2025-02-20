@@ -106,17 +106,17 @@ public class elevator extends SubsystemBase {
 
     // Log summary data
     Logger.recordOutput(
-        "Wrist/connected", elevatorInputs.connected);
+        "Elbow/connected", elevatorInputs.connected);
     Logger.recordOutput(
-        "Wrist/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
+        "Elbow/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
     Logger.recordOutput(
-        "Wrist/Measurement/externalPosition", elevatorInputs.externalPosition);
+        "Elbow/Measurement/externalPosition", elevatorInputs.externalPosition);
     Logger.recordOutput(
-        "Wrist/Measurement/lowerSoftLimitHit", elevatorInputs.lowerSoftLimitHit);
+        "Elbow/Measurement/lowerSoftLimitHit", elevatorInputs.lowerSoftLimitHit);
     Logger.recordOutput(
-        "Wrist/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
+        "Elbow/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
     Logger.recordOutput(
-        "Wrist/SetPoint/position", elevatorInputs.positionSetPoint);
+        "Elbow/SetPoint/position", elevatorInputs.positionSetPoint);
 
   
   }
