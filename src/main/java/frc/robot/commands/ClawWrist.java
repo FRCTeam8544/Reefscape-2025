@@ -14,16 +14,12 @@ public class ClawWrist extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
   Trigger rightBack;
-  Trigger leftBack;
 
-  public ClawWrist(
-      ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack, Trigger leftBack) {
+  public ClawWrist(ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
     this.rightBack = rightBack;
-    this.leftBack = leftBack;
 
-    leftBack = juliet.leftBumper();
     rightBack = juliet.rightBumper();
   }
 
@@ -38,12 +34,6 @@ public class ClawWrist extends Command {
       clawIntake.wristTurn(true);
     } else {
       clawIntake.wristTurn(false);
-    }
-
-    if (leftBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()) {
-      clawIntake.wristTurnBack(true);
-    } else {
-      clawIntake.wristTurnBack(false);
     }
   }
 

@@ -10,48 +10,36 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Rollers extends Command {
+public class WristBack extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
-  Trigger xButton;
-  Trigger bButton;
+  Trigger leftBack;
 
-  public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
+  public WristBack(ClawIntake clawIntake, CommandXboxController juliet, Trigger leftBack) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
-    this.xButton = xButton;
+    this.leftBack = leftBack;
 
-    xButton = juliet.x();
-    bButton = juliet.b();
+    leftBack = juliet.leftBumper();
   }
 
+  // Called when the command is initially scheduled.
   @Override
-  public void initialize() { // Called when the command is initially scheduled.
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (xButton.getAsBoolean()) {
-      clawIntake.rollerRoll(true);
+    if (leftBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()) {
+      clawIntake.wristTurnBack(true);
     } else {
-      clawIntake.rollerRoll(false);
-    }
-
-    if (bButton.getAsBoolean()) {
-      clawIntake.rollerRollBack(true);
-    } else {
-      clawIntake.rollerRollBack(false);
+      clawIntake.wristTurnBack(false);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    if (interrupted) {
-      clawIntake.rollerRoll(interrupted);
-    }
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

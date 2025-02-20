@@ -53,7 +53,7 @@ public final class Constants {
     public static final int limitSwitchPort = 4;
     public static final int limitSwitch2Port = 3;
 
-    //0 until otherwise tuned...
+    // 0 until otherwise tuned...
     public static final double eleKP = 0;
     public static final double eleKI = 0;
     public static final double eleKD = 0;

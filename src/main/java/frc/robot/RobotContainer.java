@@ -28,8 +28,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.ClawWrist;
 import frc.robot.commands.Climb;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ElbowBack;
 import frc.robot.commands.Rollers;
 import frc.robot.commands.SpinElbow;
+import frc.robot.commands.WristBack;
 import frc.robot.commands.elevatorDown;
 import frc.robot.commands.elevatorUp;
 import frc.robot.subsystems.ClawIntake;
@@ -180,26 +182,13 @@ public class RobotContainer {
                 .ignoringDisable(true));
     juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
-    juliet
-        .rightBumper()
-        .onTrue(new ClawWrist(clawIntake, juliet, rightBack, leftBack)); // spin forward claw
-    juliet
-        .leftBumper()
-        .onTrue(new ClawWrist(clawIntake, juliet, rightBack, leftBack)); // spin back claw
-    juliet.x().onTrue(new Rollers(clawIntake, juliet, xButton)); // forward roll
-    juliet.b().onTrue(new Rollers(clawIntake, juliet, bButton)); // back roll
-    juliet
-        .rightTrigger()
-        .onTrue(
-            new SpinElbow(elevator, juliet, rightBackTop, leftBackTop)); // elevator wrist forward
-    juliet
-        .leftTrigger()
-        .onTrue(
-            new SpinElbow(
-                elevator, juliet, rightBackTop, leftBackTop)); // // elevator wrist backwards
+    juliet.rightBumper().onTrue(new ClawWrist(clawIntake, juliet, rightBack)); // wrist forward
+    juliet.leftBumper().onTrue(new WristBack(clawIntake, juliet, leftBack)); // wrist backward
+    juliet.x().onTrue(new Rollers(clawIntake, juliet, xButton)); // forward rollers
+    juliet.b().onTrue(new Rollers(clawIntake, juliet, bButton)); // back rollers
+    juliet.rightTrigger().onTrue(new SpinElbow(elevator, juliet, rightBackTop)); // elbow forward
+    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // // elbow backwards
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
-
-    // freaky bob joystick
   }
 
   /**

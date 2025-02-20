@@ -20,14 +20,19 @@ import java.util.function.BooleanSupplier;
 
 public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
-  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
-  public static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
-  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  public static SparkMax rollerRight =
+      new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+
+  public static SparkMax rollerLeft =
+      new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  public static SparkFlex wrist =
+      new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   public static LaserCan laser = new LaserCan(Constants.clawIntakeConstants.laser1CANID);
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
-  private static DigitalInput limit = new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
+  private static DigitalInput limit =
+      new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
   public boolean wristStopHit;
 
   public BooleanSupplier wristStop =
@@ -37,11 +42,13 @@ public class ClawIntake extends SubsystemBase {
 
   public ClawIntake() {
     rollerConfigR.idleMode(IdleMode.kBrake);
-    rollerRight.configure(rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollerRight.configure(
+        rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     rollerConfigL.idleMode(IdleMode.kBrake);
     rollerConfigL.follow(Constants.clawIntakeConstants.rollerCANID, true);
-    rollerLeft.configure(rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollerLeft.configure(
+        rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     wristConfig.idleMode(IdleMode.kBrake);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -49,27 +56,44 @@ public class ClawIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (wristStop.getAsBoolean()) {wristStopHit = true;} 
-    else {wristStopHit = false;}
+    if (wristStop.getAsBoolean()) {
+      wristStopHit = true;
+    } else {
+      wristStopHit = false;
+    }
   }
 
   public void rollerRoll(boolean go) {
-    if (go) {rollerRight.setVoltage(7);} //in
-    else {rollerRight.setVoltage(0);}
+    if (go) {
+      rollerRight.setVoltage(7);
+    } // in
+    else {
+      rollerRight.setVoltage(0);
+    }
   }
 
   public void rollerRollBack(boolean roll) {
-    if (roll) {rollerRight.setVoltage(7);} //out
-    else {rollerRight.setVoltage(0);}
+    if (roll) {
+      rollerRight.setVoltage(7);
+    } // out
+    else {
+      rollerRight.setVoltage(0);
+    }
   }
 
   public void wristTurn(boolean forward) {
-    if (forward && !wristStopHit) {wrist.set(.1);} 
-    else {wrist.set(0);}
+    if (forward && !wristStopHit) {
+      wrist.set(.15);
+    } else {
+      wrist.set(0);
+    }
   }
 
   public void wristTurnBack(boolean backwards) {
-    if (backwards && !wristStopHit) {wrist.set(-.1);} 
-    else {wrist.set(0);}
+    if (backwards && !wristStopHit) {
+      wrist.set(-.15);
+    } else {
+      wrist.set(0);
+    }
   }
 }
