@@ -19,6 +19,7 @@ public class elevatorUp extends Command {
     this.elevator = elevator;
     this.juliet = juliet;
     this.yButton = yButton;
+    addRequirements(elevator);
 
     yButton = juliet.y();
   }

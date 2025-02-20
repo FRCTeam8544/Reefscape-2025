@@ -10,16 +10,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SpinElbow extends Command {
+public class ElbowForward extends Command {
   elevator climber;
   CommandXboxController juliet;
   Trigger rightBackTop;
-  Trigger lefTrigger;
 
-  public SpinElbow(elevator climber, CommandXboxController juliet, Trigger rightBackTop, Trigger lefTrigger) {
+  public ElbowForward(elevator climber, CommandXboxController juliet, Trigger rightBackTop) {
     this.climber = climber;
     this.juliet = juliet;
     this.rightBackTop = rightBackTop;
+
+    addRequirements(climber);
 
     rightBackTop = juliet.rightTrigger();
   }

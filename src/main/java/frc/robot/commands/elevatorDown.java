@@ -23,6 +23,7 @@ public class elevatorDown extends Command {
     this.aButton = aButton;
 
     aButton = juliet.a();
+    addRequirements(elevator);
   }
 
   // Called when the command is initially scheduled.

@@ -21,6 +21,7 @@ public class WristBack extends Command {
     this.leftBack = leftBack;
 
     leftBack = juliet.leftBumper();
+    addRequirements(clawIntake);
   }
 
   // Called when the command is initially scheduled.

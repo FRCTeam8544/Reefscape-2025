@@ -14,7 +14,6 @@ public class Rollers extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
   Trigger xButton;
-  Trigger bButton;
 
   public Rollers(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
     this.clawIntake = clawIntake;
@@ -22,7 +21,7 @@ public class Rollers extends Command {
     this.xButton = xButton;
 
     xButton = juliet.x();
-    bButton = juliet.b();
+    addRequirements(clawIntake);
   }
 
   @Override
@@ -37,21 +36,11 @@ public class Rollers extends Command {
     } else {
       clawIntake.rollerRoll(false);
     }
-
-    if (bButton.getAsBoolean()) {
-      clawIntake.rollerRollBack(true);
-    } else {
-      clawIntake.rollerRollBack(false);
-    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    if (interrupted) {
-      clawIntake.rollerRoll(interrupted);
-    }
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

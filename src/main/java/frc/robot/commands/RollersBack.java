@@ -7,22 +7,22 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.elevator;
+import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ElbowBack extends Command {
-
-  elevator climber;
+public class RollersBack extends Command {
+  ClawIntake clawIntake;
   CommandXboxController juliet;
-  Trigger leftBackTop;
+  Trigger bButton;
 
-  public ElbowBack(elevator climber, CommandXboxController juliet, Trigger leftBackTop) {
-    this.climber = climber;
+  public RollersBack(ClawIntake clawIntake, CommandXboxController juliet, Trigger bButton) {
+    this.clawIntake = clawIntake;
     this.juliet = juliet;
-    this.leftBackTop = leftBackTop;
+    this.bButton = bButton;
 
-    leftBackTop = juliet.leftTrigger();
-    addRequirements(climber);
+    bButton = juliet.b();
+
+    addRequirements(clawIntake);
   }
 
   // Called when the command is initially scheduled.
@@ -32,10 +32,10 @@ public class ElbowBack extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (leftBackTop.getAsBoolean()) {
-      elevator.spinElbowBackwards(true);
+    if (bButton.getAsBoolean()) {
+      clawIntake.rollerRollBack(true);
     } else {
-      elevator.spinElbowBackwards(false);
+      clawIntake.rollerRollBack(false);
     }
   }
 

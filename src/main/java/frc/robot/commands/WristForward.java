@@ -10,17 +10,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ClawWrist extends Command {
+public class WristForward extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
   Trigger rightBack;
 
-  public ClawWrist(ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack) {
+  public WristForward(ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
     this.rightBack = rightBack;
 
     rightBack = juliet.rightBumper();
+    addRequirements(clawIntake);
   }
 
   @Override

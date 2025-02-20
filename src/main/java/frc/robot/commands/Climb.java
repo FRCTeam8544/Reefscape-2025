@@ -20,6 +20,8 @@ public class Climb extends Command {
     this.climber = climber;
     this.startButton = startButton;
 
+    addRequirements(climber);
+
     startButton = juliet.start();
   }
 
