@@ -65,6 +65,9 @@ public class elevator extends SubsystemBase {
       };
 
   public elevator() {
+
+    elevatorInputs = new MotorJointIOInputsAutoLogged();
+    
     motorConfig.idleMode(IdleMode.kBrake);
     motorController.configure(
         motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
