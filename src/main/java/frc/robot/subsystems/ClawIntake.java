@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import au.grapplerobotics.LaserCan;
+
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -25,6 +28,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ClawIntake extends SubsystemBase {
 
+  
   private boolean coralAcquired;
   private static LaserCANIOInputsAutoLogged laserInputs;
   private static LaserCANIO seabass = new LaserCAN("CoralIntake",
@@ -35,16 +39,30 @@ public class ClawIntake extends SubsystemBase {
   private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  private static RelativeEncoder extWristEncoder = wrist.getExternalEncoder(); // Relative?
+  private static SparkAbsoluteEncoder absWristEncoder = wrist.getAbsoluteEncoder(); // External?
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
-  private static DigitalInput limit =
-      new DigitalInput(Constants.clawIntakeConstants.wristLimitPort);
-  public boolean wristStopHit;
 
-  public BooleanSupplier wristStop =
+  private final double upSoftRotationLimit = Math.toRadians(45);
+  private final double downSoftRotationLimit = Math.toRadians(0);
+
+  private static DigitalInput limitUpSwitch =
+      new DigitalInput(Constants.clawIntakeConstants.wristUpLimitPort);
+  private static DigitalInput limitDownSwitch =
+      new DigitalInput(Constants.clawIntakeConstants.wristDownLimitPort);
+  public boolean wristForwardStopHit = false;
+  public boolean wristBackwardStopHit = false;
+
+  public BooleanSupplier wristForwardStop =
       () -> {
-        return limit.get();
+        return limitUpSwitch.get();
+      };
+
+  public BooleanSupplier wristBackwardStop = 
+      () -> {
+        return limitDownSwitch.get();
       };
 
   public ClawIntake() {
@@ -68,15 +86,30 @@ public class ClawIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-  
-  
-    // Wrist check
-    if (wristStop.getAsBoolean()) {
-      wristStopHit = true;
-    } 
-    else {
-      wristStopHit = false;
+
+    // Soft wrist check
+    boolean forwardSoftLimitHit = false;
+    boolean backwardSoftLimitHit = false;
+    //final double clawRotation = extWristEncoder.getPosition();
+    final double clawRotation = absWristEncoder.getPosition();
+    
+    if (clawRotation > upSoftRotationLimit) {
+      forwardSoftLimitHit = true;
     }
+    else if (clawRotation < downSoftRotationLimit) {
+      backwardSoftLimitHit = true;
+    }
+
+    // Combine Hard limit wrist check with soft limit results:
+    // TODO hook limit switches to the spark controllers directly???
+    // What about feedback to the software to let it know that a limit has been reached?
+    wristForwardStopHit = wristForwardStop.getAsBoolean() || forwardSoftLimitHit;
+
+    wristBackwardStopHit = wristBackwardStop.getAsBoolean() || backwardSoftLimitHit;
+
+    //if (wristForwardStopHit || wristBackwardStopHit) {
+    //  wrist.set(0.0); // Stop imediately regardless of the running command
+    //}
 
     // Check for coral
     checkCoralIntake();
@@ -97,7 +130,7 @@ public class ClawIntake extends SubsystemBase {
     
     // Log summary data
     Logger.recordOutput(
-        "Laser/" + seabass.getName() + "/Measurement/connected", laserInputs.laserConnected);
+        "Laser/" + seabass.getName() + "/connected", laserInputs.laserConnected);
     Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/ambient", laserInputs.ambient);
     Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/status", laserInputs.status);
     Logger.recordOutput(
@@ -121,7 +154,7 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public void wristTurn(boolean forward) {
-    if (forward && !wristStopHit) {
+    if (forward && !wristForwardStopHit) {
       wrist.set(.15);
     } else {
       wrist.set(0);
@@ -129,7 +162,7 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public void wristTurnBack(boolean backwards) {
-    if (backwards && !wristStopHit) {
+    if (backwards && !wristBackwardStopHit) {
       wrist.set(-.15);
     } else {
       wrist.set(0);

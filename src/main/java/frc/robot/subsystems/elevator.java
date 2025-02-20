@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 // import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -32,13 +33,19 @@ public class elevator extends SubsystemBase {
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
-  private static RelativeEncoder encoder = motorController.getEncoder();
+  private static RelativeEncoder externalEncoder = motorController.getExternalEncoder(); // Relative?
+  private static SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(); // External?
+ 
+  
   private static DigitalInput upLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
   private static DigitalInput downLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
   public boolean upStopHit;
   public boolean downStopHit;
+
+  final double upSoftStopValue = Math.toRadians(0);
+  final double downSoftStopValue = Math.toRadians(300);
 
   public BooleanSupplier upStop =
       () -> {
@@ -64,17 +71,29 @@ public class elevator extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (upStop.getAsBoolean()) {
-      upStopHit = true;
-    } else {
-      upStopHit = false;
+
+    // Soft limits
+    boolean upSoftLimitHit = false;
+    boolean downSoftLimitHit = false;
+    //final double externalElevatorRotations = externalEncoder.getPosition();
+    final double absElevatorRotations = absoluteEncoder.getPosition();
+    if (absElevatorRotations > upSoftStopValue) {
+      upSoftLimitHit = true;
+    }
+    else if (absElevatorRotations < downSoftStopValue) {
+      downSoftLimitHit = true;
     }
 
-    if (downStop.getAsBoolean()) {
-      downStopHit = true;
-    } else {
-      downStopHit = false;
-    }
+    // Hard limits
+    // Combine Hard limit wrist check with soft limit results:
+    // TODO hook limit switches to the spark controllers directly???
+    // What about feedback to the software to let it know that a limit has been reached?
+    upStopHit = upStop.getAsBoolean() || upSoftLimitHit;
+    downStopHit = downStop.getAsBoolean() || downSoftLimitHit;
+
+    //if (upStopHit || downStopHit) {
+    //  motorController.set(0.0); // Stop imediately regardless of the running command
+    //}
   }
 
   public void spin() {

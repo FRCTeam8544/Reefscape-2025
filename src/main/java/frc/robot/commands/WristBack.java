@@ -31,7 +31,7 @@ public class WristBack extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (leftBack.getAsBoolean() && !clawIntake.wristStop.getAsBoolean()) {
+    if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
       clawIntake.wristTurnBack(true);
     } else {
       clawIntake.wristTurnBack(false);
