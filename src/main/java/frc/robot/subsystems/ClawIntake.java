@@ -103,9 +103,9 @@ public class ClawIntake extends SubsystemBase {
     // Combine Hard limit wrist check with soft limit results:
     // TODO hook limit switches to the spark controllers directly???
     // What about feedback to the software to let it know that a limit has been reached?
-    wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInputs.upperSoftLimitHit;
+    wristForwardStopHit = wristForwardStop.getAsBoolean();// || wristInputs.upperSoftLimitHit;
 
-    wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInputs.lowerSoftLimitHit;
+    wristBackwardStopHit = wristBackwardStop.getAsBoolean();// || wristInputs.lowerSoftLimitHit;
 
     //if (wristForwardStopHit || wristBackwardStopHit) {
     //  wrist.set(0.0); // Stop imediately regardless of the running command
