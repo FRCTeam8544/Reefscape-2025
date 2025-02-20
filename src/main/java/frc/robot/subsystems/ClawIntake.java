@@ -16,18 +16,25 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
+import frc.robot.Constants;
 import frc.robot.subsystems.LaserCAN;
 import frc.robot.subsystems.LaserCANIO;
 import frc.robot.subsystems.LaserCANIO.LaserCANIOInputs;
 import frc.robot.subsystems.LaserCANIOInputsAutoLogged;
+
+import frc.robot.subsystems.MotorJointSparkFlex;
+import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
+import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
+
 import org.littletonrobotics.junction.Logger;
+import org.opencv.core.Mat;
 
 public class ClawIntake extends SubsystemBase {
-
   
   private boolean coralAcquired;
   private static LaserCANIOInputsAutoLogged laserInputs;
@@ -38,15 +45,20 @@ public class ClawIntake extends SubsystemBase {
   /** Creates a new ClawIntake. */
   private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
+  
+  private final double upSoftRotationLimit = Math.toRadians(45);
+  private final double downSoftRotationLimit = Math.toRadians(0);
+  private MotorJointIOInputs wristInputs;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
-  private static RelativeEncoder extWristEncoder = wrist.getExternalEncoder(); // Relative?
-  private static SparkAbsoluteEncoder absWristEncoder = wrist.getAbsoluteEncoder(); // External?
+  private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 
+                                           downSoftRotationLimit, upSoftRotationLimit);
+ // private static RelativeEncoder extWristEncoder = wrist.getExternalEncoder(); // Relative?
+  //private static SparkAbsoluteEncoder absWristEncoder = wrist.getAbsoluteEncoder(); // External?
+  
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
 
-  private final double upSoftRotationLimit = Math.toRadians(45);
-  private final double downSoftRotationLimit = Math.toRadians(0);
 
   private static DigitalInput limitUpSwitch =
       new DigitalInput(Constants.clawIntakeConstants.wristUpLimitPort);
@@ -70,6 +82,7 @@ public class ClawIntake extends SubsystemBase {
 
     // Initialize inputs
     this.laserInputs = new LaserCANIOInputsAutoLogged();
+    this.wristInputs = new MotorJointIOInputsAutoLogged();
 
     rollerConfigR.idleMode(IdleMode.kBrake);
     rollerRight.configure(
@@ -87,29 +100,32 @@ public class ClawIntake extends SubsystemBase {
   @Override
   public void periodic() {
 
-    // Soft wrist check
-    boolean forwardSoftLimitHit = false;
-    boolean backwardSoftLimitHit = false;
-    //final double clawRotation = extWristEncoder.getPosition();
-    final double clawRotation = absWristEncoder.getPosition();
-    
-    if (clawRotation > upSoftRotationLimit) {
-      forwardSoftLimitHit = true;
-    }
-    else if (clawRotation < downSoftRotationLimit) {
-      backwardSoftLimitHit = true;
-    }
-
+    wristIO.updateInputs(wristInputs);
+   
     // Combine Hard limit wrist check with soft limit results:
     // TODO hook limit switches to the spark controllers directly???
     // What about feedback to the software to let it know that a limit has been reached?
-    wristForwardStopHit = wristForwardStop.getAsBoolean() || forwardSoftLimitHit;
+    wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInputs.upperSoftLimitHit;
 
-    wristBackwardStopHit = wristBackwardStop.getAsBoolean() || backwardSoftLimitHit;
+    wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInputs.lowerSoftLimitHit;
 
     //if (wristForwardStopHit || wristBackwardStopHit) {
     //  wrist.set(0.0); // Stop imediately regardless of the running command
     //}
+
+    // Log summary data
+    Logger.recordOutput(
+        "Wrist/connected", wristInputs.connected);
+    Logger.recordOutput(
+        "Wrist/Measurement/absolutionPosition", wristInputs.absolutePosition);
+    Logger.recordOutput(
+        "Wrist/Measurement/externalPosition", wristInputs.externalPosition);
+    Logger.recordOutput(
+        "Wrist/Measurement/lowerSoftLimitHit", wristInputs.lowerSoftLimitHit);
+    Logger.recordOutput(
+        "Wrist/Measurement/lowerSoftLimitHit", wristInputs.upperSoftLimitHit);
+    Logger.recordOutput(
+        "Wrist/SetPoint/position", wristInputs.positionSetPoint);
 
     // Check for coral
     checkCoralIntake();
