@@ -67,10 +67,12 @@ public class elevator extends SubsystemBase {
     elevatorInputs = new MotorJointIOInputsAutoLogged();
 
     motorConfig.idleMode(IdleMode.kBrake);
+    motorConfig.smartCurrentLimit(10);
     motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     motorConfig.inverted(true);
 
     leftMotorConfig.idleMode(IdleMode.kBrake);
+    leftMotorConfig.smartCurrentLimit(10);
     leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
     leftMotorController.configure(
         leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -121,11 +123,13 @@ public class elevator extends SubsystemBase {
 
   public void setupElbowConfig() {
     spinConfig.idleMode(IdleMode.kBrake);
-    spinConfig.inverted(true);
+    spinConfig.inverted(false);
+    spinConfig.smartCurrentLimit(10);
     spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
     leftSpinConfig.idleMode(IdleMode.kBrake);
+    leftSpinConfig.smartCurrentLimit(10);
     leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID,true);
     spinMotorLeft.configure(leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     

@@ -92,6 +92,7 @@ public class ClawIntake extends SubsystemBase {
         rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     wristConfig.idleMode(IdleMode.kBrake);
+    wristConfig.smartCurrentLimit(10);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
