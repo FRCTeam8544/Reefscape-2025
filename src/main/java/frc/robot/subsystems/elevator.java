@@ -57,10 +57,8 @@ public class Elevator extends SubsystemBase {
     new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
   */
 
-  private static DigitalInput upLimit =
-      new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
-  private static DigitalInput downLimit =
-      new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
+  private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
+  private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
 
   public static boolean forwardStopHit;
     public static boolean backwardStopHit; // These should not be static...
@@ -74,10 +72,6 @@ public class Elevator extends SubsystemBase {
     public BooleanSupplier downStop =
         () -> {
           return downLimit.get();
-        };
-    public BooleanSupplier softUp =
-        () -> {
-      return encoder.getPosition() > 40;
         };
 
   public Elevator() {
@@ -93,8 +87,7 @@ public class Elevator extends SubsystemBase {
     leftMotorConfig.idleMode(IdleMode.kBrake);
     leftMotorConfig.smartCurrentLimit(10);
     leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
-    leftMotorController.configure(
-        leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     setupElbowConfig();
   }
