@@ -51,14 +51,19 @@ public class DriveCommands {
   private DriveCommands() {}
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
+    double CoM = 0.5;//Give function when elevator code is in
+
     // Apply deadband
     double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
-    Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+    double phi = Math.atan2(y , x);
+    Rotation2d linearDirection = new Rotation2d(phi);
 
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
 
     // Return new linear velocity
+    
+    
     return new Pose2d(new Translation2d(), linearDirection)
         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
         .getTranslation();

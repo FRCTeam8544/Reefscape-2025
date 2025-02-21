@@ -312,8 +312,17 @@ public class Drive extends SubsystemBase {
   }
 
   /** Returns the maximum linear speed in meters per sec. */
-  public double getMaxLinearSpeedMetersPerSec() {
-    return maxSpeedMetersPerSec;
+  public double getMaxLinearSpeedMetersPerSec(double phi) {
+    if (phi == -69) {return maxSpeedMetersPerSec;}//if you dont care for tipping
+    double L;
+    //less than pi/4 or greater than 3pi/4
+    if (phi <= 0.7854 || phi >= 2.3562){L = DriveConstants.wheelBase * Math.sin(1.5708 - phi);}
+    //otherwise and such etc...
+    else{L = DriveConstants.trackWidth * Math.cos(1.5708 - phi);}
+
+    double maxSpeed = ((9.8 * L) / (2 * CoM)) + GyroIO.getVelocity();
+
+    return maxSpeed;
   }
 
   /** Returns the maximum angular speed in radians per sec. */
