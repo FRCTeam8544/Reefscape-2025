@@ -47,7 +47,7 @@ public class MotorJointSparkFlex implements MotorJointIO {
       inputs.upperSoftLimitHit = (inputs.externalPosition < upperSoftLimitValue);
     }
 
-    public void setPosition(double position) {
-        controller.set(position);
+    public void setVelocity(double speed) {
+        controller.set(speed);
     }
 }

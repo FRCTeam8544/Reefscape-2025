@@ -20,6 +20,7 @@ public interface MotorJointIO {
 
   public void updateInputs(MotorJointIOInputs inputs);
 
-  public void setPosition(double position);
+  // Set speed in percent of max motor speed
+  public void setVelocity(double speed);
 
 }
