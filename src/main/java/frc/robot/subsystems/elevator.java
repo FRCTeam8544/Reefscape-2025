@@ -20,9 +20,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
 
-import org.littletonrobotics.junction.Logger;
-
 import frc.robot.subsystems.MotorJointSparkFlex;
+import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 
@@ -43,20 +42,21 @@ public class Elevator extends SubsystemBase {
   final static double downSoftStopValue = Math.toRadians(90);
   final static double backwardSoftStopValue = Math.toRadians(-10);
   final static double forwardSoftStopValue = Math.toRadians(20);
-  private MotorJointIOInputs elevatorInputs;
+  private MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
                                                                     downSoftStopValue, upSoftStopValue);
                           
-  private MotorJointIOInputs elbowInputs;
+  private MotorJointIOInputs elbowInOutData;
   private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(spinMotorRight, "Elbow", Constants.elevatorConstants.rightElbowCANID,
                                                                      backwardSoftStopValue, forwardSoftStopValue);
 
   /*private static DigitalInput forwardLimit = 
-      new DigitalInput(Constants.elevatorConstants.forwardSwitchPort);
-  private static DigitalInput backwardLimit =
-      new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
-*/
+    new DigitalInput(Constants.elevatorConstants.forwardSwitchPort);
+    private static DigitalInput backwardLimit =
+    new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
+  */
+
   private static DigitalInput upLimit =
       new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
   private static DigitalInput downLimit =
@@ -78,8 +78,8 @@ public class Elevator extends SubsystemBase {
 
   public Elevator() {
 
-    elevatorInputs = new MotorJointIOInputsAutoLogged();
-    elbowInputs = new MotorJointIOInputsAutoLogged();
+    elevatorInOutData = new MotorJointIOInputsAutoLogged();
+    elbowInOutData = new MotorJointIOInputsAutoLogged();
 
     motorConfig.idleMode(IdleMode.kBrake);
     motorConfig.smartCurrentLimit(10);
@@ -99,59 +99,35 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    elbowMotorIO.updateInputs(elbowInputs);
-    elevatorMotorIO.updateInputs(elevatorInputs);
+    elbowMotorIO.updateInputs(elbowInOutData);
+    elevatorMotorIO.updateInputs(elevatorInOutData);
    
     // Combine Hard limit wrist check with soft limit results:
     // TODO hook limit switches to the spark controllers directly???
     // What about feedback to the software to let it know that a limit has been reached?
-    upStopHit = upStop.getAsBoolean() || elevatorInputs.upperSoftLimitHit;
+    upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
 
-    downStopHit = downStop.getAsBoolean() || elevatorInputs.lowerSoftLimitHit;
+    downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
 
-    //forwardStopHit = forwardStop.getAsBoolean() || elbowInputs.upperSoftLimitHit;
-    //backwardStopHit = backwardStop.getAsBoolean() || elbowInputs.lowerSoftLimitHit;
-    forwardStopHit = false;//elbowInputs.upperSoftLimitHit;
-    backwardStopHit = false;//elbowInputs.lowerSoftLimitHit;
+    //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
+    //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
+    forwardStopHit = elbowInOutData.upperSoftLimitHit;
+    backwardStopHit = elbowInOutData.lowerSoftLimitHit;
 
-  // Hard limits
+    // Hard limits
     // Combine Hard limit wrist check with soft limit results:
     // TODO hook limit switches to the spark controllers directly???
     // What about feedback to the software to let it know that a limit has been reached?
-    upStopHit = upStop.getAsBoolean(); //|| elevatorInputs.upperSoftLimitHit;
-    downStopHit = downStop.getAsBoolean(); //|| elevatorInputs.lowerSoftLimitHit;
+    upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
+    downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
 
     //if (upStopHit || downStopHit) {
     //  motorController.set(0.0); // Stop imediately regardless of the running command
     //}
 
-    // Log summary data
-    Logger.recordOutput(
-        "Elbow/connected", elbowInputs.connected);
-    Logger.recordOutput(
-        "Elbow/Measurement/absolutionPosition", elbowInputs.absolutePosition);
-    Logger.recordOutput(
-        "Elbow/Measurement/externalPosition", elbowInputs.externalPosition);
-    Logger.recordOutput(
-        "Elbow/Measurement/lowerSoftLimitHit", elbowInputs.lowerSoftLimitHit);
-    Logger.recordOutput(
-        "Elbow/Measurement/lowerSoftLimitHit", elbowInputs.upperSoftLimitHit);
-    Logger.recordOutput(
-        "Elbow/SetPoint/position", elbowInputs.positionSetPoint);
+    LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
 
-  // Log summary data
-    Logger.recordOutput(
-        "Elevator/connected", elevatorInputs.connected);
-    Logger.recordOutput(
-        "Elevator/Measurement/absolutionPosition", elevatorInputs.absolutePosition);
-    Logger.recordOutput(
-        "Elevator/Measurement/externalPosition", elevatorInputs.externalPosition);
-    Logger.recordOutput(
-        "Elevator/Measurement/lowerSoftLimitHit", elevatorInputs.lowerSoftLimitHit);
-    Logger.recordOutput(
-        "Elevator/Measurement/lowerSoftLimitHit", elevatorInputs.upperSoftLimitHit);
-    Logger.recordOutput(
-        "Elevator/SetPoint/position", elevatorInputs.positionSetPoint);
+    LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
   }
 
   public void setupElbowConfig() {
@@ -160,12 +136,10 @@ public class Elevator extends SubsystemBase {
     spinConfig.smartCurrentLimit(10);
     spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-
     leftSpinConfig.idleMode(IdleMode.kBrake);
     leftSpinConfig.smartCurrentLimit(10);
     leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID,true);
     spinMotorLeft.configure(leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
   }
 
   //elevator basic up/down

@@ -16,8 +16,8 @@ public class MotorJointSparkFlex implements MotorJointIO {
     private SparkFlex controller;
     private RelativeEncoder extWristEncoder;
     private SparkAbsoluteEncoder absWristEncoder;
-    private double lowerSoftLimitValue = 0;
-    private double upperSoftLimitValue = 360;
+    private double lowerSoftLimitValue;
+    private double upperSoftLimitValue;
     
     public MotorJointSparkFlex(SparkFlex controller, String jointName, int canId, 
                                double lowerSoftLimitValue, double upperSoftLimitValue) {
@@ -37,14 +37,14 @@ public class MotorJointSparkFlex implements MotorJointIO {
       return jointName;
     }
 
-    public void updateInputs(MotorJointIOInputs inputs) {
-      inputs.connected = true;
-      inputs.absolutePosition = absWristEncoder.getPosition();
-      inputs.externalPosition = extWristEncoder.getPosition();
-     // inputs.lowerLimitHit = false;
-     // inputs.upperLimitHit = false;
-      inputs.lowerSoftLimitHit = (inputs.absolutePosition < lowerSoftLimitValue);
-      inputs.upperSoftLimitHit = (inputs.externalPosition < upperSoftLimitValue);
+    public void updateInputs(MotorJointIOInputs inOutData) {
+      inOutData.connected = true;
+      inOutData.absolutePosition = absWristEncoder.getPosition();
+      inOutData.externalPosition = extWristEncoder.getPosition();
+     // inOutData.lowerLimitHit = false;
+     // inOutData.upperLimitHit = false;
+      inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < lowerSoftLimitValue);
+      inOutData.upperSoftLimitHit = (inOutData.absolutePosition < upperSoftLimitValue);
     }
 
     public void setVelocity(double speed) {
