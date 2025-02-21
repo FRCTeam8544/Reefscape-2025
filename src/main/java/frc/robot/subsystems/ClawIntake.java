@@ -30,6 +30,7 @@ import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 
+import frc.robot.util.LogUtil;
 import org.littletonrobotics.junction.Logger;
 import org.opencv.core.Mat;
 
@@ -37,7 +38,7 @@ public class ClawIntake extends SubsystemBase {
   
   private boolean coralAcquired;
   private static LaserCANIOInputsAutoLogged laserInputs;
-  private static LaserCANIO seabass = new LaserCAN("CoralIntake",
+  private static LaserCANIO seabass = new LaserCAN("CoralLaser",
                                              Constants.clawIntakeConstants.laser1CANID,
                                              LaserCAN.FieldOfView.NARROW_4_BY_4);
 
@@ -47,7 +48,7 @@ public class ClawIntake extends SubsystemBase {
   
   private final double upSoftRotationLimit = Math.toRadians(10);
   private final double downSoftRotationLimit = Math.toRadians(-10);
-  private MotorJointIOInputs wristInputs;
+  private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 
                                            downSoftRotationLimit, upSoftRotationLimit);
@@ -78,7 +79,7 @@ public class ClawIntake extends SubsystemBase {
 
     // Initialize inputs
     this.laserInputs = new LaserCANIOInputsAutoLogged();
-    this.wristInputs = new MotorJointIOInputsAutoLogged();
+    this.wristInOutData = new MotorJointIOInputsAutoLogged();
 
     rollerConfigR.idleMode(IdleMode.kBrake);
     rollerRight.configure(rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -95,31 +96,21 @@ public class ClawIntake extends SubsystemBase {
   @Override
   public void periodic() {
 
-    wristIO.updateInputs(wristInputs);
+    wristIO.updateInputs(wristInOutData);
    
     // Combine Hard limit wrist check with soft limit results:
     // TODO hook limit switches to the spark controllers directly???
     // What about feedback to the software to let it know that a limit has been reached?
-    wristForwardStopHit = wristForwardStop.getAsBoolean();// || wristInputs.upperSoftLimitHit;
-    wristBackwardStopHit = wristBackwardStop.getAsBoolean();// || wristInputs.lowerSoftLimitHit;
+    wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
+
+    wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInOutData.lowerSoftLimitHit;
 
     //if (wristForwardStopHit || wristBackwardStopHit) {
     //  wrist.set(0.0); // Stop imediately regardless of the running command
     //}
-
-    // Log summary data
-    Logger.recordOutput(
-        "Wrist/connected", wristInputs.connected);
-    Logger.recordOutput(
-        "Wrist/Measurement/absolutionPosition", wristInputs.absolutePosition);
-    Logger.recordOutput(
-        "Wrist/Measurement/externalPosition", wristInputs.externalPosition);
-    Logger.recordOutput(
-        "Wrist/Measurement/lowerSoftLimitHit", wristInputs.lowerSoftLimitHit);
-    Logger.recordOutput(
-        "Wrist/Measurement/lowerSoftLimitHit", wristInputs.upperSoftLimitHit);
-    Logger.recordOutput(
-        "Wrist/SetPoint/position", wristInputs.positionSetPoint);
+    
+    LogUtil.logData(wristIO.getName(), wristInOutData);
+    
 
     // Check for coral
     checkCoralIntake();
@@ -139,13 +130,7 @@ public class ClawIntake extends SubsystemBase {
     }
     
     // Log summary data
-    Logger.recordOutput(
-        "Laser/" + seabass.getName() + "/connected", laserInputs.laserConnected);
-    Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/ambient", laserInputs.ambient);
-    Logger.recordOutput("Laser/" + seabass.getName() + "/Measurement/status", laserInputs.status);
-    Logger.recordOutput(
-      "Laser/" + seabass.getName() + "/Measurement/distance_mm", laserInputs.distance_mm);
-    
+    LogUtil.logData(seabass.getName(), wristInOutData);
   }
 
   public void rollerRoll(boolean go) {

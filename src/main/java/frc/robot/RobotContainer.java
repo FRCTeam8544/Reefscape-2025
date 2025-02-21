@@ -170,6 +170,21 @@ public class RobotContainer {
             DriveCommands.joystickDriveAtAngle(
                 drive, () -> -romeo.getLeftY(), () -> -romeo.getLeftX(), () -> new Rotation2d()));
 
+    // Drive constant velocity field relative while held: DPad UP is away from alliance station
+    // Specify the angle of the controller D-Pad (POV) 0, 45, 90, 135, 180 ...
+    romeo.povUp().whileTrue(DriveCommands.dpadDriveField(drive, 0));
+    // romeo.povUpRight().whileTrue(DriveCommands.dpadDriveField(drive, 45));
+    romeo.povRight().whileTrue(DriveCommands.dpadDriveField(drive, 90));
+    // romeo.povDownRight().whileTrue(DriveCommands.dpadDriveField(drive, 135));
+    romeo.povDown().whileTrue(DriveCommands.dpadDriveField(drive, 180));
+    // romeo.povDownLeft().whileTrue(DriveCommands.dpadDriveField(drive, 225));
+    romeo.povLeft().whileTrue(DriveCommands.dpadDriveField(drive, 270));
+    // romeo.povUpLeft().whileTrue(DriveCommands.dpadDriveField(drive, 315));
+
+    // Drive constant velocity relative to robot while held
+    romeo.leftBumper().whileTrue(DriveCommands.dpadDriveRobot(drive, 270)); // Crab robot left
+    romeo.rightBumper().whileTrue(DriveCommands.dpadDriveRobot(drive, 90)); // Crab robot right
+
     // Switch to X pattern when X button is pressed
     romeo.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 

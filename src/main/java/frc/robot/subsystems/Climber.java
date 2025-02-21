@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.MotorJointSparkMax;
+import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -32,11 +33,11 @@ public class Climber extends SubsystemBase {
   private static final double downSoftRotationLimit = Math.toRadians(0); 
   private MotorJointIO climberIO = new MotorJointSparkMax(pusherRight, "Climber", Constants.climberConstants.climberCANID, 
                                                           downSoftRotationLimit, upSoftRotationLimit);
-  private static MotorJointIOInputsAutoLogged climberInputs;
+  private static MotorJointIOInputsAutoLogged climberInOutData;
 
   public Climber() {
 
-    this.climberInputs = new MotorJointIOInputsAutoLogged();
+    this.climberInOutData = new MotorJointIOInputsAutoLogged();
 
     rightConfig.idleMode(IdleMode.kBrake);
     rightConfig.inverted(false);
@@ -51,8 +52,12 @@ public class Climber extends SubsystemBase {
   }
 
   public void climberClimb(boolean go) {
-    if (go && !climberInputs.upperSoftLimitHit) {pusherRight.set(.1);} 
-    else {pusherRight.set(0);}
+    if (go && !climberInOutData.upperSoftLimitHit && !climberInOutData.upperLimitHit) {
+      pusherRight.set(.1);
+    } 
+    else {
+      pusherRight.set(0);
+    }
   }
 
   public void climberBack(boolean move){
@@ -75,21 +80,12 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    climberIO.updateInputs(climberInputs);
+    climberIO.updateInputs(climberInOutData);
+
+    // Update commanded outputs
+    // climberInputs.setPointVelocity ....
 
     // Log summary data
-    Logger.recordOutput(
-        "Climber/connected", climberInputs.connected);
-    Logger.recordOutput(
-        "Climber/Measurement/absolutionPosition", climberInputs.absolutePosition);
-    Logger.recordOutput(
-        "Climber/Measurement/externalPosition", climberInputs.externalPosition);
-    Logger.recordOutput(
-        "Climber/Measurement/lowerSoftLimitHit", climberInputs.lowerSoftLimitHit);
-    Logger.recordOutput(
-        "Climber/Measurement/lowerSoftLimitHit", climberInputs.upperSoftLimitHit);
-    Logger.recordOutput(
-        "Climber/SetPoint/position", climberInputs.positionSetPoint);
-
+    LogUtil.logData("Climber", climberInOutData);
   }
 }

@@ -29,16 +29,15 @@ public class MotorJointSparkMax implements MotorJointIO {
       return jointName;
     }
 
-    public void updateInputs(MotorJointIOInputs inputs) {
+    public void updateInputs(MotorJointIOInputs inOutData) {
 
-      inputs.connected = false;
-      inputs.absolutePosition = absoluteEncoder.getPosition();
-      inputs.externalPosition = externalEncoder.getPosition();
-      //inputs.lowerLimitHit = false;
-      //inputs.upperLimitHit = false;
-      inputs.lowerSoftLimitHit = inputs.absolutePosition < lowerSoftLimitValue;
-      inputs.upperSoftLimitHit = inputs.absolutePosition > upperSoftLimitValue;
-      inputs.positionSetPoint = 0.0; // TODO do we need this???
+      inOutData.connected = false;
+      inOutData.absolutePosition = absoluteEncoder.getPosition();
+      inOutData.externalPosition = externalEncoder.getPosition();
+      //inOutData.lowerLimitHit = false;
+      //inOutData.upperLimitHit = false;
+      inOutData.lowerSoftLimitHit = inOutData.absolutePosition < lowerSoftLimitValue;
+      inOutData.upperSoftLimitHit = inOutData.absolutePosition > upperSoftLimitValue;
     }
 
     public void setVelocity(double speed) {
