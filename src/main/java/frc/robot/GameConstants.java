@@ -14,6 +14,9 @@ package frc.robot;
 
 public final class GameConstants {
 
+  public static final double coralPieceWidth_mm = 114.3;
+  public static final double coralPieceHalfWidth_mm = coralPieceWidth_mm / 2.0;
+
   // BLUE Alliance
   public static final int[] blueReefAprilTagIDs = {17, 18, 19, 20, 21, 22};
 
