@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
+import frc.robot.subsystems.MotorJointSparkMax;
+import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -12,7 +17,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import com.revrobotics.AbsoluteEncoder;
+
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
@@ -20,25 +25,62 @@ public class Climber extends SubsystemBase {
   public static SparkMax pusherLeft = new SparkMax(Constants.climberConstants.climber2CANID, MotorType.kBrushless);
   private static SparkMaxConfig rightConfig = new SparkMaxConfig();
   private static SparkMaxConfig leftConfig = new SparkMaxConfig();
-  private AbsoluteEncoder encoder;
+
+  private static final double upSoftRotationLimit = Math.toRadians(45);
+  private static final double downSoftRotationLimit = Math.toRadians(0); 
+  private MotorJointIO climberIO = new MotorJointSparkMax(pusherRight, "Climber", Constants.climberConstants.climberCANID, 
+                                                          downSoftRotationLimit, upSoftRotationLimit);
+  private static MotorJointIOInputsAutoLogged climberInputs;
 
   public Climber() {
-    rightConfig.idleMode(IdleMode.kBrake);
-    pusherRight.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    rightConfig.inverted(true);
 
-    leftConfig.follow(Constants.climberConstants.climberCANID);
+    this.climberInputs = new MotorJointIOInputsAutoLogged();
+
+    rightConfig.idleMode(IdleMode.kBrake);
+    rightConfig.inverted(false);
+    rightConfig.smartCurrentLimit(10);
+    pusherRight.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // Follower will mirror the movements of the rightPusher
+    leftConfig.follow(Constants.climberConstants.climberCANID,true);
     leftConfig.idleMode(IdleMode.kBrake);
+    leftConfig.smartCurrentLimit(10);
     pusherLeft.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void climberClimb(boolean go) {
-    if (go && encoder.getPosition() > 4) {pusherRight.set(.1);} 
+    if (go && !climberInputs.upperSoftLimitHit) {pusherRight.set(.1);} 
     else {pusherRight.set(0);}
   }
+
+  // TODO can it reset? Ratchet??
+  /*public void climberReset(boolean go) {
+    if (go && !climberInputs.lowerSoftLimitHit) {
+      pusherRight.set(-0.1);
+    }
+    else {
+      pusherRight.set(0.0);
+    }
+  }*/
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    climberIO.updateInputs(climberInputs);
+
+    // Log summary data
+    Logger.recordOutput(
+        "Climber/connected", climberInputs.connected);
+    Logger.recordOutput(
+        "Climber/Measurement/absolutionPosition", climberInputs.absolutePosition);
+    Logger.recordOutput(
+        "Climber/Measurement/externalPosition", climberInputs.externalPosition);
+    Logger.recordOutput(
+        "Climber/Measurement/lowerSoftLimitHit", climberInputs.lowerSoftLimitHit);
+    Logger.recordOutput(
+        "Climber/Measurement/lowerSoftLimitHit", climberInputs.upperSoftLimitHit);
+    Logger.recordOutput(
+        "Climber/SetPoint/position", climberInputs.positionSetPoint);
+
   }
 }
