@@ -32,10 +32,8 @@ public class WristForward extends Command {
   @Override
   public void execute() {
     if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()) {
-      clawIntake.wristTurn(true);
-    } else {
-      clawIntake.wristTurn(false);
-    }
+      clawIntake.wristTurn(true);} 
+      else {clawIntake.wristTurn(false);}
   }
 
   // Called once the command ends or is interrupted.

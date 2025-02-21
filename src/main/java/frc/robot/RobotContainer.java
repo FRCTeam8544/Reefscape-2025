@@ -27,14 +27,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.WristForward;
 import frc.robot.commands.Climb;
+import frc.robot.commands.ClimbBack;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ElbowBack;
 import frc.robot.commands.RollersForward;
 import frc.robot.commands.RollersBack;
 import frc.robot.commands.ElbowForward;
 import frc.robot.commands.WristBack;
-import frc.robot.commands.elevatorDown;
-import frc.robot.commands.elevatorUp;
+import frc.robot.commands.Elevator.elevatorDown;
+import frc.robot.commands.Elevator.elevatorUp;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.drive.Drive;
@@ -75,6 +76,7 @@ public class RobotContainer {
   private final Trigger rightBackTop = new Trigger(juliet.rightTrigger());
   private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
   private final Trigger startButton = new Trigger(juliet.start());
+  private final Trigger backButton = new Trigger(juliet.back());
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -190,6 +192,7 @@ public class RobotContainer {
     juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
     juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // // elbow backwards
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
+    juliet.back().onTrue(new ClimbBack(climber, juliet, backButton)); //climber back
   }
 
   /**

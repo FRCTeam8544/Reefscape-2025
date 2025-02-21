@@ -6,17 +6,17 @@ package frc.robot.commands.AutonomousAuto;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.commands.DriveCommands;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class LeaveAuto extends Command {
   Drive drive;
-  DriveConstants constants;
+  DriveCommands driveCommands;
 
 
-  public LeaveAuto(Drive drive, DriveConstants constants) {
+  public LeaveAuto(Drive drive, DriveCommands driveCommands) {
     this.drive = drive;
-    this.constants = constants;
+    this.driveCommands = driveCommands;
 
     addRequirements(drive);
   }
@@ -29,7 +29,9 @@ public class LeaveAuto extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    
+  }
 
   // Called once the command ends or is interrupted.
   @Override
