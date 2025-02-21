@@ -7,15 +7,15 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.elevator;
+import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class elevatorUp extends Command {
   CommandXboxController juliet;
-  elevator elevator;
+  Elevator elevator;
   Trigger yButton;
 
-  public elevatorUp(elevator elevator, CommandXboxController juliet, Trigger yButton) {
+  public elevatorUp(Elevator elevator, CommandXboxController juliet, Trigger yButton) {
     this.elevator = elevator;
     this.juliet = juliet;
     this.yButton = yButton;

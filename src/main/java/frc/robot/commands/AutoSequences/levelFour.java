@@ -7,16 +7,16 @@ package frc.robot.commands.AutoSequences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.elevator;
+import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class levelFour extends Command {
 
-  elevator elevator;
+  Elevator elevator;
   CommandXboxController juliet;
   Trigger yButton;
 
-  public levelFour(elevator elevator, CommandXboxController juliet, Trigger yButton) {}
+  public levelFour(Elevator elevator, CommandXboxController juliet, Trigger yButton) {}
 
   // Called when the command is initially scheduled.
   @Override

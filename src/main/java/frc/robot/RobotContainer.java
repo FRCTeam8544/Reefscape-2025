@@ -43,7 +43,7 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
-import frc.robot.subsystems.elevator;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -60,7 +60,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final elevator elevator = new elevator();
+  private final Elevator elevator = new Elevator();
   private final ClawIntake clawIntake = new ClawIntake();
   private final Climber climber = new Climber();
   // Controller

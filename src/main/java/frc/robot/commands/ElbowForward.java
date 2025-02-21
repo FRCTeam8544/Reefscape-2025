@@ -7,15 +7,15 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.elevator;
+import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElbowForward extends Command {
-  elevator climber;
+  Elevator climber;
   CommandXboxController juliet;
   Trigger rightBackTop;
 
-  public ElbowForward(elevator climber, CommandXboxController juliet, Trigger rightBackTop) {
+  public ElbowForward(Elevator climber, CommandXboxController juliet, Trigger rightBackTop) {
     this.climber = climber;
     this.juliet = juliet;
     this.rightBackTop = rightBackTop;
@@ -32,8 +32,8 @@ public class ElbowForward extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (rightBackTop.getAsBoolean()) {elevator.spinElbowForward(true);} 
-    else {elevator.spinElbowForward(false);}
+    if (rightBackTop.getAsBoolean()) {Elevator.spinElbowForward(true);} 
+    else {Elevator.spinElbowForward(false);}
   }
 
   // Called once the command ends or is interrupted.

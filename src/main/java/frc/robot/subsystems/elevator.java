@@ -26,7 +26,7 @@ import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 
-public class elevator extends SubsystemBase {
+public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
@@ -76,7 +76,7 @@ public class elevator extends SubsystemBase {
         return downLimit.get();
       };
 
-  public elevator() {
+  public Elevator() {
 
     elevatorInputs = new MotorJointIOInputsAutoLogged();
     elbowInputs = new MotorJointIOInputsAutoLogged();

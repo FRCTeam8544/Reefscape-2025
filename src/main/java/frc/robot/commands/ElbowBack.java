@@ -7,16 +7,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.elevator;
+import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElbowBack extends Command {
 
-  elevator climber;
+  Elevator climber;
   CommandXboxController juliet;
   Trigger leftBackTop;
 
-  public ElbowBack(elevator climber, CommandXboxController juliet, Trigger leftBackTop) {
+  public ElbowBack(Elevator climber, CommandXboxController juliet, Trigger leftBackTop) {
     this.climber = climber;
     this.juliet = juliet;
     this.leftBackTop = leftBackTop;
@@ -33,9 +33,9 @@ public class ElbowBack extends Command {
   @Override
   public void execute() {
     if (leftBackTop.getAsBoolean()) {
-      elevator.spinElbowBackwards(true);
+      Elevator.spinElbowBackwards(true);
     } else {
-      elevator.spinElbowBackwards(false);
+      Elevator.spinElbowBackwards(false);
     }
   }
 
