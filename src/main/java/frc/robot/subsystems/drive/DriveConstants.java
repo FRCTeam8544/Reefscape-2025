@@ -21,29 +21,32 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
+  // Driving Parameters
   public static final double maxSpeedMetersPerSec = 4.8 / 3.0; // TODO for safety
   public static final double odometryFrequency = 100.0; // Hz
-  // TrackWidth and wheelBase must be dimensions between the wheel axle, not chassis
+
+  // Chassis configuration
   public static final double trackWidth = Units.inchesToMeters(23.5); // 27 inches wide
+  // Distance between centers of right and left wheels on robot
   public static final double wheelBase = Units.inchesToMeters(29.0); // 32.5 inches long
+  // Distance between front and back wheels on robot
+
   public static final double driveBaseRadius = Math.hypot(trackWidth / 2.0, wheelBase / 2.0);
   public static final Translation2d[] moduleTranslations =
       new Translation2d[] {
-        new Translation2d(trackWidth / 2.0, wheelBase / 2.0),
-        new Translation2d(trackWidth / 2.0, -wheelBase / 2.0),
-        new Translation2d(-trackWidth / 2.0, wheelBase / 2.0),
-        new Translation2d(-trackWidth / 2.0, -wheelBase / 2.0)
+        new Translation2d(wheelBase / 2.0, trackWidth / 2.0), // frontLeft
+        new Translation2d(wheelBase / 2.0, -trackWidth / 2.0), // frontRight
+        new Translation2d(-wheelBase / 2.0, trackWidth / 2.0), // backLeft
+        new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0) // backRight
       };
 
   // Zeroed rotation values for each module, see setup instructions
-  public static final Rotation2d frontLeftZeroRotation =
-      new Rotation2d(Units.degreesToRadians(270.0));
-  public static final Rotation2d frontRightZeroRotation = new Rotation2d(Units.degreesToRadians(0));
-  public static final Rotation2d backLeftZeroRotation = new Rotation2d(Units.degreesToRadians(180));
-  public static final Rotation2d backRightZeroRotation = new Rotation2d(Units.degreesToRadians(90));
+  public static final Rotation2d frontLeftZeroRotation = new Rotation2d(-Math.PI / 2);
+  public static final Rotation2d frontRightZeroRotation = new Rotation2d(0);
+  public static final Rotation2d backLeftZeroRotation = new Rotation2d(Math.PI);
+  public static final Rotation2d backRightZeroRotation = new Rotation2d(Math.PI / 2);
 
-  // Device CAN IDs
-
+  // Spark Device CAN IDs
   public static final int frontLeftDriveCanId = 1;
   public static final int backLeftDriveCanId = 3;
   public static final int frontRightDriveCanId = 5;
@@ -55,17 +58,29 @@ public class DriveConstants {
   public static final int backRightTurnCanId = 8;
 
   // Drive motor configuration
+  // See https://www.revrobotics.com/rev-21-1652/
+  public static final double freeSpeedRpm = 6784;
   public static final int driveMotorCurrentLimit = 40;
+
+  // The MAXSwerve module can be configured with one of three pinion gears: 12T,
+  // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
+  // more teeth will result in a robot that drives faster).
+  public static final int drivingMotorPinionTeeth = 14;
+
+  // Calculations required for driving motor conversion factors
+  public static final double drivingMotorFreeSpeedRps = freeSpeedRpm / 60;
   public static final double wheelRadiusMeters = Units.inchesToMeters(1.5);
-  public static final double driveMotorReduction =
-      (45.0 * 22.0) / (14.0 * 15.0); // MAXSwerve with 14 pinion teeth and 22 spur teeth
+  public static final double wheelDiameterMeters = 2 * wheelRadiusMeters;
+  public static final double wheelCircumferenceMeters = wheelDiameterMeters * Math.PI;
+  public static final double driveMotorReduction = (45.0 * 22) / (drivingMotorPinionTeeth * 15);
+  public static final double driveWheelFreeSpeedRps =
+      (drivingMotorFreeSpeedRps * wheelCircumferenceMeters) / driveMotorReduction;
   public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);
 
   // Drive encoder configuration
-  public static final double driveEncoderPositionFactor =
-      2 * Math.PI / driveMotorReduction; // Rotor Rotations -> Wheel Radians
-  public static final double driveEncoderVelocityFactor =
-      (2 * Math.PI) / 60.0 / driveMotorReduction; // Rotor RPM -> Wheel Rad/Sec
+  public static final double drivingFactor = wheelDiameterMeters * Math.PI / driveMotorReduction;
+  public static final double driveEncoderPositionFactor = drivingFactor;
+  public static final double driveEncoderVelocityFactor = drivingFactor / 60.0;
 
   // Drive PID configuration
   // Drive motor is really sensitive, keep pids small.
