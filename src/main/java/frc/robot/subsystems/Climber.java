@@ -9,7 +9,6 @@ import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.MotorJointSparkMax;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
-
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -18,6 +17,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import com.revrobotics.AbsoluteEncoder;
 
 
 public class Climber extends SubsystemBase {
@@ -26,6 +26,8 @@ public class Climber extends SubsystemBase {
   public static SparkMax pusherLeft = new SparkMax(Constants.climberConstants.climber2CANID, MotorType.kBrushless);
   private static SparkMaxConfig rightConfig = new SparkMaxConfig();
   private static SparkMaxConfig leftConfig = new SparkMaxConfig();
+  private static AbsoluteEncoder climbEncoder = pusherRight.getAbsoluteEncoder();
+
 
   private static final double upSoftRotationLimit = Math.toRadians(45);
   private static final double downSoftRotationLimit = Math.toRadians(0); 
@@ -56,6 +58,13 @@ public class Climber extends SubsystemBase {
     else {
       pusherRight.set(0);
     }
+  }
+
+  public void climberBack(boolean move){
+    if(move){ 
+      pusherRight.set(-.1);}
+      else{pusherRight.set(0);}
+
   }
 
   // TODO can it reset? Ratchet??

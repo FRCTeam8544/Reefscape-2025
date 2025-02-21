@@ -4,9 +4,8 @@
 
 package frc.robot.subsystems;
 
-// import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -23,7 +22,6 @@ import java.util.function.BooleanSupplier;
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
-import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 
 public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
@@ -31,12 +29,14 @@ public class Elevator extends SubsystemBase {
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
   private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
   private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
+  private static AbsoluteEncoder encoder = leftMotorController.getAbsoluteEncoder();
+  private static AbsoluteEncoder elbowEncoder = spinMotorRight.getAbsoluteEncoder(); 
 
+  private static SparkClosedLoopController pid = motorController.getClosedLoopController();
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
-
   
   final static double upSoftStopValue = Math.toRadians(0);
   final static double downSoftStopValue = Math.toRadians(90);
@@ -57,24 +57,22 @@ public class Elevator extends SubsystemBase {
     new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
   */
 
-  private static DigitalInput upLimit =
-      new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
-  private static DigitalInput downLimit =
-      new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
+  private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
+  private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
 
   public static boolean forwardStopHit;
-  public static boolean backwardStopHit; // These should not be static...
-  public boolean upStopHit;
-  public boolean downStopHit;
-
-  public BooleanSupplier upStop =
-      () -> {
-        return upLimit.get();
-      };
-  public BooleanSupplier downStop =
-      () -> {
-        return downLimit.get();
-      };
+    public static boolean backwardStopHit; // These should not be static...
+    public boolean upStopHit;
+    public boolean downStopHit;
+  
+    public BooleanSupplier upStop =
+        () -> {
+          return upLimit.get();
+        };
+    public BooleanSupplier downStop =
+        () -> {
+          return downLimit.get();
+        };
 
   public Elevator() {
 
@@ -89,8 +87,7 @@ public class Elevator extends SubsystemBase {
     leftMotorConfig.idleMode(IdleMode.kBrake);
     leftMotorConfig.smartCurrentLimit(10);
     leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
-    leftMotorController.configure(
-        leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     setupElbowConfig();
   }
@@ -152,15 +149,17 @@ public class Elevator extends SubsystemBase {
     if (downStopHit || !down) {motorController.set(0);}
   }
 
-//levels??? encoder???
- /*   public void level4() {
-  if(!upStopHit || encoder.getPosition() > 10)
-    {motorController.set(.1);}
-    else {motorController.set(0);}}
-*/
-//elbow basics
-  public static void spinElbowForward(boolean go) {
-    if (go && !forwardStopHit) {spinMotorRight.set(.10);} 
+    //meant for the problem of the motors hitting the top
+   /* 
+    public void elevatorUpFreakyVersion(boolean move) {
+      if(move && !upStopHit){motorController.set(.1);
+        if(elbowEncoder.getPosition() < 1){spinMotorRight.set(.1);}
+      }
+    }
+    */
+  //elbow basics
+    public static void spinElbowForward(boolean go) {
+      if (go && !forwardStopHit) {spinMotorRight.set(.10);} 
     else {spinMotorRight.set(0);}
   }
 
@@ -170,10 +169,12 @@ public class Elevator extends SubsystemBase {
   }
 
    public void updateDashboard(){
-    SmartDashboard.putNumber("elevator Speed", motorController.getEncoder().getVelocity());  
+    SmartDashboard.putNumber("elevator Speed", encoder.getVelocity());  
+    SmartDashboard.putBoolean("up limit hit", upStopHit);
+    SmartDashboard.putBoolean("down limit hit", downStopHit);
   }
 
   public double getElevatorVelocity(){
-    return motorController.getEncoder().getVelocity();
+    return encoder.getVelocity();
   }
 }

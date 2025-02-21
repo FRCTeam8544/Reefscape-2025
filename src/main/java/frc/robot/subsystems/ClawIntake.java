@@ -6,8 +6,7 @@ package frc.robot.subsystems;
 
 import au.grapplerobotics.LaserCan;
 
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -60,16 +59,15 @@ public class ClawIntake extends SubsystemBase {
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 
                                            downSoftRotationLimit, upSoftRotationLimit);
+  private static AbsoluteEncoder wristEncoder = wrist.getAbsoluteEncoder();
   
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
 
 
-  private static DigitalInput limitUpSwitch =
-      new DigitalInput(Constants.clawIntakeConstants.wristUpLimitPort);
-  private static DigitalInput limitDownSwitch =
-      new DigitalInput(Constants.clawIntakeConstants.wristDownLimitPort);
+  private static DigitalInput limitUpSwitch = new DigitalInput(Constants.clawIntakeConstants.wristUpLimitPort);
+  private static DigitalInput limitDownSwitch = new DigitalInput(Constants.clawIntakeConstants.wristDownLimitPort);
   public boolean wristForwardStopHit = false;
   public boolean wristBackwardStopHit = false;
 
@@ -92,13 +90,11 @@ public class ClawIntake extends SubsystemBase {
     this.wristInOutData = new MotorJointIOInputsAutoLogged();
 
     rollerConfigR.idleMode(IdleMode.kBrake);
-    rollerRight.configure(
-        rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollerRight.configure(rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     rollerConfigL.idleMode(IdleMode.kBrake);
     rollerConfigL.follow(Constants.clawIntakeConstants.rollerCANID, true);
-    rollerLeft.configure(
-        rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollerLeft.configure(rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     wristConfig.idleMode(IdleMode.kBrake);
     wristConfig.smartCurrentLimit(10);
