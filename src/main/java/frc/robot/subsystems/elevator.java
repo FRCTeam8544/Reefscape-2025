@@ -44,7 +44,8 @@ public class elevator extends SubsystemBase {
   final static double backwardSoftStopValue = Math.toRadians(-10);
   final static double forwardSoftStopValue = Math.toRadians(20);
   private MotorJointIOInputs elevatorInputs;
-  private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(motorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
+  // Encoder is on the  robot left motor!!!
+  private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
                                                                     downSoftStopValue, upSoftStopValue);
                           
   private MotorJointIOInputs elbowInputs;
