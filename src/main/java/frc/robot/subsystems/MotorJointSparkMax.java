@@ -26,6 +26,9 @@ public class MotorJointSparkMax implements MotorJointIO {
       this.controller = controller;
       this.forwardLimitSwitch = controller.getForwardLimitSwitch();
       this.reverseLimitSwitch = controller.getReverseLimitSwitch();
+
+      // SparkMax can only support either an absolute encoder or a external encoder, never both.
+      // Pick one encoder object type to instaniate. If you create both the robot code will crash.
       this.absoluteEncoder = controller.getAbsoluteEncoder();
       //this.externalEncoder = controller.getAlternateEncoder();
     }
@@ -36,6 +39,7 @@ public class MotorJointSparkMax implements MotorJointIO {
 
     public void updateInputs(MotorJointIOInputs inOutData) {
 
+      
       inOutData.connected = false;
       inOutData.absolutePosition = absoluteEncoder.getPosition();
       //inOutData.externalPosition = externalEncoder.getPosition();
