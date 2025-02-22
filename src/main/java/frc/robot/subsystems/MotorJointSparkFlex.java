@@ -4,6 +4,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLimitSwitch;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.MotorJointIO;
@@ -14,6 +15,8 @@ public class MotorJointSparkFlex implements MotorJointIO {
     final private int canId;
 
     private SparkFlex controller;
+    private SparkLimitSwitch forwardLimitSwitch;
+    private SparkLimitSwitch reverseLimitSwitch;
     private RelativeEncoder extWristEncoder;
     private SparkAbsoluteEncoder absWristEncoder;
     private double lowerSoftLimitValue;
@@ -26,6 +29,8 @@ public class MotorJointSparkFlex implements MotorJointIO {
 
      // this.controller = new SparkFlex(canId, MotorType.kBrushless);
       this.controller = controller;
+      this.forwardLimitSwitch = controller.getForwardLimitSwitch();
+      this.reverseLimitSwitch = controller.getReverseLimitSwitch();
       this.extWristEncoder = controller.getExternalEncoder();
       this.absWristEncoder = controller.getAbsoluteEncoder();
 
@@ -41,8 +46,8 @@ public class MotorJointSparkFlex implements MotorJointIO {
       inOutData.connected = true;
       inOutData.absolutePosition = absWristEncoder.getPosition();
       inOutData.externalPosition = extWristEncoder.getPosition();
-     // inOutData.lowerLimitHit = false;
-     // inOutData.upperLimitHit = false;
+      inOutData.lowerLimitHit = reverseLimitSwitch.isPressed();
+      inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
       inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < lowerSoftLimitValue);
       inOutData.upperSoftLimitHit = (inOutData.absolutePosition < upperSoftLimitValue);
     }
