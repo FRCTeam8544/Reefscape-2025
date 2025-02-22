@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
+//import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -14,7 +14,7 @@ public class MotorJointSparkMax implements MotorJointIO {
     final private SparkMax controller;
     final private SparkLimitSwitch forwardLimitSwitch;
     final private SparkLimitSwitch reverseLimitSwitch;
-    final private RelativeEncoder externalEncoder;
+    //final private RelativeEncoder externalEncoder;
     final private SparkAbsoluteEncoder absoluteEncoder;
     
     public MotorJointSparkMax(SparkMax controller, String jointName, int canId,
@@ -27,7 +27,7 @@ public class MotorJointSparkMax implements MotorJointIO {
       this.forwardLimitSwitch = controller.getForwardLimitSwitch();
       this.reverseLimitSwitch = controller.getReverseLimitSwitch();
       this.absoluteEncoder = controller.getAbsoluteEncoder();
-      this.externalEncoder = controller.getAlternateEncoder();
+      //this.externalEncoder = controller.getAlternateEncoder();
     }
 
     public String getName() {
@@ -38,7 +38,7 @@ public class MotorJointSparkMax implements MotorJointIO {
 
       inOutData.connected = false;
       inOutData.absolutePosition = absoluteEncoder.getPosition();
-      inOutData.externalPosition = externalEncoder.getPosition();
+      //inOutData.externalPosition = externalEncoder.getPosition();
       inOutData.lowerLimitHit = reverseLimitSwitch.isPressed();
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
       inOutData.lowerSoftLimitHit = inOutData.absolutePosition < lowerSoftLimitValue;
