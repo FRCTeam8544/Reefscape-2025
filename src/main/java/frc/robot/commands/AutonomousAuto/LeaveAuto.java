@@ -4,41 +4,21 @@
 
 package frc.robot.commands.AutonomousAuto;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.commands.DriveCommands;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class LeaveAuto extends Command {
-  Drive drive;
-  DriveCommands driveCommands;
+// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
+// information, see:
+// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+public class LeaveAuto extends SequentialCommandGroup {
+  public LeaveAuto(Drive drive) {
 
+    Translation2d leave = new Translation2d(-1, 0); //in meters i think?
 
-  public LeaveAuto(Drive drive, DriveCommands driveCommands) {
-    this.drive = drive;
-    this.driveCommands = driveCommands;
-
-    addRequirements(drive);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
-  @Override
-  public boolean isFinished() {
-    return false;
+    addCommands(
+      new SequentialCommandGroup( 
+      )
+    );
   }
 }

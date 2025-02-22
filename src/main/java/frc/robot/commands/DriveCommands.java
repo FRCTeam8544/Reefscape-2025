@@ -85,7 +85,7 @@ public class DriveCommands {
 
           // Square rotation value for more precise control
           omega = Math.copySign(omega * omega, omega);
-
+          
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
@@ -361,7 +361,6 @@ public class DriveCommands {
   public static Command rotateToAprilTag() {
     return null;
   }
-
   private static class WheelRadiusCharacterizationState {
     double[] positions = new double[4];
     Rotation2d lastAngle = new Rotation2d();

@@ -11,7 +11,7 @@ public class MotorJointSparkMax implements MotorJointIO {
     final private double lowerSoftLimitValue;
     final private double upperSoftLimitValue;
     final private SparkMax controller;
-    final private RelativeEncoder externalEncoder;
+    //final private RelativeEncoder externalEncoder;
     final private SparkAbsoluteEncoder absoluteEncoder;
     
     public MotorJointSparkMax(SparkMax controller, String jointName, int canId,
@@ -22,7 +22,7 @@ public class MotorJointSparkMax implements MotorJointIO {
       this.lowerSoftLimitValue = lowerSoftLimitValue;
       this.controller = controller;
       this.absoluteEncoder = controller.getAbsoluteEncoder();
-      this.externalEncoder = controller.getAlternateEncoder();
+      //this.externalEncoder = controller.getAlternateEncoder();
     }
 
     public String getName() {
@@ -33,7 +33,7 @@ public class MotorJointSparkMax implements MotorJointIO {
 
       inOutData.connected = false;
       inOutData.absolutePosition = absoluteEncoder.getPosition();
-      inOutData.externalPosition = externalEncoder.getPosition();
+      //inOutData.externalPosition = externalEncoder.getPosition();
       //inOutData.lowerLimitHit = false;
       //inOutData.upperLimitHit = false;
       inOutData.lowerSoftLimitHit = inOutData.absolutePosition < lowerSoftLimitValue;

@@ -17,8 +17,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import java.util.function.BooleanSupplier;
 
+import static edu.wpi.first.units.Units.Radians;
+
+import java.util.function.BooleanSupplier;
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
@@ -61,112 +63,122 @@ public class Elevator extends SubsystemBase {
   private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
 
   public static boolean forwardStopHit;
-    public static boolean backwardStopHit; // These should not be static...
-    public boolean upStopHit;
-    public boolean downStopHit;
-  
-    public BooleanSupplier upStop =
-        () -> {
-          return upLimit.get();
-        };
-    public BooleanSupplier downStop =
-        () -> {
-          return downLimit.get();
-        };
-
-  public Elevator() {
-
-    elevatorInOutData = new MotorJointIOInputsAutoLogged();
-    elbowInOutData = new MotorJointIOInputsAutoLogged();
-
-    motorConfig.idleMode(IdleMode.kBrake);
-    motorConfig.smartCurrentLimit(10);
-    motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    motorConfig.inverted(true);
-
-    leftMotorConfig.idleMode(IdleMode.kBrake);
-    leftMotorConfig.smartCurrentLimit(10);
-    leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
-    leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    setupElbowConfig();
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-
-    elbowMotorIO.updateInputs(elbowInOutData);
-    elevatorMotorIO.updateInputs(elevatorInOutData);
-   
-    // Combine Hard limit wrist check with soft limit results:
-    // TODO hook limit switches to the spark controllers directly???
-    // What about feedback to the software to let it know that a limit has been reached?
-    upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
-
-    downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
-
-    //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
-    //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
-    forwardStopHit = elbowInOutData.upperSoftLimitHit;
-    backwardStopHit = elbowInOutData.lowerSoftLimitHit;
-
-    // Hard limits
-    // Combine Hard limit wrist check with soft limit results:
-    // TODO hook limit switches to the spark controllers directly???
-    // What about feedback to the software to let it know that a limit has been reached?
-    upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
-    downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
-
-    //if (upStopHit || downStopHit) {
-    //  motorController.set(0.0); // Stop imediately regardless of the running command
-    //}
-
-    LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
-
-    LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
-  }
-
-  public void setupElbowConfig() {
-    spinConfig.idleMode(IdleMode.kBrake);
-    spinConfig.inverted(false);
-    spinConfig.smartCurrentLimit(10);
-    spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    leftSpinConfig.idleMode(IdleMode.kBrake);
-    leftSpinConfig.smartCurrentLimit(10);
-    leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID,true);
-    spinMotorLeft.configure(leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
-
-  //elevator basic up/down
-  public void elevatorMove(boolean up) {
-    if (!upStopHit && up) {motorController.set(.15);}
-    if (upStopHit || !up) {motorController.set(0);}
-  }
-  public void elevatorLow(boolean down) {
-    if (!downStopHit && down) {motorController.set(-.15);}
-    if (downStopHit || !down) {motorController.set(0);}
-  }
-
-    //meant for the problem of the motors hitting the top
-   /* 
-    public void elevatorUpFreakyVersion(boolean move) {
-      if(move && !upStopHit){motorController.set(.1);
-        if(elbowEncoder.getPosition() < 1){spinMotorRight.set(.1);}
+  public static boolean backwardStopHit; // These should not be static...
+  public static boolean upStopHit;
+  public  static boolean downStopHit;
+      
+  public BooleanSupplier upStop =
+            () -> {
+              return upLimit.get();
+            };
+        public BooleanSupplier downStop =
+            () -> {
+              return downLimit.get();
+            };
+    
+      public Elevator() {
+    
+        elevatorInOutData = new MotorJointIOInputsAutoLogged();
+        elbowInOutData = new MotorJointIOInputsAutoLogged();
+    
+        motorConfig.idleMode(IdleMode.kBrake);
+        motorConfig.smartCurrentLimit(10);
+        motorConfig.inverted(true);
+        motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+        leftMotorConfig.idleMode(IdleMode.kBrake);
+        leftMotorConfig.smartCurrentLimit(10);
+        leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
+        leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+        leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        setupElbowConfig();
       }
-    }
-    */
-  //elbow basics
-    public static void spinElbowForward(boolean go) {
-      if (go && !forwardStopHit) {spinMotorRight.set(.10);} 
-    else {spinMotorRight.set(0);}
-  }
+    
+      @Override
+      public void periodic() {
+        // This method will be called once per scheduler run
+    
+        elbowMotorIO.updateInputs(elbowInOutData);
+        elevatorMotorIO.updateInputs(elevatorInOutData);
+       
+        // Combine Hard limit wrist check with soft limit results:
+        // TODO hook limit switches to the spark controllers directly???
+        // What about feedback to the software to let it know that a limit has been reached?
+        upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
+    
+        downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
+    
+        //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
+        //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
+        forwardStopHit = elbowInOutData.upperSoftLimitHit;
+        backwardStopHit = elbowInOutData.lowerSoftLimitHit;
+    
+        // Hard limits
+        // Combine Hard limit wrist check with soft limit results:
+        // TODO hook limit switches to the spark controllers directly???
+        // What about feedback to the software to let it know that a limit has been reached?
+        upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
+        downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
+    
+        //if (upStopHit || downStopHit) {
+        //  motorController.set(0.0); // Stop imediately regardless of the running command
+        //}
+    
+        LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
+    
+        LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
+      }
+    
+      public void setupElbowConfig() {
+        spinConfig.idleMode(IdleMode.kBrake);
+        spinConfig.inverted(false);
+        spinConfig.smartCurrentLimit(10);
+        spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+        leftSpinConfig.idleMode(IdleMode.kBrake);
+        leftSpinConfig.smartCurrentLimit(10);
+        leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID,true);
+        spinMotorLeft.configure(leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      }
+    
+      //elevator basic up/down
+      public void elevatorMove(boolean up) {
+        if (!upStopHit && up) {motorController.set(.15);}
+        if (upStopHit || !up) {motorController.set(0);}
+      }
+      public void elevatorLow(boolean down) {
+        if (!downStopHit && down) {motorController.set(-.15);}
+        if (downStopHit || !down) {motorController.set(0);}
+      }
+  
+      //elbow basics
+        public static void spinElbowForward(boolean go) {
+          if (go && !forwardStopHit) {spinMotorRight.set(.10);} 
+        else {spinMotorRight.set(0);}
+      }
+    
+      public static void spinElbowBackwards(boolean execute) {
+        if (execute && !backwardStopHit) {spinMotorRight.set(-.10);} 
+        else {spinMotorRight.set(0);}
+      }
+    
+     //problem range elevator/elbow
+      public static void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
+        if(!upStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5){
+        motorController.set(.15);}
+        if (encoder.getPosition() <5 && encoder.getPosition() >3){
+          motorController.set(.15);
+          if(elbowEncoder.getPosition() < 0){
+            spinMotorRight.set(.1);}}}
 
-  public static void spinElbowBackwards(boolean execute) {
-    if (execute && !backwardStopHit) {spinMotorRight.set(-.10);} 
-    else {spinMotorRight.set(0);}
-  }
+      public static void elevatorElbowIssueDown(){
+        if(!downStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5){
+          motorController.set(-.15);}
+        if(encoder.getPosition() < 5 && encoder.getPosition() > 3){
+          motorController.set(-.15);
+          if(elbowEncoder.getPosition() > 0){
+            spinMotorRight.set(-.1);}}}
 
    public void updateDashboard(){
     SmartDashboard.putNumber("elevator Speed", encoder.getVelocity());  
