@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -17,9 +16,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
-import static edu.wpi.first.units.Units.Radians;
-
 import java.util.function.BooleanSupplier;
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
@@ -32,9 +28,8 @@ public class Elevator extends SubsystemBase {
   private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
   private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static AbsoluteEncoder encoder = leftMotorController.getAbsoluteEncoder();
-  private static AbsoluteEncoder elbowEncoder = spinMotorRight.getAbsoluteEncoder(); 
+  private static AbsoluteEncoder elbowEncoder = spinMotorRight.getAbsoluteEncoder();
 
-  private static SparkClosedLoopController pid = motorController.getClosedLoopController();
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
@@ -89,16 +84,16 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(10);
         leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
-        leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
         setupElbowConfig();
       }
     
       @Override
       public void periodic() {
         // This method will be called once per scheduler run
-    
+
         elbowMotorIO.updateInputs(elbowInOutData);
         elevatorMotorIO.updateInputs(elevatorInOutData);
        
@@ -165,20 +160,26 @@ public class Elevator extends SubsystemBase {
     
      //problem range elevator/elbow
       public static void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
-        if(!upStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5){
-        motorController.set(.15);}
-        if (encoder.getPosition() <5 && encoder.getPosition() >3){
+        if(!upStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5)
+        {motorController.set(.15);}
+
+        if (encoder.getPosition() <=5 && encoder.getPosition() >=3){
           motorController.set(.15);
           if(elbowEncoder.getPosition() < 0){
             spinMotorRight.set(.1);}}}
 
       public static void elevatorElbowIssueDown(){
-        if(!downStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5){
-          motorController.set(-.15);}
-        if(encoder.getPosition() < 5 && encoder.getPosition() > 3){
+        if(!downStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5)
+        {motorController.set(-.15);}
+
+        if(encoder.getPosition() <= 5 && encoder.getPosition() >= 3){
           motorController.set(-.15);
-          if(elbowEncoder.getPosition() > 0){
-            spinMotorRight.set(-.1);}}}
+          if(elbowEncoder.getPosition() >= 0){
+            spinMotorRight.set(-.1);}
+          else{spinMotorRight.set(0);
+          }
+        }
+      }
 
    public void updateDashboard(){
     SmartDashboard.putNumber("elevator Speed", encoder.getVelocity());  
