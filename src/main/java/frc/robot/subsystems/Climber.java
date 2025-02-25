@@ -25,7 +25,7 @@ public class Climber extends SubsystemBase {
   private static SparkMaxConfig leftConfig = new SparkMaxConfig();
   private static AbsoluteEncoder encoder = pusherRight.getAbsoluteEncoder();
 
-  private static final double upSoftRotationLimit = Math.toRadians(45);
+  private static final double upSoftRotationLimit = Math.toRadians(170);
   private static final double downSoftRotationLimit = Math.toRadians(0); 
   private MotorJointIO climberIO = new MotorJointSparkMax(pusherRight, "Climber", Constants.climberConstants.climberCANID, 
                                                           downSoftRotationLimit, upSoftRotationLimit);
@@ -55,21 +55,11 @@ public class Climber extends SubsystemBase {
   }
 
   public void climberBack(boolean move){
-    if(move){ 
+    if(move && !climberInOutData.lowerSoftLimitHit && !climberInOutData.lowerLimitHit){ 
       pusherRight.set(-.2);}
       else{pusherRight.set(0);}
 
   }
-
-  // TODO can it reset? Ratchet??
-  /*public void climberReset(boolean go) {
-    if (go && !climberInputs.lowerSoftLimitHit) {
-      pusherRight.set(-0.1);
-    }
-    else {
-      pusherRight.set(0.0);
-    }
-  }*/
 
   @Override
   public void periodic() {
