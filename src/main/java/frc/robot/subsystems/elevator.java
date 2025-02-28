@@ -78,12 +78,12 @@ public class Elevator extends SubsystemBase {
     
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(10);
-        motorConfig.inverted(true);
+        motorConfig.inverted(false);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(10);
-        leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true);
+        leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

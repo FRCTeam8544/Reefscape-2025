@@ -76,7 +76,7 @@ public class RobotContainer {
   private final Trigger rightBackTop = new Trigger(juliet.rightTrigger());
   private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
   private final Trigger startButton = new Trigger(juliet.start());
-  private final Trigger backButton = new Trigger(juliet.back());
+  private final Trigger backButton = new Trigger(juliet.back()); 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
