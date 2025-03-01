@@ -27,6 +27,7 @@ public class AutoRetract4 extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    clawIntake.wristAutoRetract();
     elevator.elevatorLow(true);
   }
 

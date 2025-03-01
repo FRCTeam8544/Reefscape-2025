@@ -27,6 +27,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.WristForward;
+import frc.robot.commands.AutonomousAuto.AutoScore;
+import frc.robot.commands.AutonomousAuto.IntakeAuto;
+import frc.robot.commands.AutonomousAuto.ScoreAuto4;
 import frc.robot.commands.Climb;
 import frc.robot.commands.ClimbBack;
 import frc.robot.commands.DriveCommands;
@@ -66,8 +69,6 @@ public class RobotContainer {
   private final ClawIntake clawIntake = new ClawIntake();
   private final Climber climber = new Climber();
 
-  //Named Commands (for pathplanner)
-
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
   private final CommandXboxController juliet = new CommandXboxController(1); // smooth operator
@@ -86,6 +87,11 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
+
+    //named commands for pathplanner
+    NamedCommands.registerCommand("AutoScore4", new AutoScore(elevator, clawIntake));
+    NamedCommands.registerCommand("IntakePose", new IntakeAuto(elevator, clawIntake));
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
