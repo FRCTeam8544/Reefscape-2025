@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -25,9 +26,11 @@ public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
-  private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
-  private static AbsoluteEncoder encoder = leftMotorController.getAbsoluteEncoder();
-  private static AbsoluteEncoder elbowEncoder = spinMotorRight.getAbsoluteEncoder();
+  private static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
+
+  /* Create elbow joint */
+  private static SparkFlex elbowController = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
+  private static AbsoluteEncoder elbowEncoder = elbowController.getAbsoluteEncoder();
 
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
@@ -37,14 +40,18 @@ public class Elevator extends SubsystemBase {
   final static double downSoftStopValue = Math.toRadians(90);
   final static double backwardSoftStopValue = Math.toRadians(-10);
   final static double forwardSoftStopValue = Math.toRadians(20);
-  private MotorJointIOInputs elevatorInOutData;
+  final static double altBackwardSoftStopValue = Math.toRadians(0);
+  final static double altForwardSoftStopValue = forwardSoftStopValue;
+  final static double elbowAlternateLimitsElevatorThresh = 3; // TODO???
+  
+  private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
                                                                     downSoftStopValue, upSoftStopValue, false);
                           
-  private MotorJointIOInputs elbowInOutData;
-  private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(spinMotorRight, "Elbow", Constants.elevatorConstants.rightElbowCANID,
-                                                                     backwardSoftStopValue, forwardSoftStopValue, false);
+  private static MotorJointIOInputs elbowInOutData;
+  private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(elbowController, "Elbow", Constants.elevatorConstants.rightElbowCANID,
+                                                                     backwardSoftStopValue, forwardSoftStopValue, true);
 
   /*private static DigitalInput forwardLimit = 
     new DigitalInput(Constants.elevatorConstants.forwardSwitchPort);
@@ -55,10 +62,11 @@ public class Elevator extends SubsystemBase {
   private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
   private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
 
+  public static boolean elevatorCalibrated = false;
   public static boolean forwardStopHit;
   public static boolean backwardStopHit; // These should not be static...
   public static boolean upStopHit;
-  public  static boolean downStopHit;
+  public static boolean downStopHit;
       
   public BooleanSupplier upStop =
             () -> {
@@ -73,7 +81,9 @@ public class Elevator extends SubsystemBase {
     
         elevatorInOutData = new MotorJointIOInputsAutoLogged();
         elbowInOutData = new MotorJointIOInputsAutoLogged();
-    
+
+        elevatorCalibrated = false;
+
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(10);
         motorConfig.inverted(false);
@@ -88,13 +98,36 @@ public class Elevator extends SubsystemBase {
         setupElbowConfig();
       }
     
+      public void setupElbowConfig() {
+        spinConfig.idleMode(IdleMode.kBrake);
+        spinConfig.inverted(false);
+        spinConfig.smartCurrentLimit(10);
+        elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      }
+
       @Override
       public void periodic() {
         // This method will be called once per scheduler run
 
+        // Zero the relative external encoder, when the elevator touches the bottom limit switch
+        if (downStop.getAsBoolean()) {
+           elevatorMotorIO.setZeroOffset( encoder.getPosition() );
+           elevatorCalibrated = true;
+        }
+
         elbowMotorIO.updateInputs(elbowInOutData);
         elevatorMotorIO.updateInputs(elevatorInOutData);
-       
+        
+        // This must be done after updateInputs so that the external position is accurate
+        if (elevatorInOutData.externalPosition >= elbowAlternateLimitsElevatorThresh)
+        {
+          elbowMotorIO.setAlternateLimits(altBackwardSoftStopValue,altForwardSoftStopValue);
+        }
+        else {
+          elbowMotorIO.clearAlternateLimits();
+        }
+
+
         // Combine Hard limit wrist check with soft limit results:
         // TODO hook limit switches to the spark controllers directly???
         // What about feedback to the software to let it know that a limit has been reached?
@@ -111,24 +144,27 @@ public class Elevator extends SubsystemBase {
         // Combine Hard limit wrist check with soft limit results:
         // TODO hook limit switches to the spark controllers directly???
         // What about feedback to the software to let it know that a limit has been reached?
-        upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
-        downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
+        if (elevatorCalibrated) {
+          upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
+          downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
+        }
+        else { // Ignore soft limits when elevator position is not calibrated
+          upStopHit = upStop.getAsBoolean();
+          downStopHit = downStop.getAsBoolean();
+        }
     
-        //if (upStopHit || downStopHit) {
-        //  motorController.set(0.0); // Stop imediately regardless of the running command
-        //}
+        if (upStopHit || downStopHit) {
+          motorController.set(0.0); // Stop imediately regardless of the running command
+        }
+
+        if (forwardStopHit || backwardStopHit) {
+          elbowController.set(0.0); // Stop imediataly
+        }
     
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
-    
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
       }
     
-      public void setupElbowConfig() {
-        spinConfig.idleMode(IdleMode.kBrake);
-        spinConfig.inverted(false);
-        spinConfig.smartCurrentLimit(10);
-        spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      }
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
@@ -143,41 +179,82 @@ public class Elevator extends SubsystemBase {
       //elbow auto pose 
       public void elbowAutoScore(boolean m) {
         if(m && elbowEncoder.getPosition() > 4 || elbowEncoder.getPosition() < 4) 
-        {spinMotorRight.set(.15);} //basically become number x (probs not 4)
-       else{spinMotorRight.set(0);}
+        {elbowController.set(.15);} //basically become number x (probs not 4)
+       else{elbowController.set(0);}
       }
   
       //elbow basics
         public static void spinElbowForward(boolean go) {
-          if (go && !forwardStopHit) {spinMotorRight.set(.10);} 
-        else {spinMotorRight.set(0);}
+          if (go && !forwardStopHit) {elbowController.set(.10);} 
+        else {elbowController.set(0);}
       }
     
       public static void spinElbowBackwards(boolean execute) {
-        if (execute && !backwardStopHit) {spinMotorRight.set(-.10);} 
-        else {spinMotorRight.set(0);}
+        if (execute && !backwardStopHit) {elbowController.set(-.10);} 
+        else {elbowController.set(0);}
       }
     
-     //problem range elevator/elbow
-      public static void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
-        if(!upStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5)
-        {motorController.set(.15);}
+      // Home the elevator to the down stop to determine the "zero" value
+      // of the current relative encoder value.
+      public static void calibrateElevatorEncoder() {
+        if (!downStopHit) {
+          motorController.set(-.05);
+          elevatorCalibrated = false;
+        }
+        else {
+          elevatorCalibrated = true;
+          motorController.set(0);
+        }
+      }
 
-        if (encoder.getPosition() <=5 && encoder.getPosition() >=3){
-          motorController.set(.15);
-          if(elbowEncoder.getPosition() <= 0){
-            spinMotorRight.set(.1);}
-          else{spinMotorRight.set(0);}}}
+      //problem range elevator/elbow
+      public static void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
+
+        final double elevatorPosition = elevatorInOutData.externalPosition;
+        final double elbowPosition = elbowInOutData.absolutePosition;
+ 
+        if (!elevatorCalibrated) {
+          return;
+        }
+
+        if (upStopHit) {
+           motorController.set(0.0);
+        }
+        else {
+           motorController.set(0.15);
+        }
+
+        if (elevatorPosition > elbowAlternateLimitsElevatorThresh) {
+          if (elbowEncoder.getPosition() < 0.0) {
+            elbowController.set(0.10); // kick elbow out to zero position
+          }
+          else {
+            elbowController.set(0);
+          }
+        }
+      }
 
       public static void elevatorElbowIssueDown(){
-        if(!downStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5)
-        {motorController.set(-.15);}
+        final double elevatorPosition = elevatorInOutData.externalPosition;
+        final double elbowPosition = elbowInOutData.absolutePosition;
+ 
+        if (!elevatorCalibrated) {
+          return;
+        }
 
-        if(encoder.getPosition() <= 5 && encoder.getPosition() >= 3){
-          motorController.set(-.15);
-          if(elbowEncoder.getPosition() >= 0){
-            spinMotorRight.set(-.1);}
-          else{spinMotorRight.set(0);
+        if (downStopHit) {
+           motorController.set(0.0);
+        }
+        else {
+           motorController.set(-0.15);
+        }
+
+        if (elevatorPosition > elbowAlternateLimitsElevatorThresh) {
+          if (elbowEncoder.getPosition() >= 0.0) {
+            elbowController.set(-0.10); // kick elbow out to zero position
+          }
+          else {
+            elbowController.set(0);
           }
         }
       }
@@ -186,6 +263,8 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("elevator Speed", encoder.getVelocity());  
     SmartDashboard.putBoolean("up limit hit", upStopHit);
     SmartDashboard.putBoolean("down limit hit", downStopHit);
+    SmartDashboard.putBoolean("forward limit hit", forwardStopHit);
+    SmartDashboard.putBoolean("backward limit hit", backwardStopHit);
   }
 
   public double getElevatorVelocity(){
