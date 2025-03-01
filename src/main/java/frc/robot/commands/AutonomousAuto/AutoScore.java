@@ -5,19 +5,21 @@
 package frc.robot.commands.AutonomousAuto;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.commands.AutonomousAuto.ScoreAuto4;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ClawIntake;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class LeaveAuto extends SequentialCommandGroup {
-  public LeaveAuto(Drive drive) {
-
-    Translation2d leave = new Translation2d(-1, 0); //in meters i think?
-
+public class AutoScore extends SequentialCommandGroup {
+  /** Creates a new AutoScore. */
+  public AutoScore(Elevator elevator, ClawIntake clawIntake) {
+    // Add your commands in the addCommands() call, e.g.
+    // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new SequentialCommandGroup( 
+      new SequentialCommandGroup(
+        new ScoreAuto4(elevator, clawIntake)
       )
     );
   }

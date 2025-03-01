@@ -26,14 +26,12 @@ public class Elevator extends SubsystemBase {
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
   private static SparkFlex spinMotorRight = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
-  private static SparkFlex spinMotorLeft = new SparkFlex(Constants.elevatorConstants.leftElbowCANID, MotorType.kBrushless);
   private static AbsoluteEncoder encoder = leftMotorController.getAbsoluteEncoder();
   private static AbsoluteEncoder elbowEncoder = spinMotorRight.getAbsoluteEncoder();
 
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
-  private static SparkFlexConfig leftSpinConfig = new SparkFlexConfig();
   
   final static double upSoftStopValue = Math.toRadians(0);
   final static double downSoftStopValue = Math.toRadians(90);
@@ -130,11 +128,6 @@ public class Elevator extends SubsystemBase {
         spinConfig.inverted(false);
         spinConfig.smartCurrentLimit(10);
         spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
-        leftSpinConfig.idleMode(IdleMode.kBrake);
-        leftSpinConfig.smartCurrentLimit(10);
-        leftSpinConfig.follow(Constants.elevatorConstants.rightElbowCANID,true);
-        spinMotorLeft.configure(leftSpinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
     
       //elevator basic up/down
@@ -145,6 +138,13 @@ public class Elevator extends SubsystemBase {
       public void elevatorLow(boolean down) {
         if (!downStopHit && down) {motorController.set(-.15);}
         if (downStopHit || !down) {motorController.set(0);}
+      }
+
+      //elbow auto pose 
+      public void elbowAutoScore(boolean m) {
+        if(m && elbowEncoder.getPosition() > 4 || elbowEncoder.getPosition() < 4) 
+        {spinMotorRight.set(.15);} //basically become number x (probs not 4)
+       else{spinMotorRight.set(0);}
       }
   
       //elbow basics
@@ -165,8 +165,9 @@ public class Elevator extends SubsystemBase {
 
         if (encoder.getPosition() <=5 && encoder.getPosition() >=3){
           motorController.set(.15);
-          if(elbowEncoder.getPosition() < 0){
-            spinMotorRight.set(.1);}}}
+          if(elbowEncoder.getPosition() <= 0){
+            spinMotorRight.set(.1);}
+          else{spinMotorRight.set(0);}}}
 
       public static void elevatorElbowIssueDown(){
         if(!downStopHit && encoder.getPosition() < 3 || encoder.getPosition() > 5)

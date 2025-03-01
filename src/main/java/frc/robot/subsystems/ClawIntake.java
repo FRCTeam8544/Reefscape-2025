@@ -150,6 +150,7 @@ public class ClawIntake extends SubsystemBase {
     return offset_mm;
   }
 
+  //roller basics
   public void rollerRoll(boolean go) {
     if (go) {rollerRight.setVoltage(7);} //in
     else {rollerRight.setVoltage(0);}
@@ -164,6 +165,13 @@ public class ClawIntake extends SubsystemBase {
     }
   }
 
+  //auto wrist/rollers
+  public void wristAuto(boolean a){
+    if(a && wristEncoder.getPosition() < .3) {wrist.set(.3);}
+    else{wrist.set(0);}
+  }
+
+  //wrist basics
   public void wristTurn(boolean forward) {
     if (forward && !wristForwardStopHit) {
       wrist.set(.15);

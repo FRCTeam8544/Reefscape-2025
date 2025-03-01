@@ -5,16 +5,16 @@
 package frc.robot.commands.AutonomousAuto;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveAuto extends Command {
-Drive drive;
+public class AutoRollers extends Command {
+  ClawIntake clawIntake;
 
-  public DriveAuto(Drive drive) {
-    this.drive = drive;
+  public AutoRollers() {
+    this.clawIntake = clawIntake;
 
-    addRequirements(drive);
+    addRequirements(clawIntake);
   }
 
   // Called when the command is initially scheduled.
@@ -24,6 +24,7 @@ Drive drive;
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    
   }
 
   // Called once the command ends or is interrupted.
