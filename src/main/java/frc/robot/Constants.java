@@ -46,7 +46,7 @@ public final class Constants {
   */
 
   public static final class elevatorConstants {
-    public static final int rightElbowCANID = 11;
+    public static final int rightElbowCANID = 10;
     public static final int rightElevatorCANID = 12;
     public static final int leftElevatorCANID = 13;
     public static final int limitSwitchPort = 4;

@@ -5,21 +5,21 @@
 package frc.robot.commands.AutonomousAuto;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ClawIntake;
+import frc.robot.subsystems.Elevator;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class AutoScore extends SequentialCommandGroup {
-  /** Creates a new AutoScore. */
-  public AutoScore(Elevator elevator, ClawIntake clawIntake) {
+public class IntakeAuto extends SequentialCommandGroup {
+  /** Creates a new IntakeAuto. */
+  public IntakeAuto(Elevator elevator, ClawIntake clawIntake) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new SequentialCommandGroup(
-        new ScoreAuto4(elevator, clawIntake).withTimeout(3), //timeout will end it
-        new AutoRollers().withTimeout(1),
+        new IntakeAuto(elevator, clawIntake).withTimeout(2), //time to be set but timeout will auto stop wherever
+        new AutoRollerIntake(clawIntake).withTimeout(1),
         new AutoRetract4(elevator, clawIntake).withTimeout(3)
       )
     );

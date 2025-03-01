@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClawIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutoRollers extends Command {
+public class AutoRollerIntake extends Command {
   ClawIntake clawIntake;
 
-  public AutoRollers() {
+  public AutoRollerIntake(ClawIntake clawIntake) {
+    this.clawIntake = clawIntake;
 
     addRequirements(clawIntake);
   }
@@ -23,7 +24,7 @@ public class AutoRollers extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    clawIntake.rollersAuto(true);
+    clawIntake.rollersAutoIntake(true);
   }
 
   // Called once the command ends or is interrupted.

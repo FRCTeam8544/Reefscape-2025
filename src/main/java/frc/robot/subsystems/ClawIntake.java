@@ -157,18 +157,34 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public void rollerRollBack(boolean roll) {
-    if (roll) {
-      rollerRight.setVoltage(7);
-    } // out
-    else {
-      rollerRight.setVoltage(0);
-    }
+    if (roll) {rollerRight.setVoltage(7);} // out
+    else {rollerRight.setVoltage(0);}
   }
 
   //auto wrist/rollers
+  //again encoders to be set... for all...
   public void wristAuto(boolean a){
     if(a && wristEncoder.getPosition() < .3) {wrist.set(.3);}
     else{wrist.set(0);}
+  }
+
+  public void wristAutoRetract() {
+    if(wristEncoder.getPosition() > 0.1) {wrist.set(-.3);} 
+    else{wrist.set(0);}
+  }
+
+  public void intakePose(){
+    if(wristEncoder.getPosition() > 0) {wrist.set(-.3);}
+    else {wrist.set(0);}
+  }
+
+  public void rollersAuto(boolean b) {
+    if(b) {rollerRight.setVoltage(7);}
+  }
+
+  public void rollersAutoIntake(boolean c) {
+    if(c) {rollerRight.setVoltage(-7);}
+    else {rollerRight.setVoltage(0);}
   }
 
   //wrist basics

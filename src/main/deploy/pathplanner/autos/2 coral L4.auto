@@ -1,0 +1,50 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2 coral L4 -- init"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoScore4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2 coral L4 -- to intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePose"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2 coral L4 -- back to reef"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
