@@ -40,11 +40,11 @@ public class Elevator extends SubsystemBase {
   private MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
-                                                                    downSoftStopValue, upSoftStopValue);
+                                                                    downSoftStopValue, upSoftStopValue, false);
                           
   private MotorJointIOInputs elbowInOutData;
   private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(spinMotorRight, "Elbow", Constants.elevatorConstants.rightElbowCANID,
-                                                                     backwardSoftStopValue, forwardSoftStopValue);
+                                                                     backwardSoftStopValue, forwardSoftStopValue, false);
 
   /*private static DigitalInput forwardLimit = 
     new DigitalInput(Constants.elevatorConstants.forwardSwitchPort);

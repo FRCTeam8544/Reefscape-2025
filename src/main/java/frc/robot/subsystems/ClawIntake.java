@@ -56,7 +56,7 @@ public class ClawIntake extends SubsystemBase {
   private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 
-                                           downSoftRotationLimit, upSoftRotationLimit);
+                                           downSoftRotationLimit, upSoftRotationLimit, true);
   private static AbsoluteEncoder wristEncoder = wrist.getAbsoluteEncoder();
   
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
