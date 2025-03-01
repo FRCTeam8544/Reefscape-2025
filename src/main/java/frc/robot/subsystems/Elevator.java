@@ -126,14 +126,6 @@ public class Elevator extends SubsystemBase {
         else {
           elbowMotorIO.clearAlternateLimits();
         }
-
-
-        // Combine Hard limit wrist check with soft limit results:
-        // TODO hook limit switches to the spark controllers directly???
-        // What about feedback to the software to let it know that a limit has been reached?
-        upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
-    
-        downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
     
         //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
         //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
