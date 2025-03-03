@@ -95,7 +95,7 @@ public class ClawIntake extends SubsystemBase {
     rollerLeft.configure(rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     wristConfig.idleMode(IdleMode.kBrake);
-    wristConfig.smartCurrentLimit(10);
+    wristConfig.smartCurrentLimit(40);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -157,7 +157,7 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public void rollerRollBack(boolean roll) {
-    if (roll) {rollerRight.setVoltage(7);} // out
+    if (roll) {rollerRight.setVoltage(-7);} // out
     else {rollerRight.setVoltage(0);}
   }
 

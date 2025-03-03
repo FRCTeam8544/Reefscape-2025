@@ -75,12 +75,12 @@ public class Elevator extends SubsystemBase {
         elbowInOutData = new MotorJointIOInputsAutoLogged();
     
         motorConfig.idleMode(IdleMode.kBrake);
-        motorConfig.smartCurrentLimit(10);
+        motorConfig.smartCurrentLimit(20);
         motorConfig.inverted(false);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
-        leftMotorConfig.smartCurrentLimit(10);
+        leftMotorConfig.smartCurrentLimit(20);
         leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -126,7 +126,7 @@ public class Elevator extends SubsystemBase {
       public void setupElbowConfig() {
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
-        spinConfig.smartCurrentLimit(10);
+        spinConfig.smartCurrentLimit(40);
         spinMotorRight.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
     
