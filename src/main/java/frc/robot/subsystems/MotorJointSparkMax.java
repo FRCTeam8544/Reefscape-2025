@@ -41,12 +41,17 @@ public class MotorJointSparkMax implements MotorJointIO {
 
       
       inOutData.connected = false;
-      inOutData.absolutePosition = absoluteEncoder.getPosition();
-      //inOutData.externalPosition = externalEncoder.getPosition();
+      
+      inOutData.zeroOffset = 0;
+      inOutData.rawAbsolutionPosition = absoluteEncoder.getPosition();
+      inOutData.absolutePosition = inOutData.rawAbsolutionPosition;
+      inOutData.rawExernalPosition = 0;
+      inOutData.externalPosition = inOutData.rawExernalPosition;
       inOutData.lowerLimitHit = reverseLimitSwitch.isPressed();
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
       inOutData.lowerSoftLimitHit = inOutData.absolutePosition < lowerSoftLimitValue;
       inOutData.upperSoftLimitHit = inOutData.absolutePosition > upperSoftLimitValue;
+
     }
 
     public void setVelocity(double speed) {

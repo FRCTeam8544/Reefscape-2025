@@ -10,18 +10,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class elevatorUp extends Command {
+public class ElevatorStow extends Command {
   CommandXboxController juliet;
   Elevator elevator;
-  Trigger yButton;
+  Trigger button;
 
-  public elevatorUp(Elevator elevator, CommandXboxController juliet, Trigger yButton) {
+  public ElevatorStow(Elevator elevator, CommandXboxController juliet, Trigger button) {
     this.elevator = elevator;
     this.juliet = juliet;
-    this.yButton = yButton;
+    this.button = button;
     addRequirements(elevator);
 
-    yButton = juliet.y();
+    button = juliet.start();
   }
 
   @Override
@@ -32,18 +32,17 @@ public class elevatorUp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (yButton.getAsBoolean() && !elevator.upStop.getAsBoolean()) {
-      elevator.elevatorMove(true);
-      //elevator.elevatorElbowIssueUp(); // will move elbow in/out as well.
+    if (button.getAsBoolean() && !elevator.downStop.getAsBoolean()) {
+      elevator.elevatorElbowIssueDown(); // will move elbow in/out as well.
     } else {
-      elevator.elevatorMove(false); // Stop the elevator
+      elevator.elevatorLow(false); // Stop the elevator
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    elevator.elevatorMove(false);
+    elevator.elevatorLow(false); // Stop the elevator
   }
 
   // Returns true when the command should end.

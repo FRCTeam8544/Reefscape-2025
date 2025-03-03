@@ -39,6 +39,7 @@ import frc.robot.commands.ElbowForward;
 import frc.robot.commands.WristBack;
 import frc.robot.commands.Elevator.elevatorDown;
 import frc.robot.commands.Elevator.elevatorUp;
+import frc.robot.commands.Elevator.ElevatorStow;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.drive.Drive;
@@ -219,6 +220,7 @@ public class RobotContainer {
     juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
     juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
+  //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
     juliet.back().onTrue(new ClimbBack(climber, juliet, backButton)); //climber back
   }
 

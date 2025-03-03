@@ -18,6 +18,9 @@ public class MotorJointSparkFlex implements MotorJointIO {
     private SparkLimitSwitch reverseLimitSwitch;
     private double lowerSoftLimitValue;
     private double upperSoftLimitValue;
+    private boolean useAlternateLimits;
+    private double altLowerSoftLimitValue;
+    private double altUpperSoftLimitValue;
     private boolean useAbsoluteEncoder;
     private RelativeEncoder externalEncoder;
     private SparkAbsoluteEncoder absoluteEncoder;
@@ -42,10 +45,30 @@ public class MotorJointSparkFlex implements MotorJointIO {
 
       this.lowerSoftLimitValue = lowerSoftLimitValue;
       this.upperSoftLimitValue = upperSoftLimitValue;
+      this.useAlternateLimits = false;
+      this.altLowerSoftLimitValue = lowerSoftLimitValue;
+      this.altUpperSoftLimitValue = upperSoftLimitValue;
     }
 
     public String getName() {
       return jointName;
+    }
+
+    public boolean setAlternateLimits(double altLowerLimitValue, double altUpperLimitValue) {
+      if ((altLowerLimitValue < altUpperLimitValue) && 
+          (altLowerLimitValue >= lowerSoftLimitValue) &&
+          (altUpperLimitValue <= upperSoftLimitValue) ) {
+        this.altLowerSoftLimitValue = altLowerLimitValue;
+        this.altUpperSoftLimitValue = altUpperLimitValue;
+        return true;
+      }
+      return false;
+    }
+
+    public void clearAlternateLimits() {
+       useAlternateLimits = false;
+       this.altLowerSoftLimitValue = lowerSoftLimitValue;
+       this.altUpperSoftLimitValue = upperSoftLimitValue;
     }
 
     public void setZeroOffset(double zeroOffset) {
@@ -54,17 +77,35 @@ public class MotorJointSparkFlex implements MotorJointIO {
 
     public void updateInputs(MotorJointIOInputs inOutData) {
       inOutData.connected = true;
+      
+      inOutData.zeroOffset = zeroOffset;
       if (useAbsoluteEncoder) {
-        inOutData.absolutePosition = absoluteEncoder.getPosition() + zeroOffset;
-        inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < lowerSoftLimitValue);
-        inOutData.upperSoftLimitHit = (inOutData.absolutePosition < upperSoftLimitValue);
-        inOutData.externalPosition = 0; // TODO Can we read this anyways on the flex?
+        inOutData.rawAbsolutionPosition = absoluteEncoder.getPosition();
+        inOutData.absolutePosition = inOutData.rawAbsolutionPosition - zeroOffset;
+        if (useAlternateLimits) {
+          inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < altLowerSoftLimitValue);
+          inOutData.upperSoftLimitHit = (inOutData.absolutePosition < altUpperSoftLimitValue);
+        }
+        else {
+          inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < lowerSoftLimitValue);
+          inOutData.upperSoftLimitHit = (inOutData.absolutePosition < upperSoftLimitValue);
+        }
+        inOutData.rawExernalPosition = 0;
+        inOutData.externalPosition = 0;
       }
       else {
-        inOutData.externalPosition = externalEncoder.getPosition() + zeroOffset;
-        inOutData.lowerSoftLimitHit = (inOutData.externalPosition < lowerSoftLimitValue);
-        inOutData.upperSoftLimitHit = (inOutData.externalPosition < upperSoftLimitValue);
-        inOutData.absolutePosition = 0; // TODO Can we read this anyways on the flex?
+        inOutData.rawExernalPosition = externalEncoder.getPosition();
+        inOutData.externalPosition = inOutData.rawExernalPosition - zeroOffset;
+        if (useAlternateLimits) {
+          inOutData.lowerSoftLimitHit = (inOutData.externalPosition < altLowerSoftLimitValue);
+          inOutData.upperSoftLimitHit = (inOutData.externalPosition < altUpperSoftLimitValue);
+        }
+        else {
+          inOutData.lowerSoftLimitHit = (inOutData.externalPosition < lowerSoftLimitValue);
+          inOutData.upperSoftLimitHit = (inOutData.externalPosition < upperSoftLimitValue);
+        }
+        inOutData.rawAbsolutionPosition = 0;
+        inOutData.absolutePosition = 0; 
       }
       inOutData.lowerLimitHit = reverseLimitSwitch.isPressed();
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
