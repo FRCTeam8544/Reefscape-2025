@@ -34,18 +34,21 @@ import frc.robot.util.LogUtil;
 public class ClawIntake extends SubsystemBase {
   
   private final double intakeWidth_mm = 250; // TODO Use the laser to determine this number as built
-  
+  private final int coralAcquiredCountThreshold = 3; // Wait 3 * 20 ms before declaring coral acquired
+
   private boolean coralAcquired;
+  private int coralPresentCount;
+
   private static LaserCANIOInputsAutoLogged coralLaserInputs;
   private static LaserCANIO seabassIO = new LaserCAN("CoralLaser",
                                              Constants.clawIntakeConstants.laser1CANID,
                                              LaserCAN.FieldOfView.NARROW_4_BY_4);
 
-  private boolean algaeAcquired;
+  /*private boolean algaeAcquired;
   private static LaserCANIOInputsAutoLogged algaeLaserInputs;
   private static LaserCANIO sharkIO = new LaserCAN("AlgaeLaser", 
                                                  Constants.clawIntakeConstants.laser2CANID,
-                                                 LaserCAN.FieldOfView.WIDE_16_BY_16);
+                                                 LaserCAN.FieldOfView.WIDE_16_BY_16);*/
 
   /** Creates a new ClawIntake. */
   private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
@@ -81,10 +84,11 @@ public class ClawIntake extends SubsystemBase {
 
   public ClawIntake() {
     coralAcquired = false;
+    coralPresentCount = 0;
 
     // Initialize inputs
     this.coralLaserInputs = new LaserCANIOInputsAutoLogged();
-    this.algaeLaserInputs = new LaserCANIOInputsAutoLogged();
+    //this.algaeLaserInputs = new LaserCANIOInputsAutoLogged();
     this.wristInOutData = new MotorJointIOInputsAutoLogged();
 
     rollerConfigR.idleMode(IdleMode.kBrake);
@@ -104,7 +108,7 @@ public class ClawIntake extends SubsystemBase {
 
     wristIO.updateInputs(wristInOutData);
     seabassIO.updateInputs(coralLaserInputs);
-    sharkIO.updateInputs(algaeLaserInputs);
+    //sharkIO.updateInputs(algaeLaserInputs);
 
     // Combine Hard limit wrist check with soft limit results:
     wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
@@ -120,7 +124,7 @@ public class ClawIntake extends SubsystemBase {
     
     LogUtil.logData(wristIO.getName(), wristInOutData);
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
-    LogUtil.logData(sharkIO.getName(), algaeLaserInputs);
+   // LogUtil.logData(sharkIO.getName(), algaeLaserInputs);
 
   }
 
@@ -128,8 +132,17 @@ public class ClawIntake extends SubsystemBase {
   private void checkIntakeForCoral() {
     if (coralLaserInputs.laserConnected &&
          (coralLaserInputs.status == 0)) { // LASERCAN_STATUS_VALID_MEASUREMENT)) {
-      coralAcquired = (coralLaserInputs.distance_mm < 
-                       intakeWidth_mm - GameConstants.coralPieceHalfWidth_mm);
+
+      if (coralLaserInputs.distance_mm < intakeWidth_mm - GameConstants.coralPieceHalfWidth_mm) {
+        coralPresentCount++;
+        coralPresentCount = Math.min(coralPresentCount, coralAcquiredCountThreshold);
+      }
+      else {
+        coralPresentCount--;
+        coralPresentCount = Math.max(coralPresentCount, 0);
+      }
+
+      coralAcquired = (coralPresentCount >= coralAcquiredCountThreshold);
     }
     else {
       coralAcquired = false;
