@@ -11,7 +11,13 @@ public class LogUtil {
       Logger.recordOutput(
           prefix + "/connected", inOutData.connected);
       Logger.recordOutput(
+          prefix + "/zeroOffset", inOutData.zeroOffset);
+      Logger.recordOutput(
+          prefix + "/Measurement/rawAbsolutePosition", inOutData.rawAbsolutePosition);
+      Logger.recordOutput(
           prefix + "/Measurement/absolutePosition", inOutData.absolutePosition);
+      Logger.recordOutput(
+          prefix + "/Measurement/rawExternalPosition", inOutData.rawExternalPosition);
       Logger.recordOutput(
           prefix + "/Measurement/externalPosition", inOutData.externalPosition);
       Logger.recordOutput(

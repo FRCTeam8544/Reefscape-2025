@@ -10,8 +10,8 @@ public interface MotorJointIO {
     public boolean connected = false;
 
     public double zeroOffset = 0;
-    public double rawExernalPosition = 0;
-    public double rawAbsolutionPosition = 0;
+    public double rawExternalPosition = 0;
+    public double rawAbsolutePosition = 0;
     public double externalPosition = 0;
     public double absolutePosition = 0;
 

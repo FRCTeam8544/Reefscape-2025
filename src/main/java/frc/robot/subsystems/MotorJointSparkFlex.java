@@ -80,8 +80,8 @@ public class MotorJointSparkFlex implements MotorJointIO {
       
       inOutData.zeroOffset = zeroOffset;
       if (useAbsoluteEncoder) {
-        inOutData.rawAbsolutionPosition = absoluteEncoder.getPosition();
-        inOutData.absolutePosition = inOutData.rawAbsolutionPosition - zeroOffset;
+        inOutData.rawAbsolutePosition = absoluteEncoder.getPosition();
+        inOutData.absolutePosition = inOutData.rawAbsolutePosition - zeroOffset;
         if (useAlternateLimits) {
           inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < altLowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.absolutePosition < altUpperSoftLimitValue);
@@ -90,12 +90,12 @@ public class MotorJointSparkFlex implements MotorJointIO {
           inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < lowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.absolutePosition < upperSoftLimitValue);
         }
-        inOutData.rawExernalPosition = 0;
+        inOutData.rawExternalPosition = 0;
         inOutData.externalPosition = 0;
       }
       else {
-        inOutData.rawExernalPosition = externalEncoder.getPosition();
-        inOutData.externalPosition = inOutData.rawExernalPosition - zeroOffset;
+        inOutData.rawExternalPosition = externalEncoder.getPosition();
+        inOutData.externalPosition = inOutData.rawExternalPosition - zeroOffset;
         if (useAlternateLimits) {
           inOutData.lowerSoftLimitHit = (inOutData.externalPosition < altLowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.externalPosition < altUpperSoftLimitValue);
@@ -104,7 +104,7 @@ public class MotorJointSparkFlex implements MotorJointIO {
           inOutData.lowerSoftLimitHit = (inOutData.externalPosition < lowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.externalPosition < upperSoftLimitValue);
         }
-        inOutData.rawAbsolutionPosition = 0;
+        inOutData.rawAbsolutePosition = 0;
         inOutData.absolutePosition = 0; 
       }
       inOutData.lowerLimitHit = reverseLimitSwitch.isPressed();
