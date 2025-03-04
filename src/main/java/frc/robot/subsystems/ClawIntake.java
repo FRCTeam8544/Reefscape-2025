@@ -54,8 +54,8 @@ public class ClawIntake extends SubsystemBase {
   private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   
-  private final double upSoftRotationLimit = Math.toRadians(10);
-  private final double downSoftRotationLimit = Math.toRadians(-10);
+  private final double upSoftRotationLimit = 0.56; // Rotations
+  private final double downSoftRotationLimit = 0;  // Rotations
   private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 

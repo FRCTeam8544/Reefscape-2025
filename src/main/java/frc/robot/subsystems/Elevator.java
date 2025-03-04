@@ -37,13 +37,13 @@ public class Elevator extends SubsystemBase {
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   
-  final static double upSoftStopValue = Math.toRadians(0);
-  final static double downSoftStopValue = Math.toRadians(90);
-  final static double backwardSoftStopValue = Math.toRadians(-10);
-  final static double forwardSoftStopValue = Math.toRadians(20);
-  final static double altBackwardSoftStopValue = Math.toRadians(0);
+  final static double upSoftStopValue = 9.5; // Rotations, enough to reach level 4 coral
+  final static double downSoftStopValue = 0;
+  final static double backwardSoftStopValue = 0; // TODO need to set zero point in stow with rev client
+  final static double forwardSoftStopValue = 0.3; // 108 degrees as rotations, TODO confirm this limit
+  final static double altBackwardSoftStopValue = 0.05;
   final static double altForwardSoftStopValue = forwardSoftStopValue;
-  final static double elbowAlternateLimitsElevatorThresh = 3; // TODO???
+  final static double elbowAlternateLimitsElevatorThresh = 0.25; // 5.53 inches per rotation
   
   private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
