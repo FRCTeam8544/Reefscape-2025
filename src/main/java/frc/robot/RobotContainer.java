@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.WristForward;
 import frc.robot.commands.AutonomousAuto.AutoScore;
 import frc.robot.commands.AutonomousAuto.IntakeAuto;
-import frc.robot.commands.AutonomousAuto.ScoreAuto4;
 import frc.robot.commands.Climb;
 import frc.robot.commands.ClimbBack;
 import frc.robot.commands.DriveCommands;
@@ -83,6 +82,7 @@ public class RobotContainer {
   private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
   private final Trigger startButton = new Trigger(juliet.start());
   private final Trigger backButton = new Trigger(juliet.back()); 
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -209,6 +209,8 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+    
+    //operator functions
     juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
     juliet.rightBumper().onTrue(new WristForward(clawIntake, juliet, rightBack)); // wrist forward
@@ -216,7 +218,7 @@ public class RobotContainer {
     juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton)); // forward rollers
     juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // back rollers
     juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
-    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // // elbow backwards
+    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
     juliet.back().onTrue(new ClimbBack(climber, juliet, backButton)); //climber back
