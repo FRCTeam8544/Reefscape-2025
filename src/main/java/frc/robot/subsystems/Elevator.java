@@ -36,14 +36,15 @@ public class Elevator extends SubsystemBase {
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
-  
+
+  // 5.53 inches per rotation of elevator output shaft
   final static double upSoftStopValue = 9.5; // Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
   final static double backwardSoftStopValue = 0; // TODO need to set zero point in stow with rev client
   final static double forwardSoftStopValue = 0.3; // 108 degrees as rotations, TODO confirm this limit
   final static double altBackwardSoftStopValue = 0.05;
   final static double altForwardSoftStopValue = forwardSoftStopValue;
-  final static double elbowAlternateLimitsElevatorThresh = 0.25; // 5.53 inches per rotation
+  final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
   
   private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
