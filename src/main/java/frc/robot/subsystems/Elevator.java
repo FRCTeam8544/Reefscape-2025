@@ -88,7 +88,7 @@ public class Elevator extends SubsystemBase {
 
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(10);
-        motorConfig.inverted(false);
+        motorConfig.inverted(true); // Clockwise is UP, nominal motor spin is counterclockwise
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
