@@ -92,10 +92,14 @@ public class ClawIntake extends SubsystemBase {
     this.wristInOutData = new MotorJointIOInputsAutoLogged();
 
     rollerConfigR.idleMode(IdleMode.kBrake);
+    rollerConfigR.inverted(true); // This makes positive voltage intake, negative out
     rollerRight.configure(rollerConfigR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     rollerConfigL.idleMode(IdleMode.kBrake);
-    rollerConfigL.follow(Constants.clawIntakeConstants.rollerCANID, true);
+    // Geometry of the intake means that both motors should turn the same direction
+    // Becuase the coral interacts with different sides of the belt there is an implicit inversion, so no
+    // software invert needed.
+    rollerConfigL.follow(Constants.clawIntakeConstants.rollerCANID, false);
     rollerLeft.configure(rollerConfigL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     wristConfig.idleMode(IdleMode.kBrake);

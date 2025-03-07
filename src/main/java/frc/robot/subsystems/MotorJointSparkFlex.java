@@ -82,6 +82,8 @@ public class MotorJointSparkFlex implements MotorJointIO {
       if (useAbsoluteEncoder) {
         inOutData.rawAbsolutePosition = absoluteEncoder.getPosition();
         inOutData.absolutePosition = inOutData.rawAbsolutePosition - zeroOffset;
+        inOutData.rawExternalPosition = 0;
+        inOutData.externalPosition = 0;
         if (useAlternateLimits) {
           inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < altLowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.absolutePosition < altUpperSoftLimitValue);
@@ -90,12 +92,12 @@ public class MotorJointSparkFlex implements MotorJointIO {
           inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < lowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.absolutePosition < upperSoftLimitValue);
         }
-        inOutData.rawExternalPosition = 0;
-        inOutData.externalPosition = 0;
       }
       else {
         inOutData.rawExternalPosition = externalEncoder.getPosition();
         inOutData.externalPosition = inOutData.rawExternalPosition - zeroOffset;
+        inOutData.rawAbsolutePosition = 0;
+        inOutData.absolutePosition = 0;
         if (useAlternateLimits) {
           inOutData.lowerSoftLimitHit = (inOutData.externalPosition < altLowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.externalPosition < altUpperSoftLimitValue);
@@ -104,8 +106,6 @@ public class MotorJointSparkFlex implements MotorJointIO {
           inOutData.lowerSoftLimitHit = (inOutData.externalPosition < lowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.externalPosition < upperSoftLimitValue);
         }
-        inOutData.rawAbsolutePosition = 0;
-        inOutData.absolutePosition = 0; 
       }
       inOutData.lowerLimitHit = reverseLimitSwitch.isPressed();
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
