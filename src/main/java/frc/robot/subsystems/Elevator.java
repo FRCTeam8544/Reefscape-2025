@@ -7,8 +7,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -28,6 +30,7 @@ public class Elevator extends SubsystemBase {
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
   private static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
+  private static SparkClosedLoopController closedLoop = leftMotorController.getClosedLoopController();
 
   /* Create elbow joint */
   private static SparkFlex elbowController = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
@@ -36,7 +39,7 @@ public class Elevator extends SubsystemBase {
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
-
+  
   // 5.53 inches per rotation of elevator output shaft
   final static double upSoftStopValue = 9.5; // Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
@@ -69,6 +72,7 @@ public class Elevator extends SubsystemBase {
   public static boolean backwardStopHit; // These should not be static...
   public static boolean upStopHit;
   public static boolean downStopHit;
+
       
   public BooleanSupplier upStop =
             () -> {
@@ -86,15 +90,21 @@ public class Elevator extends SubsystemBase {
 
         elevatorCalibrated = false;
 
+        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl);
+        //define
+
         motorConfig.idleMode(IdleMode.kBrake);
-        motorConfig.smartCurrentLimit(10);
-        motorConfig.inverted(false);
+        motorConfig.smartCurrentLimit(40);
+        motorConfig.inverted(true);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
-        leftMotorConfig.smartCurrentLimit(10);
+        leftMotorConfig.smartCurrentLimit(40);
         leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
-        leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
+        leftMotorConfig.closedLoop.pid(0, 0, 0);
+        //leftMotorConfig.closedLoop.outputRange(kMinOutput, kMaxOutput);
+        leftMotorConfig.closedLoop.velocityFF(1/565); //only used in velocity loop & set based on motor type
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();
@@ -103,7 +113,7 @@ public class Elevator extends SubsystemBase {
       public void setupElbowConfig() {
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
-        spinConfig.smartCurrentLimit(10);
+        spinConfig.smartCurrentLimit(20);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -131,21 +141,21 @@ public class Elevator extends SubsystemBase {
         
         //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
         //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
-        forwardStopHit = elbowInOutData.upperSoftLimitHit;
-        backwardStopHit = elbowInOutData.lowerSoftLimitHit;
+        //forwardStopHit = elbowInOutData.upperSoftLimitHit;
+        //backwardStopHit = elbowInOutData.lowerSoftLimitHit;
     
         // Hard limits
         // Combine Hard limit wrist check with soft limit results:
         // TODO hook limit switches to the spark controllers directly???
         // What about feedback to the software to let it know that a limit has been reached?
-        if (elevatorCalibrated) {
+        /*if (elevatorCalibrated) {
           upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
           downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
         }
         else { // Ignore soft limits when elevator position is not calibrated
           upStopHit = upStop.getAsBoolean();
           downStopHit = downStop.getAsBoolean();
-        }
+        }*/
     
         if (upStopHit || downStopHit) {
           motorController.set(0.0); // Stop imediately regardless of the running command
@@ -162,11 +172,11 @@ public class Elevator extends SubsystemBase {
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {motorController.set(.15);}
+        if (!upStopHit && up) {motorController.set(.1);}
         if (upStopHit || !up) {motorController.set(0);}
       }
       public void elevatorLow(boolean down) {
-        if (!downStopHit && down) {motorController.set(-.15);}
+        if (!downStopHit && down) {motorController.set(-.1);}
         if (downStopHit || !down) {motorController.set(0);}
       }
 
