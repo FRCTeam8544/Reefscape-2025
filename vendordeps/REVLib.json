@@ -1,25 +1,25 @@
 {
-  "fileName": "LumynLabs-2025.0.0.json",
-  "name": "LumynLabs",
-  "version": "2025.0.0",
+  "fileName": "REVLib.json",
+  "name": "REVLib",
+  "version": "2025.0.3",
   "frcYear": "2025",
-  "uuid": "eebd34fc-a6d3-48a2-a286-ac1cec59ab89",
+  "uuid": "3f48eb8c-50fe-43a6-9cb7-44c86353c4cb",
   "mavenUrls": [
-    "https://packages.lumynlabs.com/repo"
+    "https://maven.revrobotics.com/"
   ],
-  "jsonUrl": "https://packages.lumynlabs.com/LumynLabs.json",
+  "jsonUrl": "https://software-metadata.revrobotics.com/REVLib-2025.json",
   "javaDependencies": [
     {
-      "groupId": "com.lumynlabs.frc",
-      "artifactId": "LumynLabs-java",
-      "version": "2025.0.0"
+      "groupId": "com.revrobotics.frc",
+      "artifactId": "REVLib-java",
+      "version": "2025.0.3"
     }
   ],
   "jniDependencies": [
     {
-      "groupId": "com.lumynlabs.frc",
-      "artifactId": "LumynLabs-driver",
-      "version": "2025.0.0",
+      "groupId": "com.revrobotics.frc",
+      "artifactId": "REVLib-driver",
+      "version": "2025.0.3",
       "skipInvalidPlatforms": true,
       "isJar": false,
       "validPlatforms": [
@@ -34,10 +34,10 @@
   ],
   "cppDependencies": [
     {
-      "groupId": "com.lumynlabs.frc",
-      "artifactId": "LumynLabs-cpp",
-      "version": "2025.0.0",
-      "libName": "Lumyn",
+      "groupId": "com.revrobotics.frc",
+      "artifactId": "REVLib-cpp",
+      "version": "2025.0.3",
+      "libName": "REVLib",
       "headerClassifier": "headers",
       "sharedLibrary": false,
       "skipInvalidPlatforms": true,
@@ -51,10 +51,10 @@
       ]
     },
     {
-      "groupId": "com.lumynlabs.frc",
-      "artifactId": "LumynLabs-driver",
-      "version": "2025.0.0",
-      "libName": "LumynDriver",
+      "groupId": "com.revrobotics.frc",
+      "artifactId": "REVLib-driver",
+      "version": "2025.0.3",
+      "libName": "REVLibDriver",
       "headerClassifier": "headers",
       "sharedLibrary": false,
       "skipInvalidPlatforms": true,

@@ -20,9 +20,9 @@ import frc.robot.Constants;
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
   public static SparkMax pusherRight = new SparkMax(Constants.climberConstants.climberCANID, MotorType.kBrushless);
-  public static SparkMax pusherLeft = new SparkMax(Constants.climberConstants.climber2CANID, MotorType.kBrushless);
+  //public static SparkMax pusherLeft = new SparkMax(Constants.climberConstants.climber2CANID, MotorType.kBrushless);
   private static SparkMaxConfig rightConfig = new SparkMaxConfig();
-  private static SparkMaxConfig leftConfig = new SparkMaxConfig();
+  //private static SparkMaxConfig leftConfig = new SparkMaxConfig();
   private static AbsoluteEncoder encoder = pusherRight.getAbsoluteEncoder();
 
   private static final double upSoftRotationLimit = Math.toRadians(170);
@@ -41,11 +41,11 @@ public class Climber extends SubsystemBase {
     rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     pusherRight.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    //Follower will mirror the movements of the rightPusher
+    /*Follower will mirror the movements of the rightPusher
     leftConfig.follow(Constants.climberConstants.climberCANID,true);
     leftConfig.idleMode(IdleMode.kBrake);
     leftConfig.smartCurrentLimit(10);
-    pusherLeft.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    pusherLeft.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);*/
   }
 
   public void climberClimb(boolean go) {

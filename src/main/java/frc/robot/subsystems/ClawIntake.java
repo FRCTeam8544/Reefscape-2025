@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import au.grapplerobotics.LaserCan;
-
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -24,7 +23,6 @@ import frc.robot.subsystems.LaserCAN;
 import frc.robot.subsystems.LaserCANIO;
 import frc.robot.subsystems.LaserCANIO.LaserCANIOInputs;
 import frc.robot.subsystems.LaserCANIOInputsAutoLogged;
-
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;

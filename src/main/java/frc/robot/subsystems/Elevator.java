@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -72,6 +73,7 @@ public class Elevator extends SubsystemBase {
   public static boolean backwardStopHit; // These should not be static...
   public static boolean upStopHit;
   public static boolean downStopHit;
+  public static double setPoint = 0; //rpm
 
       
   public BooleanSupplier upStop =
@@ -90,12 +92,14 @@ public class Elevator extends SubsystemBase {
 
         elevatorCalibrated = false;
 
-        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl);
-        //define
-
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(40);
         motorConfig.inverted(true);
+        motorConfig.limitSwitch
+          .forwardLimitSwitchType(Type.kNormallyOpen)
+          .forwardLimitSwitchEnabled(true)
+          .reverseLimitSwitchEnabled(true)
+          .reverseLimitSwitchType(Type.kNormallyOpen);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
@@ -103,8 +107,14 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
         leftMotorConfig.closedLoop.pid(0, 0, 0);
+        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl);
+        //define setpoint to not be 0
         //leftMotorConfig.closedLoop.outputRange(kMinOutput, kMaxOutput);
         leftMotorConfig.closedLoop.velocityFF(1/565); //only used in velocity loop & set based on motor type
+        leftMotorConfig.closedLoop.maxMotion
+          .maxVelocity(0)
+          .maxAcceleration(0)
+          .allowedClosedLoopError(0);
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();

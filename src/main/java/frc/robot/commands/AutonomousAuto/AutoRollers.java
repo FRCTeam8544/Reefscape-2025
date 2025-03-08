@@ -11,7 +11,8 @@ import frc.robot.subsystems.ClawIntake;
 public class AutoRollers extends Command {
   ClawIntake clawIntake;
 
-  public AutoRollers() {
+  public AutoRollers(ClawIntake clawIntake) {
+    this.clawIntake = clawIntake;
 
     addRequirements(clawIntake);
   }
