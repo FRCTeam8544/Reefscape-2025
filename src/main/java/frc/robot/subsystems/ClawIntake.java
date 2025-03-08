@@ -9,8 +9,10 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -64,20 +66,19 @@ public class ClawIntake extends SubsystemBase {
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
   private static SparkFlexConfig wristConfig = new SparkFlexConfig();
 
-
-  private static DigitalInput limitUpSwitch = new DigitalInput(Constants.clawIntakeConstants.wristUpLimitPort);
-  private static DigitalInput limitDownSwitch = new DigitalInput(Constants.clawIntakeConstants.wristDownLimitPort);
+  private SparkLimitSwitch forwardLimitSwitch = wrist.getForwardLimitSwitch();
+  private SparkLimitSwitch reverseLimitSwitch = wrist.getReverseLimitSwitch();
   public boolean wristForwardStopHit = false;
   public boolean wristBackwardStopHit = false;
 
   public BooleanSupplier wristForwardStop =
       () -> {
-        return limitUpSwitch.get();
+        return forwardLimitSwitch.isPressed();
       };
 
   public BooleanSupplier wristBackwardStop = 
       () -> {
-        return limitDownSwitch.get();
+        return reverseLimitSwitch.isPressed();
       };
 
   public ClawIntake() {
@@ -102,6 +103,11 @@ public class ClawIntake extends SubsystemBase {
 
     wristConfig.idleMode(IdleMode.kBrake);
     wristConfig.smartCurrentLimit(40);
+    wristConfig.limitSwitch
+        .forwardLimitSwitchType(Type.kNormallyOpen)
+        .forwardLimitSwitchEnabled(true)
+        .reverseLimitSwitchType(Type.kNormallyOpen)
+        .reverseLimitSwitchEnabled(true);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -114,10 +120,9 @@ public class ClawIntake extends SubsystemBase {
 
     // Combine Hard limit wrist check with soft limit results:
     wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
-
     wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInOutData.lowerSoftLimitHit;
-
-    //if (wristForwardStopHit || wristBackwardStopHit) {
+    
+   // if (wristForwardStopHit || wristBackwardStopHit) {
     //  wrist.set(0.0); // Stop imediately regardless of the running command
     //}
 

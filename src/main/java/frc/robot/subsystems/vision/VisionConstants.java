@@ -29,7 +29,9 @@ public class VisionConstants {
 
   // AprilTag layout
   public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+     AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // FRC NE
+     //AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded); // Worlds
+ //     AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
   // TODO Define custom school field tag setup... and a way to switch??
 

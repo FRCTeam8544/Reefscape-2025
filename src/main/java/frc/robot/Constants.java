@@ -44,6 +44,18 @@ public final class Constants {
   climber 31-39
   misc 60-63
   */
+  
+  public static final class Neo550Constants {
+    public static final double nominalVoltage = 12;
+    public static final double motorKV = 917;
+    public static final double nominalFF = 1.0 / motorKV;
+  }
+
+  public static final class NeoVortexConstants {
+    public static final double nominalVoltage = 12;
+    public static final double motorKV = 565;
+    public static final double nominalFF = 1.0 / motorKV;
+  }
 
   public static final class elevatorConstants {
     public static final int rightElbowCANID = 10;
@@ -56,7 +68,12 @@ public final class Constants {
     public static final double eleKP = 0;
     public static final double eleKI = 0;
     public static final double eleKD = 0;
-    public static final double eleKF = 0;
+    public static final double eleKF = 0; // Only use non-zero in velocity control mode
+
+    public static final double elbowKP = 0.0;
+    public static final double elbowKI = 0.0;
+    public static final double elbowKD = 0.0;
+    public static final double elbowFF = 0.0; // Only use non-zero in velocity control mode
   }
 
   public static final class clawIntakeConstants {
@@ -71,6 +88,11 @@ public final class Constants {
 
   public static final class climberConstants {
     public static final int climberCANID = 31;
-    public static final int climber2CANID = 32;
+   // public static final int climber2CANID = 32;
+
+    public static final double climberKP = 0.0001;
+    public static final double climberKI = 0.0;
+    public static final double climberKD = 0.0;
+    public static final double climberFF = 0.0; // Only use non-zero in velocity control mode
   }
 }
