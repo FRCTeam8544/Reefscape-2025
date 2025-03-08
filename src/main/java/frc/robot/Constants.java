@@ -88,9 +88,9 @@ public final class Constants {
 
   public static final class climberConstants {
     public static final int climberCANID = 31;
-    public static final int climber2CANID = 32;
+   // public static final int climber2CANID = 32;
 
-    public static final double climberKP = 0.0;
+    public static final double climberKP = 0.0001;
     public static final double climberKI = 0.0;
     public static final double climberKD = 0.0;
     public static final double climberFF = 0.0; // Only use non-zero in velocity control mode
