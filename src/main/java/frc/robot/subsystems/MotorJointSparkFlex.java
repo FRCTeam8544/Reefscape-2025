@@ -34,6 +34,7 @@ public class MotorJointSparkFlex implements MotorJointIO {
       this.zeroOffset = 0;
 
       this.controller = controller;
+      this.useAbsoluteEncoder = useAbsEncoder;
       this.forwardLimitSwitch = controller.getForwardLimitSwitch();
       this.reverseLimitSwitch = controller.getReverseLimitSwitch();
       if (useAbsoluteEncoder) {
