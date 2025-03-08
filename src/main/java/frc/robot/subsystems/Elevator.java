@@ -116,8 +116,8 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.closedLoop.outputRange(-1, 1);
         leftMotorConfig.closedLoop.velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorConfig.closedLoop.maxMotion
-          .maxVelocity(0)
-          .maxAcceleration(0)
+          .maxVelocity(1)
+          .maxAcceleration(1)
           .allowedClosedLoopError(0);
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -127,7 +127,7 @@ public class Elevator extends SubsystemBase {
       public void setupElbowConfig() {
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
-        spinConfig.smartCurrentLimit(20);
+        spinConfig.smartCurrentLimit(40);
         spinConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
@@ -204,12 +204,12 @@ public class Elevator extends SubsystemBase {
   
       //elbow basics
         public static void spinElbowForward(boolean go) {
-          if (go && !forwardStopHit) {elbowController.set(.10);} 
+          if (go && !forwardStopHit) {elbowController.set(.2);} 
         else {elbowController.set(0);}
       }
     
       public static void spinElbowBackwards(boolean execute) {
-        if (execute && !backwardStopHit) {elbowController.set(-.10);} 
+        if (execute && !backwardStopHit) {elbowController.set(-.2);} 
         else {elbowController.set(0);}
       }
     
