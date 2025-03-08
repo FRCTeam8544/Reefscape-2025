@@ -36,7 +36,7 @@ public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
   private SparkMax pusherRight = new SparkMax(Constants.climberConstants.climberCANID, MotorType.kBrushless);
   private SparkMaxConfig rightConfig = new SparkMaxConfig();
-  private AbsoluteEncoder encoder = pusherRight.getAbsoluteEncoder();
+  //private AbsoluteEncoder encoder = pusherRight.getAbsoluteEncoder();
   private SparkClosedLoopController closedLoopController = pusherRight.getClosedLoopController();
 
   // Joint definition and logging
@@ -54,14 +54,14 @@ public class Climber extends SubsystemBase {
     rightConfig.idleMode(IdleMode.kBrake);
     rightConfig.inverted(false);
     rightConfig.smartCurrentLimit(motorStallAmpLimit);
-    rightConfig.encoder.positionConversionFactor(1);
+    /*rightConfig.encoder.positionConversionFactor(1);
     rightConfig.encoder.velocityConversionFactor(1);
     rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
       .p(Constants.climberConstants.climberKP, ClosedLoopSlot.kSlot0)
       .i(Constants.climberConstants.climberKI, ClosedLoopSlot.kSlot0)
       .d(Constants.climberConstants.climberKD, ClosedLoopSlot.kSlot0)
       .velocityFF(Constants.climberConstants.climberFF) // probably neo 550
-      .outputRange(-1, 1);
+      .outputRange(-1, 1);*/
 
     // Enable hard limits with directly atatched limit switches
     rightConfig.limitSwitch

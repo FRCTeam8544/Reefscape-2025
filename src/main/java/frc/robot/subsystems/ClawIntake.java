@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
 import au.grapplerobotics.LaserCan;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -16,6 +15,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
@@ -103,6 +103,7 @@ public class ClawIntake extends SubsystemBase {
 
     wristConfig.idleMode(IdleMode.kBrake);
     wristConfig.smartCurrentLimit(40);
+    wristConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     wristConfig.limitSwitch
         .forwardLimitSwitchType(Type.kNormallyOpen)
         .forwardLimitSwitchEnabled(true)

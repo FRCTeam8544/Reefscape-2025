@@ -10,6 +10,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -49,7 +50,7 @@ public class Elevator extends SubsystemBase {
   final static double altBackwardSoftStopValue = 0.05;
   final static double altForwardSoftStopValue = forwardSoftStopValue;
   final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
-  
+
   private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
@@ -106,11 +107,14 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.smartCurrentLimit(40);
         leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
-        leftMotorConfig.closedLoop.pid(0, 0, 0);
-        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl);
-        //define setpoint to not be 0
-        //leftMotorConfig.closedLoop.outputRange(kMinOutput, kMaxOutput);
-        leftMotorConfig.closedLoop.velocityFF(1/565); //only used in velocity loop & set based on motor type
+        leftMotorConfig.closedLoop
+        .p(0, ClosedLoopSlot.kSlot1)
+        .i(0, ClosedLoopSlot.kSlot1)
+        .d(0, ClosedLoopSlot.kSlot1);
+        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+        //define setpoint to not be 0 and other stuff too actually 
+        leftMotorConfig.closedLoop.outputRange(-1, 1);
+        leftMotorConfig.closedLoop.velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorConfig.closedLoop.maxMotion
           .maxVelocity(0)
           .maxAcceleration(0)
@@ -124,6 +128,7 @@ public class Elevator extends SubsystemBase {
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
         spinConfig.smartCurrentLimit(20);
+        spinConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
