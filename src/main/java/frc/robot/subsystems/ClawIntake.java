@@ -16,7 +16,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
 import frc.robot.Constants;
@@ -120,8 +119,8 @@ public class ClawIntake extends SubsystemBase {
     //sharkIO.updateInputs(algaeLaserInputs);
 
     // Combine Hard limit wrist check with soft limit results:
-   // wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
-   // wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInOutData.lowerSoftLimitHit;
+    //wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
+    //wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInOutData.lowerSoftLimitHit;
     
    // if (wristForwardStopHit || wristBackwardStopHit) {
     //  wrist.set(0.0); // Stop imediately regardless of the running command
@@ -142,15 +141,17 @@ public class ClawIntake extends SubsystemBase {
          (coralLaserInputs.status == 0)) { // LASERCAN_STATUS_VALID_MEASUREMENT)) {
 
       if (coralLaserInputs.distance_mm < intakeWidth_mm - GameConstants.coralPieceHalfWidth_mm) {
-        coralPresentCount++;
-        coralPresentCount = Math.min(coralPresentCount, coralAcquiredCountThreshold);
+        // Delay until coral is "fully" seated
+        if (coralPresentCount < coralAcquiredCountThreshold) {
+          coralPresentCount++;
+        }      
       }
-      else {
-        coralPresentCount--;
-        coralPresentCount = Math.max(coralPresentCount, 0);
+      // Otherwise decrement the coral present count (min 0), since the coral was not detected
+      else if (coralPresentCount > 0) {
+          coralPresentCount--;
       }
 
-      coralAcquired = (coralPresentCount >= coralAcquiredCountThreshold);
+      coralAcquired = (coralPresentCount == coralAcquiredCountThreshold);
     }
     else {
       coralAcquired = false;
