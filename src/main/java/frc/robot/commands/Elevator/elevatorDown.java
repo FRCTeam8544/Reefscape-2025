@@ -34,10 +34,8 @@ public class elevatorDown extends Command {
   @Override
   public void execute() {
     if (!elevator.downStop.getAsBoolean() && aButton.getAsBoolean()) {
-      elevator.elevatorLow(true);
-      //elevator.elevatorElbowIssueDown(); // will move elbow in/out as well.
-    } else {
-      elevator.elevatorLow(false);
+      elevator.elevatorLow(true);} 
+      else {elevator.elevatorLow(false);
     }
   }
 

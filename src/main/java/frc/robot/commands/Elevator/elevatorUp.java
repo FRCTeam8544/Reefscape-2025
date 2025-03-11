@@ -33,10 +33,8 @@ public class elevatorUp extends Command {
   @Override
   public void execute() {
     if (yButton.getAsBoolean() && !elevator.upStop.getAsBoolean()) {
-      elevator.elevatorMove(true);
-      //elevator.elevatorElbowIssueUp(); // will move elbow in/out as well.
-    } else {
-      elevator.elevatorMove(false); // Stop the elevator
+      elevator.elevatorMove(true);} 
+      else {elevator.elevatorMove(false); // Stop the elevator
     }
   }
 

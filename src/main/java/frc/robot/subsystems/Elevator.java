@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +30,7 @@ import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 
 public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
+  //left is right and motorcontroller is left
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
   private static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
@@ -74,7 +76,6 @@ public class Elevator extends SubsystemBase {
   public static boolean backwardStopHit; // These should not be static...
   public static boolean upStopHit;
   public static boolean downStopHit;
-  public static double setPoint = 0; //rpm
 
       
   public BooleanSupplier upStop =
@@ -95,30 +96,26 @@ public class Elevator extends SubsystemBase {
 
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(40);
-        motorConfig.inverted(true);
-        motorConfig.limitSwitch
-          .forwardLimitSwitchType(Type.kNormallyOpen)
-          .forwardLimitSwitchEnabled(true)
-          .reverseLimitSwitchEnabled(true)
-          .reverseLimitSwitchType(Type.kNormallyOpen);
+        motorConfig.follow(Constants.elevatorConstants.leftElevatorCANID, true); 
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(40);
-        leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
+        leftMotorConfig.inverted(false);
+        leftMotorConfig.limitSwitch
+          .forwardLimitSwitchType(Type.kNormallyOpen)
+          .forwardLimitSwitchEnabled(true)
+          .reverseLimitSwitchEnabled(true)
+          .reverseLimitSwitchType(Type.kNormallyOpen); 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
         leftMotorConfig.closedLoop
-        .p(0, ClosedLoopSlot.kSlot1)
+        .p(0.00001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1);
-        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
-        //define setpoint to not be 0 and other stuff too actually 
         leftMotorConfig.closedLoop.outputRange(-1, 1);
         leftMotorConfig.closedLoop.velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorConfig.closedLoop.maxMotion
-          .maxVelocity(1)
-          .maxAcceleration(1)
-          .allowedClosedLoopError(0);
+          .allowedClosedLoopError(0.0001); //little number
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();
@@ -138,7 +135,7 @@ public class Elevator extends SubsystemBase {
 
         // Zero the relative external encoder, when the elevator touches the bottom limit switch
         if (downStop.getAsBoolean()) {
-           elevatorMotorIO.setZeroOffset( encoder.getPosition() );
+           elevatorMotorIO.setZeroOffset(encoder.getPosition());
            elevatorCalibrated = true;
         }
 
@@ -154,6 +151,9 @@ public class Elevator extends SubsystemBase {
           elbowMotorIO.clearAlternateLimits();
         }
         
+        upStopHit = false;
+        downStopHit = false;
+        
         //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
         //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
         //forwardStopHit = elbowInOutData.upperSoftLimitHit;
@@ -163,14 +163,15 @@ public class Elevator extends SubsystemBase {
         // Combine Hard limit wrist check with soft limit results:
         // TODO hook limit switches to the spark controllers directly???
         // What about feedback to the software to let it know that a limit has been reached?
-        /*if (elevatorCalibrated) {
-          upStopHit = upStop.getAsBoolean() || elevatorInOutData.upperSoftLimitHit;
-          downStopHit = downStop.getAsBoolean() || elevatorInOutData.lowerSoftLimitHit;
-        }
+
+       /* if (elevatorCalibrated) {
+          upStopHit = false; //|| elevatorInOutData.upperSoftLimitHit; //took out limit switch
+          downStopHit = false; //|| elevatorInOutData.lowerSoftLimitHit;
+        } 
         else { // Ignore soft limits when elevator position is not calibrated
           upStopHit = upStop.getAsBoolean();
           downStopHit = downStop.getAsBoolean();
-        }*/
+        } 
     
         if (upStopHit || downStopHit) {
           motorController.set(0.0); // Stop imediately regardless of the running command
@@ -178,20 +179,27 @@ public class Elevator extends SubsystemBase {
 
         if (forwardStopHit || backwardStopHit) {
           elbowController.set(0.0); // Stop imediataly
-        }
+        } */
     
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
       }
-    
+
+      public void setVelocity(double setPoint){
+        final double timeSec = 1;
+        final double maxSpeed = 2 * (Math.PI) / timeSec;
+        elevatorInOutData.velocitySetPoint = Units.radiansPerSecondToRotationsPerMinute(setPoint * maxSpeed);
+        closedLoop.setReference(elevatorInOutData.velocitySetPoint, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+      }
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {motorController.set(.1);}
+        if (!upStopHit && up) {setVelocity(.1);}
         if (upStopHit || !up) {motorController.set(0);}
       }
+
       public void elevatorLow(boolean down) {
-        if (!downStopHit && down) {motorController.set(-.1);}
+        if (!downStopHit && down) {setVelocity(-.1);}
         if (downStopHit || !down) {motorController.set(0);}
       }
 
