@@ -17,8 +17,6 @@ import frc.robot.commands.AutonomousAuto.IntakePose;
 public class IntakeAuto extends SequentialCommandGroup {
   /** Creates a new IntakeAuto. */
   public IntakeAuto(Elevator elevator, ClawIntake clawIntake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new SequentialCommandGroup(
         new IntakePose(clawIntake, elevator).withTimeout(2), //time to be set but timeout will auto stop wherever

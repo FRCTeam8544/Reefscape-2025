@@ -10,11 +10,13 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,7 +50,7 @@ public class Elevator extends SubsystemBase {
   final static double altBackwardSoftStopValue = 0.05;
   final static double altForwardSoftStopValue = forwardSoftStopValue;
   final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
-  
+
   private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
@@ -72,6 +74,7 @@ public class Elevator extends SubsystemBase {
   public static boolean backwardStopHit; // These should not be static...
   public static boolean upStopHit;
   public static boolean downStopHit;
+  public static double setPoint = 0; //rpm
 
       
   public BooleanSupplier upStop =
@@ -90,21 +93,32 @@ public class Elevator extends SubsystemBase {
 
         elevatorCalibrated = false;
 
-        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl);
-        //define
-
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(40);
         motorConfig.inverted(true);
+        motorConfig.limitSwitch
+          .forwardLimitSwitchType(Type.kNormallyOpen)
+          .forwardLimitSwitchEnabled(true)
+          .reverseLimitSwitchEnabled(true)
+          .reverseLimitSwitchType(Type.kNormallyOpen);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(40);
         leftMotorConfig.follow(Constants.elevatorConstants.rightElevatorCANID, true); 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
-        leftMotorConfig.closedLoop.pid(0, 0, 0);
-        //leftMotorConfig.closedLoop.outputRange(kMinOutput, kMaxOutput);
-        leftMotorConfig.closedLoop.velocityFF(1/565); //only used in velocity loop & set based on motor type
+        leftMotorConfig.closedLoop
+        .p(0, ClosedLoopSlot.kSlot1)
+        .i(0, ClosedLoopSlot.kSlot1)
+        .d(0, ClosedLoopSlot.kSlot1);
+        closedLoop.setReference(setPoint, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+        //define setpoint to not be 0 and other stuff too actually 
+        leftMotorConfig.closedLoop.outputRange(-1, 1);
+        leftMotorConfig.closedLoop.velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
+        leftMotorConfig.closedLoop.maxMotion
+          .maxVelocity(1)
+          .maxAcceleration(1)
+          .allowedClosedLoopError(0);
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();
@@ -113,7 +127,8 @@ public class Elevator extends SubsystemBase {
       public void setupElbowConfig() {
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
-        spinConfig.smartCurrentLimit(20);
+        spinConfig.smartCurrentLimit(40);
+        spinConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -189,12 +204,12 @@ public class Elevator extends SubsystemBase {
   
       //elbow basics
         public static void spinElbowForward(boolean go) {
-          if (go && !forwardStopHit) {elbowController.set(.10);} 
+          if (go && !forwardStopHit) {elbowController.set(.2);} 
         else {elbowController.set(0);}
       }
     
       public static void spinElbowBackwards(boolean execute) {
-        if (execute && !backwardStopHit) {elbowController.set(-.10);} 
+        if (execute && !backwardStopHit) {elbowController.set(-.2);} 
         else {elbowController.set(0);}
       }
     
