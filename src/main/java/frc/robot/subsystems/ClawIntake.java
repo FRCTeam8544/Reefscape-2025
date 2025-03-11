@@ -119,8 +119,8 @@ public class ClawIntake extends SubsystemBase {
     //sharkIO.updateInputs(algaeLaserInputs);
 
     // Combine Hard limit wrist check with soft limit results:
-    wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
-    wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInOutData.lowerSoftLimitHit;
+    //wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
+    //wristBackwardStopHit = wristBackwardStop.getAsBoolean() || wristInOutData.lowerSoftLimitHit;
     
    // if (wristForwardStopHit || wristBackwardStopHit) {
     //  wrist.set(0.0); // Stop imediately regardless of the running command
