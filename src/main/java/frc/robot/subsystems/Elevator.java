@@ -30,7 +30,6 @@ import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 
 public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
-  //left is right and motorcontroller is left
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
   private static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
@@ -45,6 +44,7 @@ public class Elevator extends SubsystemBase {
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   
   // 5.53 inches per rotation of elevator output shaft
+  final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.5; // Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
   final static double backwardSoftStopValue = 0; // TODO need to set zero point in stow with rev client
@@ -88,6 +88,8 @@ public class Elevator extends SubsystemBase {
             };
     
       public Elevator() {
+
+        //left motor is now leader not right
     
         elevatorInOutData = new MotorJointIOInputsAutoLogged();
         elbowInOutData = new MotorJointIOInputsAutoLogged();
@@ -185,22 +187,31 @@ public class Elevator extends SubsystemBase {
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
       }
 
-      public void setVelocity(double setPoint){
+      public void setVelocitySetPoint(double setPoint){
         final double timeSec = 1;
         final double maxSpeed = 2 * (Math.PI) / timeSec;
-        elevatorInOutData.velocitySetPoint = Units.radiansPerSecondToRotationsPerMinute(setPoint * maxSpeed);
-        closedLoop.setReference(elevatorInOutData.velocitySetPoint, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+
+        double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
+
+        elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
+        closedLoop.setReference(commandedSpeedInRPM, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+      }
+
+      private void setVelocity(double speed) {
+        // Log and command the new velocity set point
+        elevatorInOutData.velocitySetPoint = speed;
+        leftMotorController.set(elevatorMaxSpeed); 
       }
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {setVelocity(.1);}
-        if (upStopHit || !up) {motorController.set(0);}
+        if (!upStopHit && up) {setVelocitySetPoint(.1);}
+        if (upStopHit || !up) {leftMotorController.set(0);}
       }
 
       public void elevatorLow(boolean down) {
-        if (!downStopHit && down) {setVelocity(-.1);}
-        if (downStopHit || !down) {motorController.set(0);}
+        if (!downStopHit && down) {setVelocitySetPoint(-.1);}
+        if (downStopHit || !down) {leftMotorController.set(0);}
       }
 
       //elbow auto pose 
