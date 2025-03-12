@@ -109,15 +109,14 @@ public class Elevator extends SubsystemBase {
           .forwardLimitSwitchEnabled(true)
           .reverseLimitSwitchEnabled(true)
           .reverseLimitSwitchType(Type.kNormallyOpen); 
-        leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
         leftMotorConfig.closedLoop
-        .p(0.00001, ClosedLoopSlot.kSlot1)
-        .i(0, ClosedLoopSlot.kSlot1)
-        .d(0, ClosedLoopSlot.kSlot1);
-        leftMotorConfig.closedLoop.outputRange(-1, 1);
-        leftMotorConfig.closedLoop.velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
-        leftMotorConfig.closedLoop.maxMotion
-          .allowedClosedLoopError(0.0001); //little number
+          .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
+          .p(0.00001, ClosedLoopSlot.kSlot1)
+          .i(0, ClosedLoopSlot.kSlot1)
+          .d(0, ClosedLoopSlot.kSlot1)
+          .outputRange(-1, 1)
+          .velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
+        leftMotorConfig.closedLoop.maxMotion.allowedClosedLoopError(0.0001); //little number
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();
@@ -205,12 +204,12 @@ public class Elevator extends SubsystemBase {
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {setVelocitySetPoint(.1);}
+        if (!upStopHit && up) {setVelocitySetPoint(.15);}
         if (upStopHit || !up) {leftMotorController.set(0);}
       }
 
       public void elevatorLow(boolean down) {
-        if (!downStopHit && down) {setVelocitySetPoint(-.1);}
+        if (!downStopHit && down) {setVelocitySetPoint(-.15);}
         if (downStopHit || !down) {leftMotorController.set(0);}
       }
 

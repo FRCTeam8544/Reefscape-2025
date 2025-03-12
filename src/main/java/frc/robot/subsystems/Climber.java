@@ -21,7 +21,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.MathUtil;
