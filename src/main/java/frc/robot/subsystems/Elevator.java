@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -44,6 +45,7 @@ public class Elevator extends SubsystemBase {
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   
   // 5.53 inches per rotation of elevator output shaft
+  final static int stallLimit = 40; //change to change both at once!
   final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.5; // Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
@@ -67,9 +69,11 @@ public class Elevator extends SubsystemBase {
     private static DigitalInput backwardLimit =
     new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
   */
+  private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
+  private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
 
-  private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
-  private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
+ // private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
+  //private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
 
   public static boolean elevatorCalibrated = false;
   public static boolean forwardStopHit;
@@ -77,14 +81,14 @@ public class Elevator extends SubsystemBase {
   public static boolean upStopHit;
   public static boolean downStopHit;
 
-      
+/* */      
   public BooleanSupplier upStop =
             () -> {
-              return upLimit.get();
+              return upLimit.isPressed();
             };
         public BooleanSupplier downStop =
             () -> {
-              return downLimit.get();
+              return downLimit.isPressed();
             };
     
       public Elevator() {
@@ -97,12 +101,12 @@ public class Elevator extends SubsystemBase {
         elevatorCalibrated = false;
 
         motorConfig.idleMode(IdleMode.kBrake);
-        motorConfig.smartCurrentLimit(40);
+        motorConfig.smartCurrentLimit(stallLimit);
         motorConfig.follow(Constants.elevatorConstants.leftElevatorCANID, true); 
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
-        leftMotorConfig.smartCurrentLimit(40);
+        leftMotorConfig.smartCurrentLimit(stallLimit);
         leftMotorConfig.inverted(false);
         leftMotorConfig.limitSwitch
           .forwardLimitSwitchType(Type.kNormallyOpen)
@@ -111,12 +115,11 @@ public class Elevator extends SubsystemBase {
           .reverseLimitSwitchType(Type.kNormallyOpen); 
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
-          .p(0.00001, ClosedLoopSlot.kSlot1)
-          .i(0, ClosedLoopSlot.kSlot1)
-          .d(0, ClosedLoopSlot.kSlot1)
-          .outputRange(-1, 1)
+          .p(0.0006, ClosedLoopSlot.kSlot1)
+          .i(0.00001, ClosedLoopSlot.kSlot1)
+          .d(0.0006, ClosedLoopSlot.kSlot1)
+          .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
           .velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
-        leftMotorConfig.closedLoop.maxMotion.allowedClosedLoopError(0.0001); //little number
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();
@@ -187,13 +190,13 @@ public class Elevator extends SubsystemBase {
       }
 
       public void setVelocitySetPoint(double setPoint){
-        final double timeSec = 1;
+        final double timeSec = .2;
         final double maxSpeed = 2 * (Math.PI) / timeSec;
 
         double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
 
         elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
-        closedLoop.setReference(commandedSpeedInRPM, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
       }
 
       private void setVelocity(double speed) {
@@ -204,13 +207,13 @@ public class Elevator extends SubsystemBase {
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {setVelocitySetPoint(.15);}
-        if (upStopHit || !up) {leftMotorController.set(0);}
+        if (!upStopHit && up) {setVelocitySetPoint(.7);}
+        if (upStopHit || !up) {setVelocitySetPoint(0);}
       }
 
       public void elevatorLow(boolean down) {
-        if (!downStopHit && down) {setVelocitySetPoint(-.15);}
-        if (downStopHit || !down) {leftMotorController.set(0);}
+        if (!downStopHit && down) {setVelocitySetPoint(-.5);}
+        if (downStopHit || !down) {setVelocitySetPoint(0);}
       }
 
       //elbow auto pose 
