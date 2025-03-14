@@ -216,8 +216,8 @@ public class RobotContainer {
     juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
     juliet.rightBumper().onTrue(new WristForward(clawIntake, juliet, rightBack)); // wrist forward
     juliet.leftBumper().onTrue(new WristBack(clawIntake, juliet, leftBack)); // wrist backward
-    juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton)); // forward rollers
-    juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // back rollers
+    juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton)); // spit out rollers
+    juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // take in rollers
     juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
     juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
