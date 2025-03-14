@@ -32,7 +32,8 @@ public class RollersBack extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (bButton.getAsBoolean() && !clawIntake.hasCoral()) {
+    // This command spits the Coral into the out when the button is pressed
+    if (bButton.getAsBoolean()) {
       clawIntake.rollerRollBack(true);
     } else {
       clawIntake.rollerRollBack(false);

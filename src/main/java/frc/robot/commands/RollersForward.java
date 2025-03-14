@@ -31,7 +31,9 @@ public class RollersForward extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (xButton.getAsBoolean()) {
+    // This command draws the Coral into the intake when the button is pressed and the coral
+    // has not been acquired yet.
+    if (xButton.getAsBoolean() && !clawIntake.hasCoral()) {
       clawIntake.rollerRoll(true);
     } else {
       clawIntake.rollerRoll(false);
