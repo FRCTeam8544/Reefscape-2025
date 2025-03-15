@@ -39,6 +39,7 @@ import frc.robot.commands.ElbowForward;
 import frc.robot.commands.WristBack;
 import frc.robot.commands.Elevator.elevatorDown;
 import frc.robot.commands.Elevator.elevatorUp;
+import frc.robot.commands.Elevator.ElevatorCommands;
 import frc.robot.commands.Elevator.ElevatorStow;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Climber;
@@ -212,6 +213,12 @@ public class RobotContainer {
                 .ignoringDisable(true));
     
     //operator functions
+    elevator.setDefaultCommand(
+        ElevatorCommands.joystickElevator(
+            elevator, () -> -juliet.getLeftY(), () -> juliet.getLeftX()));
+             // back is positive, so need to invert
+             // right is positive for tilt, so leave that alone
+
     juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
     juliet.rightBumper().onTrue(new WristForward(clawIntake, juliet, rightBack)); // wrist forward

@@ -11,16 +11,16 @@ import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElbowForward extends Command {
-  Elevator climber;
+  Elevator elevator;
   CommandXboxController juliet;
   Trigger rightBackTop;
 
-  public ElbowForward(Elevator climber, CommandXboxController juliet, Trigger rightBackTop) {
-    this.climber = climber;
+  public ElbowForward(Elevator elevator, CommandXboxController juliet, Trigger rightBackTop) {
+    this.elevator = elevator;
     this.juliet = juliet;
     this.rightBackTop = rightBackTop;
 
-    addRequirements(climber);
+    addRequirements(elevator);
 
     rightBackTop = juliet.rightTrigger();
   }
@@ -32,8 +32,10 @@ public class ElbowForward extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (rightBackTop.getAsBoolean()) {Elevator.spinElbowForward(true);} 
-    else {Elevator.spinElbowForward(false);}
+    if (rightBackTop.getAsBoolean()) {
+      elevator.spinElbowForward(true);} 
+    else {
+      elevator.spinElbowForward(false);}
   }
 
   // Called once the command ends or is interrupted.

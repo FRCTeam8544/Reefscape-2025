@@ -67,11 +67,11 @@ public class Elevator extends SubsystemBase {
   private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
   private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
 
-  public static boolean elevatorCalibrated = false;
-  public static boolean forwardStopHit;
-  public static boolean backwardStopHit; // These should not be static...
-  public static boolean upStopHit;
-  public static boolean downStopHit;
+  public boolean elevatorCalibrated = false;
+  public boolean forwardStopHit;
+  public boolean backwardStopHit; // These should not be static...
+  public boolean upStopHit;
+  public boolean downStopHit;
 
 /* */      
   public BooleanSupplier upStop =
@@ -119,9 +119,9 @@ public class Elevator extends SubsystemBase {
           .i(0.00001, ClosedLoopSlot.kSlot1)
           .d(0.0006, ClosedLoopSlot.kSlot1)
           // Position control
-          .p(0.00005, ClosedLoopSlot.kSlot0)
+          .p(0.0005, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
-          .d(0.00005, ClosedLoopSlot.kSlot0)
+          .d(0.00003, ClosedLoopSlot.kSlot0)
           .outputRange(-1,1, ClosedLoopSlot.kSlot0)
           .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
           .velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
@@ -217,16 +217,57 @@ public class Elevator extends SubsystemBase {
         closedLoop.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
 
-    
+      public void runElevatorVelocity(double speed) {
+        if (speed >= 0) {
+          if (!upStopHit) {
+            setVelocitySetPoint(speed);
+          }
+          else {
+            double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
+            setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+          }
+        }
+        else {
+          if (!downStopHit) {
+            setVelocitySetPoint(speed);
+          }
+          else {
+            double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
+            setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+          }
+        }
+      }
+
       //elevator basic up/down
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {setVelocitySetPoint(.7);}
-        if (upStopHit || !up) {setPositionSetPoint(encoder.getPosition());}
+        if (!upStopHit && up) {
+          setVelocitySetPoint(0.7);
+        }
+        else {
+          // External position is used here because it already adjusted for zero offset and
+          // the same position will be used as a set point for 20 ms.
+          // Use max of zero and external position to prevent out of bounds position holding
+          double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
+          setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+        }
       }
 
       public void elevatorLow(boolean down) {
-        if (!downStopHit && down) {setVelocitySetPoint(-.5);}
-        if (downStopHit || !down) {setPositionSetPoint(encoder.getPosition());}
+        if (elevatorCalibrated && down && (elevatorInOutData.externalPosition <= 0.5)) { // last couple inches
+          // Do nothing, let it brake mode fall to the zero position
+        }
+        else {
+          if (!downStopHit && down) {
+            setVelocitySetPoint(-0.5);
+          }
+          else {
+            // External position is used here because it already adjusted for zero offset and
+            // the same position will be used as a set point for 20 ms.
+            // Use max of zero and external position to prevent out of bounds position holding
+            double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
+            setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+          }
+        }
       }
 
       //elbow auto pose 
@@ -237,19 +278,19 @@ public class Elevator extends SubsystemBase {
       }
   
       //elbow basics
-        public static void spinElbowForward(boolean go) {
+      public void spinElbowForward(boolean go) {
           if (go && !forwardStopHit) {elbowController.set(.2);} 
         else {elbowController.set(0);}
       }
     
-      public static void spinElbowBackwards(boolean execute) {
+      public void spinElbowBackwards(boolean execute) {
         if (execute && !backwardStopHit) {elbowController.set(-.2);} 
         else {elbowController.set(0);}
       }
     
       // Home the elevator to the down stop to determine the "zero" value
       // of the current relative encoder value.
-      public static void calibrateElevatorEncoder() {
+      public void calibrateElevatorEncoder() {
         if (!downStopHit) {
           motorController.set(-.05);
           elevatorCalibrated = false;
@@ -261,7 +302,7 @@ public class Elevator extends SubsystemBase {
       }
 
       //problem range elevator/elbow
-      public static void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
+      public void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
 
         final double elevatorPosition = elevatorInOutData.externalPosition;
         final double elbowPosition = elbowInOutData.absolutePosition;
@@ -287,7 +328,7 @@ public class Elevator extends SubsystemBase {
         }
       }
 
-      public static void elevatorElbowIssueDown(){
+      public void elevatorElbowIssueDown(){
         final double elevatorPosition = elevatorInOutData.externalPosition;
         final double elbowPosition = elbowInOutData.absolutePosition;
  

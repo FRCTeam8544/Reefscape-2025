@@ -14,10 +14,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ElevatorCommands extends Command {
+public class ElevatorCommands {
 
-  private static final double DEADBAND = 0.1;
+  private static final double ELEVATOR_DEADBAND = 0.15;
+  private static final double ELBOW_DEADBAND = 0.3;
 
   /** Command elevator using joysticks (controlling linear and angular velocities). */
   public static Command joystickElevator(
@@ -28,50 +28,30 @@ public class ElevatorCommands extends Command {
           Translation2d linearVelocity =
               getLinearVelocityFromJoysticks(
                   verticalSupplier.getAsDouble(), tiltSupplier.getAsDouble());
-
+                 
           // Convert to elevator relative speeds
-          double elevatorVelocity =
-              linearVelocity.getX(); // * elevator.getMaxLinearSpeedMetersPerSec();
-          double wristVelocity =
-              linearVelocity.getY(); // * elevator.getMaxLinearSpeedMetersPerSec();
+          final double elevatorVelocity =
+              linearVelocity.getX();
+          final double elbowVelocity = MathUtil.applyDeadband(
+              linearVelocity.getY(),
+              ELBOW_DEADBAND);
 
-          // TODO tie elevator and wrist into one joystick?
-        //  elevator.runElevatorVelocity(elevatorVelocity);
-         // elevator.runWristVelocity(wristVelocity);
+          elevator.runElevatorVelocity(elevatorVelocity);
+          if (elbowVelocity >= 0) {
+            elevator.spinElbowForward(elbowVelocity != 0.0);
+          }
+          else {
+            elevator.spinElbowBackwards(true);
+          }
+         // elevator.runWristVelocity(elbowVelocity);
         },
         elevator);
   }
 
-  // Called when the command is initially scheduled.
-  // @Override
-  // public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  // @Override
-  // public void execute() {
-  //  if (!elevator.downStop.getAsBoolean() ) {
-  ///    elevator.elevatorLow(true);
-  // } else {
-  //   elevator.elevatorLow(false);
-  //  }
-  // }
-
-  // Called once the command ends or is interrupted.
-  // @Override
-  // public void end(boolean interrupted) {
-  //  elevator.elevatorLow(false);
-  // }
-
-  // Returns true when the command should end.
-  // @Override
-  // public boolean isFinished() {
-  //   return false;
-  // }
-
   // x and y are joystick relative coordinates??? x (left/right) y (up/down)
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
     // Apply deadband
-    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), ELEVATOR_DEADBAND);
     Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
     // Square magnitude for more precise control
