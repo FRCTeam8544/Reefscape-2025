@@ -33,7 +33,7 @@ import frc.robot.util.LogUtil;
 public class ClawIntake extends SubsystemBase {
   
   private final double intakeWidth_mm = 250; // TODO Use the laser to determine this number as built
-  private final int coralAcquiredCountThreshold = 3; // Wait 3 * 20 ms before declaring coral acquired
+  private final int coralAcquiredCountThreshold = 10; // Wait 3 * 20 ms before declaring coral acquired
 
   private boolean coralAcquired;
   private int coralPresentCount;
