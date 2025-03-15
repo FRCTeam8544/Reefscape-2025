@@ -250,30 +250,33 @@ public class Elevator extends SubsystemBase {
       //elevator basic up/down
       public void elevatorMove(boolean up) {
         if (!upStopHit && up) {
-          setVelocitySetPoint(0.7);
-        }
-        else {
-          holdPositionSetPoint();
-        }
+          //setVelocitySetPoint(0.7);
+          setPositionSetPoint(encoder.getPosition());}
+        else {holdPositionSetPoint();}
       }
 
       public void elevatorLow(boolean down) {
         if (elevatorCalibrated && down && (elevatorInOutData.externalPosition <= 0.5)) { // last couple inches
           // Do nothing, let it brake mode fall to the zero position
         }
-        else {
-          if (!downStopHit && down) {
-            setVelocitySetPoint(-0.5);
+        else {if (!downStopHit && down) {
+            //setVelocitySetPoint(-0.5);
+            setPositionSetPoint(encoder.getPosition());
           }
           else {
             holdPositionSetPoint();
           }
         }
       }
+      //elevator autos
+      public void elevatorAuto4(){
+        if (encoder.getPosition() < 9.5 || upStopHit) {setVelocitySetPoint(.7);}
+        else {setVelocitySetPoint(0);}
+        } //button map this too? like outake & elevator one button go score 
 
       //elbow auto pose 
       public void elbowAutoScore(boolean m) {
-        if(m && elbowEncoder.getPosition() > 4 || elbowEncoder.getPosition() < 4) 
+        if(m && elbowEncoder.getPosition() > .3 || elbowEncoder.getPosition() < .3) 
         {elbowController.set(.15);} //basically become number x (probs not 4)
        else{elbowController.set(0);}
       }

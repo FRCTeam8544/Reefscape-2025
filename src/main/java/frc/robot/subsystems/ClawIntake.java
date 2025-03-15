@@ -189,7 +189,7 @@ public class ClawIntake extends SubsystemBase {
   //auto wrist/rollers
   //again encoders to be set... for all...
   public void wristAuto(boolean a){
-    if(a && wristEncoder.getPosition() < .3) {wrist.set(.3);}
+    if(a && wristEncoder.getPosition() < .977) {wrist.set(.3);}
     else{wrist.set(0);}
   }
 

@@ -27,7 +27,7 @@ public class ScoreAuto4 extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevator.elevatorMove(true);
+    elevator.elevatorAuto4();
     elevator.elbowAutoScore(true);
     clawIntake.wristAuto(true);
   }
