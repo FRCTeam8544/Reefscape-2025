@@ -107,8 +107,10 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.smartCurrentLimit(stallLimit);
         leftMotorConfig.inverted(false);
         leftMotorConfig.voltageCompensation(12);
-        leftMotorConfig.softLimit.forwardSoftLimitEnabled(false);
-        leftMotorConfig.softLimit.reverseSoftLimitEnabled(false);
+        leftMotorConfig.softLimit.forwardSoftLimitEnabled(true);
+        leftMotorConfig.softLimit.forwardSoftLimit(upSoftStopValue);
+        leftMotorConfig.softLimit.reverseSoftLimitEnabled(true);
+        leftMotorConfig.softLimit.reverseSoftLimit(downSoftStopValue);
         leftMotorConfig.limitSwitch
           .forwardLimitSwitchType(Type.kNormallyOpen)
           .forwardLimitSwitchEnabled(true)
