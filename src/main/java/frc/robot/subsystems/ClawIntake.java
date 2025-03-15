@@ -18,6 +18,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.Constants;
 import frc.robot.GameConstants;
 import frc.robot.subsystems.LaserCAN;
@@ -225,4 +228,10 @@ public class ClawIntake extends SubsystemBase {
       wrist.set(0);
     }
   }
+
+  public void logPose(String prefix, int snapshotId) {
+      Logger.recordOutput(
+          prefix + "/Wrist/absolutePosition", wristInOutData.absolutePosition);
+  }
+
 }

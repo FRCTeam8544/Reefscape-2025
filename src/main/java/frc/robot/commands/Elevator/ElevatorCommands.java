@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
@@ -18,6 +19,19 @@ public class ElevatorCommands {
 
   private static final double ELEVATOR_DEADBAND = 0.15;
   private static final double ELBOW_DEADBAND = 0.3;
+
+  private static int snapCount = 0;
+  private static int clawSnapCount = 0; // TODO move claw to other class
+
+  public static Command logPose(Elevator elevator, String prefix) {
+    return Commands.run(
+        () -> { elevator.logPose(prefix, snapCount++); }, elevator);
+  }
+
+  public static Command logPose(ClawIntake claw, String prefix) {
+    return Commands.run(
+        () -> { claw.logPose(prefix, clawSnapCount++); }, claw);
+  }
 
   /** Command elevator using joysticks (controlling linear and angular velocities). */
   public static Command joystickElevator(

@@ -230,6 +230,17 @@ public class RobotContainer {
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
     juliet.back().onTrue(new ClimbBack(climber, juliet, backButton)); //climber back
+
+    juliet.back().and(juliet.start()).onTrue(
+        ElevatorCommands.logPose(elevator, "SnapPose").andThen(
+        ElevatorCommands.logPose(clawIntake, "SnapPose"))
+    );
+
+   // juliet
+  //    .back().and(juliet.start()).whenReleased( 
+   //      ElevatorCommands.logPose(elevator, "SnapPose");
+     //    ElevatorCommands.logPose(clawIntake, "SnapPose");
+    //   );
   }
 
   /**

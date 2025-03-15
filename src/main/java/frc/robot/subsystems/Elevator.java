@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
@@ -346,6 +348,17 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putBoolean("down limit hit", downStopHit);
     SmartDashboard.putBoolean("forward limit hit", forwardStopHit);
     SmartDashboard.putBoolean("backward limit hit", backwardStopHit);
+  }
+
+  public void logPose(String prefix, int snapshotId) {
+      Logger.recordOutput(prefix + "/Id", snapshotId);
+      Logger.recordOutput(
+          prefix + "/Elevator/externalPosition", elevatorInOutData.externalPosition);
+      Logger.recordOutput(
+          prefix + "/Elevator/zeroOffset", elevatorInOutData.zeroOffset);
+
+      Logger.recordOutput(
+          prefix + "/Elbow/absolutePosition", elbowInOutData.absolutePosition);
   }
 
   public double getElevatorVelocity(){
