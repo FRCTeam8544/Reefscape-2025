@@ -8,6 +8,8 @@ import frc.robot.util.LogUtil;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -208,5 +210,11 @@ public class Climber extends SubsystemBase {
     else {
       return 0.0;
     }
+  }
+  
+  public void logPose(String prefix, int snapshotId) {
+      Logger.recordOutput(prefix + "/Id", snapshotId);
+      Logger.recordOutput(
+          prefix + "/Climber/absolutePosition", climberInOutData.absolutePosition);
   }
 }

@@ -233,7 +233,8 @@ public class RobotContainer {
 
     juliet.back().and(juliet.start()).onTrue(
         ElevatorCommands.logPose(elevator, "SnapPose").andThen(
-        ElevatorCommands.logPose(clawIntake, "SnapPose"))
+        ElevatorCommands.logPose(clawIntake, "SnapPose")).andThen(
+        ElevatorCommands.logPose(climber, "SnapPose"))
     );
 
    // juliet

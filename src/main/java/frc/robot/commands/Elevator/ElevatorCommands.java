@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.ClawIntake;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
@@ -31,6 +32,11 @@ public class ElevatorCommands {
   public static Command logPose(ClawIntake claw, String prefix) {
     return Commands.run(
         () -> { claw.logPose(prefix, clawSnapCount++); }, claw);
+  }
+
+  public static Command logPose(Climber climber, String prefix) {
+    return Commands.run(
+        () -> { climber.logPose(prefix, 0); }, climber);
   }
 
   /** Command elevator using joysticks (controlling linear and angular velocities). */
