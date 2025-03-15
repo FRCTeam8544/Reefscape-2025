@@ -20,11 +20,11 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
+
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
@@ -64,16 +64,8 @@ public class Elevator extends SubsystemBase {
   private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(elbowController, "Elbow", Constants.elevatorConstants.rightElbowCANID,
                                                                      backwardSoftStopValue, forwardSoftStopValue, true);
 
-  /*private static DigitalInput forwardLimit = 
-    new DigitalInput(Constants.elevatorConstants.forwardSwitchPort);
-    private static DigitalInput backwardLimit =
-    new DigitalInput(Constants.elevatorConstants.backwardSwitchPort);
-  */
   private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
   private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
-
- // private static DigitalInput upLimit = new DigitalInput(Constants.elevatorConstants.limitSwitchPort); // limit switches
-  //private static DigitalInput downLimit = new DigitalInput(Constants.elevatorConstants.limitSwitch2Port);
 
   public static boolean elevatorCalibrated = false;
   public static boolean forwardStopHit;
@@ -99,15 +91,22 @@ public class Elevator extends SubsystemBase {
         elbowInOutData = new MotorJointIOInputsAutoLogged();
 
         elevatorCalibrated = false;
-
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(stallLimit);
         motorConfig.follow(Constants.elevatorConstants.leftElevatorCANID, true); 
+        motorConfig.voltageCompensation(12);
+        motorConfig.softLimit.forwardSoftLimitEnabled(false);
+        motorConfig.softLimit.reverseSoftLimitEnabled(false);
+        motorConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+        motorConfig.limitSwitch.reverseLimitSwitchEnabled(false);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
         leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(stallLimit);
         leftMotorConfig.inverted(false);
+        leftMotorConfig.voltageCompensation(12);
+        leftMotorConfig.softLimit.forwardSoftLimitEnabled(false);
+        leftMotorConfig.softLimit.reverseSoftLimitEnabled(false);
         leftMotorConfig.limitSwitch
           .forwardLimitSwitchType(Type.kNormallyOpen)
           .forwardLimitSwitchEnabled(true)
@@ -115,9 +114,11 @@ public class Elevator extends SubsystemBase {
           .reverseLimitSwitchType(Type.kNormallyOpen); 
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
+          // Velocity control
           .p(0.0006, ClosedLoopSlot.kSlot1)
           .i(0.00001, ClosedLoopSlot.kSlot1)
           .d(0.0006, ClosedLoopSlot.kSlot1)
+          // Position control
           .p(0.00005, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.00005, ClosedLoopSlot.kSlot0)
@@ -203,6 +204,7 @@ public class Elevator extends SubsystemBase {
         double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
 
         elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
+        elevatorInOutData.positionSetPoint = -1;
         closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
       }
 
@@ -210,6 +212,7 @@ public class Elevator extends SubsystemBase {
         pointSet = encoder.getPosition();
 
         elevatorInOutData.positionSetPoint = pointSet;
+        elevatorInOutData.velocitySetPoint = -1;
 
         closedLoop.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
