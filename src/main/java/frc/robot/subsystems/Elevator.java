@@ -288,18 +288,6 @@ public class Elevator extends SubsystemBase {
         else {elbowController.set(0);}
       }
     
-      // Home the elevator to the down stop to determine the "zero" value
-      // of the current relative encoder value.
-      public void calibrateElevatorEncoder() {
-        if (!downStopHit) {
-          motorController.set(-.05);
-          elevatorCalibrated = false;
-        }
-        else {
-          elevatorCalibrated = true;
-          motorController.set(0);
-        }
-      }
 
       //problem range elevator/elbow
       public void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
