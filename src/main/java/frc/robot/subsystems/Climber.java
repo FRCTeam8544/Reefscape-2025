@@ -113,22 +113,26 @@ public class Climber extends SubsystemBase {
   public void climberClimb(boolean go) {
     if (go && !forwardStopLimitHit) {
       //setVelocitySetPoint(positionToClimbSpeed(encoder.getPosition()));
-      setVelocity(climberForwardMaxSpeed);
+      //setVelocity(climberForwardMaxSpeed);
+      pusherRight.set(.5);
     } 
     else {
       //setVelocitySetPoint(0);
-      setVelocity(0);
+      //setVelocity(0);
+      pusherRight.set(0);
     }
   }
 
   public void climberBack(boolean move){
     if(move && !reverseStopLimitHit) { 
       //setVelocitySetPoint(climberReverseMaxSpeed);
-      setVelocity(climberReverseMaxSpeed);
+      //setVelocity(climberReverseMaxSpeed);
+      pusherRight.set(-.5);
     }
     else {
       //setVelocitySetPoint(0.0);
-      setVelocity(0);
+      //setVelocity(0);
+      pusherRight.set(0);
     }
   }
 

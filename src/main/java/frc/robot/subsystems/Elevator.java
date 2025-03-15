@@ -118,6 +118,10 @@ public class Elevator extends SubsystemBase {
           .p(0.0006, ClosedLoopSlot.kSlot1)
           .i(0.00001, ClosedLoopSlot.kSlot1)
           .d(0.0006, ClosedLoopSlot.kSlot1)
+          .p(0.00005, ClosedLoopSlot.kSlot0)
+          .i(0, ClosedLoopSlot.kSlot0)
+          .d(0.00005, ClosedLoopSlot.kSlot0)
+          .outputRange(-1,1, ClosedLoopSlot.kSlot0)
           .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
           .velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -157,6 +161,8 @@ public class Elevator extends SubsystemBase {
         
         upStopHit = false;
         downStopHit = false;
+
+        
         
         //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
         //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
@@ -184,6 +190,7 @@ public class Elevator extends SubsystemBase {
         if (forwardStopHit || backwardStopHit) {
           elbowController.set(0.0); // Stop imediataly
         } */
+
     
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
@@ -199,21 +206,24 @@ public class Elevator extends SubsystemBase {
         closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
       }
 
-      private void setVelocity(double speed) {
-        // Log and command the new velocity set point
-        elevatorInOutData.velocitySetPoint = speed;
-        leftMotorController.set(elevatorMaxSpeed); 
+      public void setPositionSetPoint(double pointSet){
+        pointSet = encoder.getPosition();
+
+        elevatorInOutData.positionSetPoint = pointSet;
+
+        closedLoop.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
+
     
       //elevator basic up/down
       public void elevatorMove(boolean up) {
         if (!upStopHit && up) {setVelocitySetPoint(.7);}
-        if (upStopHit || !up) {setVelocitySetPoint(0);}
+        if (upStopHit || !up) {setPositionSetPoint(encoder.getPosition());}
       }
 
       public void elevatorLow(boolean down) {
         if (!downStopHit && down) {setVelocitySetPoint(-.5);}
-        if (downStopHit || !down) {setVelocitySetPoint(0);}
+        if (downStopHit || !down) {setPositionSetPoint(encoder.getPosition());}
       }
 
       //elbow auto pose 
