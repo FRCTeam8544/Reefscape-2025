@@ -217,14 +217,22 @@ public class Elevator extends SubsystemBase {
         closedLoop.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
 
+      public void holdPositionSetPoint() {
+        // External position is used here because it already adjusted for zero offset and
+        // the same position will be used as a set point for 20 ms.
+        // Use max of zero and external position to prevent out of bounds position holding
+        //double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
+        //setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+        setVelocitySetPoint(0.0);
+      }
+
       public void runElevatorVelocity(double speed) {
         if (speed >= 0) {
           if (!upStopHit) {
             setVelocitySetPoint(speed);
           }
           else {
-            double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
-            setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+            holdPositionSetPoint();
           }
         }
         else {
@@ -232,8 +240,7 @@ public class Elevator extends SubsystemBase {
             setVelocitySetPoint(speed);
           }
           else {
-            double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
-            setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+            holdPositionSetPoint();
           }
         }
       }
@@ -244,11 +251,7 @@ public class Elevator extends SubsystemBase {
           setVelocitySetPoint(0.7);
         }
         else {
-          // External position is used here because it already adjusted for zero offset and
-          // the same position will be used as a set point for 20 ms.
-          // Use max of zero and external position to prevent out of bounds position holding
-          double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
-          setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+          holdPositionSetPoint();
         }
       }
 
@@ -261,11 +264,7 @@ public class Elevator extends SubsystemBase {
             setVelocitySetPoint(-0.5);
           }
           else {
-            // External position is used here because it already adjusted for zero offset and
-            // the same position will be used as a set point for 20 ms.
-            // Use max of zero and external position to prevent out of bounds position holding
-            double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
-            setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+            holdPositionSetPoint();
           }
         }
       }
