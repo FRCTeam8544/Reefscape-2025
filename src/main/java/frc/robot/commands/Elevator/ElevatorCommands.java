@@ -18,7 +18,7 @@ import java.util.function.DoubleSupplier;
 
 public class ElevatorCommands {
 
-  private static final double ELEVATOR_DEADBAND = 0.15;
+  private static final double ELEVATOR_DEADBAND = 0.2;
   private static final double ELBOW_DEADBAND = 0.3;
 
   private static int snapCount = 0;
@@ -50,20 +50,27 @@ public class ElevatorCommands {
                   verticalSupplier.getAsDouble(), tiltSupplier.getAsDouble());
                  
           // Convert to elevator relative speeds
-          final double elevatorVelocity =
-              linearVelocity.getX();
-          final double elbowVelocity = MathUtil.applyDeadband(
+          final double elevatorStickVelocity = MathUtil.applyDeadband(
+              linearVelocity.getX(),
+              ELEVATOR_DEADBAND);
+          final double elbowStickVelocity = MathUtil.applyDeadband(
               linearVelocity.getY(),
               ELBOW_DEADBAND);
 
-          elevator.runElevatorVelocity(elevatorVelocity);
-          if (elbowVelocity >= 0) {
-            elevator.spinElbowForward(elbowVelocity != 0.0);
+          final double elevatorVelScaleFactor = 0.6; // Limit to 60 percent speed
+          final double elevatorScaledVelocity = elevatorVelScaleFactor * elevatorStickVelocity;
+
+          final double elbowVelScaleFactor = 1.0;
+          final double elbowScaledVelocity = elbowVelScaleFactor * elbowStickVelocity;
+
+          // Apply velocities
+          elevator.runElevatorVelocity(elevatorScaledVelocity);
+          if (elbowScaledVelocity >= 0) {
+            elevator.spinElbowForward(elbowScaledVelocity != 0.0);
           }
           else {
             elevator.spinElbowBackwards(true);
           }
-         // elevator.runWristVelocity(elbowVelocity);
         },
         elevator);
   }
