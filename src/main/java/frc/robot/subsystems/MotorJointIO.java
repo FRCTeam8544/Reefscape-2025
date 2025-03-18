@@ -14,7 +14,8 @@ public interface MotorJointIO {
     public double rawAbsolutePosition = 0;
     public double externalPosition = 0;
     public double absolutePosition = 0;
-
+    public double velocity = 0;
+    public double accumulatedIterm = 0;
     public boolean upperSoftLimitHit = false;
     public boolean lowerSoftLimitHit = false;
     public boolean upperLimitHit = false;
@@ -23,6 +24,7 @@ public interface MotorJointIO {
     // Outputs
     public double positionSetPoint = 0.0; // Rotations in radians
     public double velocitySetPoint = 0.0; // Percent of max motor speed (0...1)
+    public double voltageSetPoint = 0.0; // Motor voltage, usually not directly controlled
   }
 
   public String getName();

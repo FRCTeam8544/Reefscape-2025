@@ -51,6 +51,8 @@ public class MotorJointSparkMax implements MotorJointIO {
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
       inOutData.lowerSoftLimitHit = inOutData.absolutePosition < lowerSoftLimitValue;
       inOutData.upperSoftLimitHit = inOutData.absolutePosition > upperSoftLimitValue;
+      inOutData.accumulatedIterm = 0;
+      inOutData.velocity = 0;
 
     }
 
