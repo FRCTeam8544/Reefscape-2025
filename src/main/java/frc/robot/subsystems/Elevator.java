@@ -19,7 +19,10 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -30,6 +33,7 @@ import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
+import frc.robot.Constants;
 
 public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
@@ -65,6 +69,10 @@ public class Elevator extends SubsystemBase {
   private static MotorJointIOInputs elbowInOutData;
   private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(elbowController, "Elbow", Constants.elevatorConstants.rightElbowCANID,
                                                                      backwardSoftStopValue, forwardSoftStopValue, true);
+  
+  private double DEFAULT_ELEVATOR_KG = 0;
+  private double elevator_kG = DEFAULT_ELEVATOR_KG; // Tunable to determine the needed kG term to resist gravity
+  private int updateCounter = 0;
 
   private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
   private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
@@ -118,17 +126,23 @@ public class Elevator extends SubsystemBase {
           .reverseLimitSwitchType(Type.kNormallyOpen); 
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
-          // Velocity control
-          .p(0.0006, ClosedLoopSlot.kSlot1)
-          .i(0.00001, ClosedLoopSlot.kSlot1)
-          .d(0.0006, ClosedLoopSlot.kSlot1)
           // Position control
           .p(0.0005, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.00003, ClosedLoopSlot.kSlot0)
-          .outputRange(-1,1, ClosedLoopSlot.kSlot0)
-          .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
-          .velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
+          .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
+          // Velocity control
+          .p(0.0005, ClosedLoopSlot.kSlot1)
+          .i(0.0000003, ClosedLoopSlot.kSlot1)
+          .d(0.0007, ClosedLoopSlot.kSlot1)
+       //   .iMaxAccum(000001)
+          .outputRange(-1,1, ClosedLoopSlot.kSlot1)
+          // Hold velocity control Do not use!!!
+         // .p(0.0006, ClosedLoopSlot.kSlot1)
+         // .i(0.00001, ClosedLoopSlot.kSlot1) // Was 0.00001 "hot tune"
+         // .d(0.0006, ClosedLoopSlot.kSlot1)
+         // .outputRange(-1,1, ClosedLoopSlot.kSlot2)
+          .velocityFF(elevator_kG + 1/Constants.NeoVortexConstants.motorKV, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         setupElbowConfig();
@@ -167,8 +181,6 @@ public class Elevator extends SubsystemBase {
         upStopHit = false;
         downStopHit = false;
 
-        
-        
         //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
         //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
         //forwardStopHit = elbowInOutData.upperSoftLimitHit;
@@ -199,28 +211,68 @@ public class Elevator extends SubsystemBase {
     
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
+
+        updateDashboard();
+
+        updateCounter++; // TODO count periodic updates
+
+        if (updateCounter > 1000) {
+          updateCounter = 0; // limit to prevent overflow
+        }
       }
+      
+      // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
+      // Note max speed may vary as the elevator nears the extents of its travel.
+      private void setVelocitySetPoint(double setPoint){
+        final double maxSpeedRatio = 1;//getMaxElevatorSpeedPercent();
 
-      public void setVelocitySetPoint(double setPoint){
-        final double timeSec = .2;
-        final double maxSpeed = 2 * (Math.PI) / timeSec;
+        // Limit speed percentage within range and preserve direction
+        double adjSetPoint = Math.copySign(Math.min(Math.abs(setPoint), maxSpeedRatio),setPoint);
 
+        final double maxSpeed = getMaxElevatorSpeedRadiansPerSec();
         double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
 
         elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
-        elevatorInOutData.positionSetPoint = -1;
+        elevatorInOutData.positionSetPoint = 0;
+        elevatorInOutData.voltageSetPoint = 0;
         closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
       }
 
-      public void setPositionSetPoint(double pointSet){
+      // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
+      // Note max speed may vary as the elevator nears the extents of its travel.
+      private void setVelocitySetPointAlt(double setPoint){
+     /*    final double maxSpeedRatio = getMaxElevatorSpeedPercent();
+
+        // Limit speed percentage within range and preserve direction
+        //double adjSetPoint = Math.copySign(Math.min(Math.abs(setPoint), maxSpeedRatio),setPoint);
+
+        final double maxSpeed = getMaxElevatorSpeedRadiansPerSec();
+        double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
+
+        elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
+        elevatorInOutData.positionSetPoint = 0;
+        elevatorInOutData.voltageSetPoint = 0;
+        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot2);*/
+      }
+
+      // Attempt to hit a specific elevator position, via PID
+      private void setPositionSetPoint(double pointSet){
         pointSet = encoder.getPosition();
 
         elevatorInOutData.positionSetPoint = pointSet;
-        elevatorInOutData.velocitySetPoint = -1;
+        elevatorInOutData.velocitySetPoint = 0;
+        elevatorInOutData.voltageSetPoint = 0;
 
         closedLoop.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
 
+      // Apply a voltage to move the elevator motors, without PID control
+      private void setVoltageSetPoint(double voltage) {
+        elevatorInOutData.voltageSetPoint = voltage;
+        leftMotorController.setVoltage(voltage);
+      }
+
+      // Attempt to keep the elevator at the same position
       public void holdPositionSetPoint() {
         // External position is used here because it already adjusted for zero offset and
         // the same position will be used as a set point for 20 ms.
@@ -228,10 +280,28 @@ public class Elevator extends SubsystemBase {
         //double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
         //setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
         setVelocitySetPoint(0.0);
+       // setVoltageSetPoint(elevator_kG);
+      }
+      
+      // Moves elevator to the specified position, in revolutions from zero point, must be positive
+      public void runElevatorPosition(double position)
+      {
+      // TODO need to finalize position PID loop tuning and add velocity profile limits
+      // For now cheese this with velocity run until position, probably will overshoot
+        final double limitedPosition = Math.max( Math.min(upSoftStopValue, position), // enforce upper limit
+                                                 downSoftStopValue // enforce lower limit
+                                               );
+        final double positionDelta = Math.abs(position - elevatorInOutData.externalPosition);
+
+       // figure out max distance... or just use smart motion limits???
+       // getMaxElevatorSpeedRadiansPerSec()
+
+       // runElevatorVelocity(Math.copySign(velocity, positionDelta));
       }
 
+      // Run the elevator by commanding a speed as percent of max elevator speed
       public void runElevatorVelocity(double speed) {
-        if (speed >= 0) {
+     /*   if (speed >= 0) {
           if (!upStopHit) {
             setVelocitySetPoint(speed);
           }
@@ -246,24 +316,42 @@ public class Elevator extends SubsystemBase {
           else {
             holdPositionSetPoint();
           }
-        }
+        }*/
       }
 
       //elevator basic up/down
       public void elevatorMove(boolean up) {
         if (!upStopHit && up) {
+          setVelocitySetPoint(0.4);
+        }
+        else {
+          holdPositionSetPoint();
+        }
+      // This code is busted, talk to Jack
+        /*if (!upStopHit && up) {
           //setVelocitySetPoint(0.7);
           setPositionSetPoint(encoder.getPosition());}
-        else {holdPositionSetPoint();}
+        else {holdPositionSetPoint();}*/
+
+        // TODO hijack elbow forward to increase kG every 1/4 second the button is held
+      //  if (up && (updateCounter % 25 == 0)) {
+      //    elevator_kG += 0.05;
+      //  }
       }
 
       public void elevatorLow(boolean down) {
-        if (elevatorCalibrated && down && (elevatorInOutData.externalPosition <= 0.5)) { // last couple inches
+
+      // TODO hijack elbow forward to decrease kG every 1/4 second the button is held
+       // if (down && (updateCounter % 25 == 0)) {
+      //    elevator_kG -= 0.05;
+       // }
+
+       /* if (elevatorCalibrated && down && (elevatorInOutData.externalPosition <= 0.5)) { // last couple inches
           // Do nothing, let it brake mode fall to the zero position
-        }
-        else {if (!downStopHit && down) {
-            //setVelocitySetPoint(-0.5);
-            setPositionSetPoint(encoder.getPosition());
+        }*/
+          {if (!downStopHit && down) {
+            setVelocitySetPoint(-0.3);
+            //setPositionSetPoint(encoder.getPosition());
           }
           else {
             holdPositionSetPoint();
@@ -285,7 +373,7 @@ public class Elevator extends SubsystemBase {
   
       //elbow basics
       public void spinElbowForward(boolean go) {
-          if (go && !forwardStopHit) {elbowController.set(.2);} 
+         if (go && !forwardStopHit) {elbowController.set(.2);} 
         else {elbowController.set(0);}
       }
     
@@ -353,6 +441,7 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putBoolean("down limit hit", downStopHit);
     SmartDashboard.putBoolean("forward limit hit", forwardStopHit);
     SmartDashboard.putBoolean("backward limit hit", backwardStopHit);
+    SmartDashboard.putNumber("elevatorKgTerm", elevator_kG);
   }
 
   public void logPose(String prefix, int snapshotId) {
@@ -366,7 +455,63 @@ public class Elevator extends SubsystemBase {
           prefix + "/Elbow/absolutePosition", elbowInOutData.absolutePosition);
   }
 
+  // Retrieve elevator height
+  public double getElevatorPosition() {
+    final double rotationsToInches = 5.53;
+    // Todo add height from floor to start of elevator?
+    return rotationsToInches * elevatorInOutData.externalPosition; // return position in inches
+  }
+
   public double getElevatorVelocity(){
     return encoder.getVelocity();
   }
+    
+  // Provide the max elevator speed in radians per second
+  private double getMaxElevatorSpeedRadiansPerSec() {
+    // Radians per second
+    final double timeSec = .2;
+    final double maxSpeedRadiansPerSecond = 2 * (Math.PI) / timeSec;
+    return getMaxElevatorSpeedPercent() * maxSpeedRadiansPerSecond;
+  }
+  
+  private double getMaxElevatorSpeedPercent() {
+    // Ratio of speed vs max possible speed e.g. 1 is full speed, 0.5 is half max speed
+    double elevatorSpeedFactor = 1;
+    
+    final double elePos = elevatorInOutData.externalPosition;
+
+    // TODO clean this logic up....
+    // The goal here is to define speed limits near the ends of the elevator travel
+    if (elePos < 1) {
+      double segmentLength = 1 - 0; // Must match current and prior if boundary values
+      elevatorSpeedFactor = MathUtil.interpolate(0, .2, elePos / segmentLength);
+    }
+    else if (elePos < 2) {
+      double segmentLength = 2 - 1; // Must match current and prior if boundary values
+      elevatorSpeedFactor = MathUtil.interpolate(0.2, .4, (elePos - 1) / segmentLength );
+    }
+    else if (elePos < 2.5) {
+      double segmentLength = 2.5 - 2; // Must match current and prior if boundary values
+      elevatorSpeedFactor = MathUtil.interpolate(0.4, .6, (elePos - 2.5) / segmentLength );
+    }
+    else if (elePos < 7.5) {
+      // todo LIMIT ACCELLERATION....
+      elevatorSpeedFactor = 1;
+    }
+    else if (elePos < 8.5) {
+      double segmentLength = 8.5 - 7.5;
+      elevatorSpeedFactor = MathUtil.interpolate(0.6,0.4, elePos - 8.5 / segmentLength);
+    }
+    else if (elePos < 9.2) {
+      double segmentLength = 9.2 - 8.5;
+      elevatorSpeedFactor = MathUtil.interpolate(0.4,0.1, elePos - 9.2 / segmentLength);
+    }
+    else {
+      elevatorSpeedFactor = 0.05;
+    }
+
+    //return elevatorSpeedFactor;
+    return 1;
+  }
+
 }
