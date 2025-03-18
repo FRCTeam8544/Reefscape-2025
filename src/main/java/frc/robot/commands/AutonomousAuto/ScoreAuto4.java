@@ -20,6 +20,22 @@ public class ScoreAuto4 extends Command {
     addRequirements(elevator, clawIntake);
   }
 
+   public void elevatorAuto4(){
+    if (Elevator.encoder.getPosition() < 9.5 || elevator.upStopHit) {elevator.setVelocitySetPoint(.7);}
+    else {elevator.setVelocitySetPoint(0);}
+    } //button map this too? like outake & elevator one button go score 
+
+    public void elbowAutoScore() {
+    if(Elevator.elbowEncoder.getPosition() > .3 || elevator.elbowEncoder.getPosition() < .3) 
+        {Elevator.elbowController.set(.15);} //basically become number x (probs not 4)
+       else{elevator.elbowController.set(0);}
+      }
+
+      public void wristAuto(){
+        if(clawIntake.wristEncoder.getPosition() < .977) {clawIntake.wrist.set(.3);}
+        else{clawIntake.wrist.set(0);}
+      }    
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
@@ -27,9 +43,9 @@ public class ScoreAuto4 extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevator.elevatorAuto4();
-    elevator.elbowAutoScore(true);
-    clawIntake.wristAuto(true);
+    elevatorAuto4();
+    elbowAutoScore();
+    wristAuto();
   }
 
   // Called once the command ends or is interrupted.

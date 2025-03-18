@@ -17,6 +17,11 @@ public class AutoRollerIntake extends Command {
     addRequirements(clawIntake);
   }
 
+  public void rollersAutoIntake(boolean c) {
+    if(c) {clawIntake.rollerRight.setVoltage(-7);}
+    else {clawIntake.rollerRight.setVoltage(0);}
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
@@ -24,7 +29,7 @@ public class AutoRollerIntake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    clawIntake.rollersAutoIntake(true);
+    rollersAutoIntake(true);
   }
 
   // Called once the command ends or is interrupted.

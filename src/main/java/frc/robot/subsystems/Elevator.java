@@ -39,12 +39,12 @@ public class Elevator extends SubsystemBase {
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
-  private static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
+  public static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
   private static SparkClosedLoopController closedLoop = leftMotorController.getClosedLoopController();
 
   /* Create elbow joint */
-  private static SparkFlex elbowController = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
-  private static AbsoluteEncoder elbowEncoder = elbowController.getAbsoluteEncoder();
+  public static SparkFlex elbowController = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
+  public static AbsoluteEncoder elbowEncoder = elbowController.getAbsoluteEncoder();
 
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
@@ -357,18 +357,6 @@ public class Elevator extends SubsystemBase {
             holdPositionSetPoint();
           }
         }
-      }
-      //elevator autos
-      public void elevatorAuto4(){
-        if (encoder.getPosition() < 9.5 || upStopHit) {setVelocitySetPoint(.7);}
-        else {setVelocitySetPoint(0);}
-        } //button map this too? like outake & elevator one button go score 
-
-      //elbow auto pose 
-      public void elbowAutoScore(boolean m) {
-        if(m && elbowEncoder.getPosition() > .3 || elbowEncoder.getPosition() < .3) 
-        {elbowController.set(.15);} //basically become number x (probs not 4)
-       else{elbowController.set(0);}
       }
   
       //elbow basics
