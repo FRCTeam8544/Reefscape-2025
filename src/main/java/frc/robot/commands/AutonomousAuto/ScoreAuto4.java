@@ -21,8 +21,8 @@ public class ScoreAuto4 extends Command {
   }
 
    public void elevatorAuto4(){
-    if (Elevator.encoder.getPosition() < 9.5 || elevator.upStopHit) {elevator.setVelocitySetPoint(.7);}
-    else {elevator.setVelocitySetPoint(0);}
+    if (Elevator.encoder.getPosition() < 9.3 || !elevator.upStopHit) {elevator.runElevatorVelocity(.7);}
+    else {elevator.runElevatorVelocity(0);}
     } //button map this too? like outake & elevator one button go score 
 
     public void elbowAutoScore() {
