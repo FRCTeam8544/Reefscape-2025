@@ -130,7 +130,6 @@ public class Elevator extends SubsystemBase {
           .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
           .velocityFF(1/565, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
         setupElbowConfig();
       }
     
