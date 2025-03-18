@@ -132,10 +132,10 @@ public class Elevator extends SubsystemBase {
           .d(0.00003, ClosedLoopSlot.kSlot0)
           .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
           // Velocity control
-          .p(0.0005, ClosedLoopSlot.kSlot1)
-          .i(0.0000003, ClosedLoopSlot.kSlot1)
-          .d(0.0007, ClosedLoopSlot.kSlot1)
-       //   .iMaxAccum(000001)
+          .p(0.0006, ClosedLoopSlot.kSlot1)
+          .i(0.000005, ClosedLoopSlot.kSlot1)
+          .d(0.0006, ClosedLoopSlot.kSlot1)
+          .iMaxAccum(0.00001, ClosedLoopSlot.kSlot1)
           .outputRange(-1,1, ClosedLoopSlot.kSlot1)
           // Hold velocity control Do not use!!!
          // .p(0.0006, ClosedLoopSlot.kSlot1)
