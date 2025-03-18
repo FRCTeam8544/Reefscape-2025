@@ -53,16 +53,16 @@ public class ClawIntake extends SubsystemBase {
                                                  LaserCAN.FieldOfView.WIDE_16_BY_16);*/
 
   /** Creates a new ClawIntake. */
-  private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   
   private final double upSoftRotationLimit = 0.56; // Rotations
   private final double downSoftRotationLimit = 0;  // Rotations
   private MotorJointIOInputs wristInOutData;
-  private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  public static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 
                                            downSoftRotationLimit, upSoftRotationLimit, true);
-  private static AbsoluteEncoder wristEncoder = wrist.getAbsoluteEncoder();
+  public static AbsoluteEncoder wristEncoder = wrist.getAbsoluteEncoder();
   
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
@@ -186,31 +186,6 @@ public class ClawIntake extends SubsystemBase {
     else {rollerRight.setVoltage(0);}
   }
 
-  //auto wrist/rollers
-  //again encoders to be set... for all...
-  public void wristAuto(boolean a){
-    if(a && wristEncoder.getPosition() < .977) {wrist.set(.3);}
-    else{wrist.set(0);}
-  }
-
-  public void wristAutoRetract() {
-    if(wristEncoder.getPosition() > 0.1) {wrist.set(-.3);} 
-    else{wrist.set(0);}
-  }
-
-  public void intakePose(){
-    if(wristEncoder.getPosition() > 0) {wrist.set(-.3);}
-    else {wrist.set(0);}
-  }
-
-  public void rollersAuto(boolean b) {
-    if(b) {rollerRight.setVoltage(7);}
-  }
-
-  public void rollersAutoIntake(boolean c) {
-    if(c) {rollerRight.setVoltage(-7);}
-    else {rollerRight.setVoltage(0);}
-  }
 
   //wrist basics
   public void wristTurn(boolean forward) {

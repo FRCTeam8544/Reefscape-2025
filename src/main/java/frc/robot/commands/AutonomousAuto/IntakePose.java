@@ -19,6 +19,11 @@ public class IntakePose extends Command {
     addRequirements(clawIntake, elevator);
   }
 
+  public void intakePose(){
+    if(clawIntake.wristEncoder.getPosition() > 0) {clawIntake.wrist.set(-.3);}
+    else {clawIntake.wrist.set(0);}
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
@@ -27,7 +32,7 @@ public class IntakePose extends Command {
   @Override
   public void execute() {
     
-    clawIntake.intakePose();
+    intakePose();
   }
 
   // Called once the command ends or is interrupted.
