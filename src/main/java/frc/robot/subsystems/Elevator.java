@@ -224,24 +224,7 @@ public class Elevator extends SubsystemBase {
       // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
       // Note max speed may vary as the elevator nears the extents of its travel.
       private void setVelocitySetPoint(double setPoint){
-        final double maxSpeedRatio = 1;//getMaxElevatorSpeedPercent();
-
-        // Limit speed percentage within range and preserve direction
-        double adjSetPoint = Math.copySign(Math.min(Math.abs(setPoint), maxSpeedRatio),setPoint);
-
-        final double maxSpeed = getMaxElevatorSpeedRadiansPerSec();
-        double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
-
-        elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
-        elevatorInOutData.positionSetPoint = 0;
-        elevatorInOutData.voltageSetPoint = 0;
-        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-      }
-
-      // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
-      // Note max speed may vary as the elevator nears the extents of its travel.
-      private void setVelocitySetPointAlt(double setPoint){
-     /*    final double maxSpeedRatio = getMaxElevatorSpeedPercent();
+        //final double maxSpeedRatio = 1;//getMaxElevatorSpeedPercent();
 
         // Limit speed percentage within range and preserve direction
         //double adjSetPoint = Math.copySign(Math.min(Math.abs(setPoint), maxSpeedRatio),setPoint);
@@ -252,7 +235,7 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
         elevatorInOutData.positionSetPoint = 0;
         elevatorInOutData.voltageSetPoint = 0;
-        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot2);*/
+        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
       }
 
       // Attempt to hit a specific elevator position, via PID
@@ -327,11 +310,6 @@ public class Elevator extends SubsystemBase {
         else {
           holdPositionSetPoint();
         }
-      // This code is busted, talk to Jack
-        /*if (!upStopHit && up) {
-          //setVelocitySetPoint(0.7);
-          setPositionSetPoint(encoder.getPosition());}
-        else {holdPositionSetPoint();}*/
 
         // TODO hijack elbow forward to increase kG every 1/4 second the button is held
       //  if (up && (updateCounter % 25 == 0)) {
@@ -459,10 +437,11 @@ public class Elevator extends SubsystemBase {
     // Radians per second
     final double timeSec = .2;
     final double maxSpeedRadiansPerSecond = 2 * (Math.PI) / timeSec;
-    return getMaxElevatorSpeedPercent() * maxSpeedRadiansPerSecond;
+    //return getMaxElevatorSpeedPercent() * maxSpeedRadiansPerSecond;
+    return maxSpeedRadiansPerSecond;
   }
   
-  private double getMaxElevatorSpeedPercent() {
+ /*  private double getMaxElevatorSpeedPercent() {
     // Ratio of speed vs max possible speed e.g. 1 is full speed, 0.5 is half max speed
     double elevatorSpeedFactor = 1;
     
@@ -501,5 +480,5 @@ public class Elevator extends SubsystemBase {
     //return elevatorSpeedFactor;
     return 1;
   }
-
+*/
 }
