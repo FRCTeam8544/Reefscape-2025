@@ -18,8 +18,8 @@ import java.util.function.DoubleSupplier;
 
 public class ElevatorCommands {
 
-  private static final double ELEVATOR_DEADBAND = 0.2;
-  private static final double ELBOW_DEADBAND = 0.3;
+  private static final double ELEVATOR_DEADBAND = 0.1;
+  private static final double ELBOW_DEADBAND = 0.2;
 
   private static int snapCount = 0;
   private static int clawSnapCount = 0; // TODO move claw to other class
@@ -57,7 +57,8 @@ public class ElevatorCommands {
               linearVelocity.getY(),
               ELBOW_DEADBAND);
 
-          final double elevatorVelScaleFactor = 0.6; // Limit to 60 percent speed
+          // Limit to 60 percent speed: Note stick velocity will always be within -1 to 1 so scale works
+          final double elevatorVelScaleFactor = 0.5; 
           final double elevatorScaledVelocity = elevatorVelScaleFactor * elevatorStickVelocity;
 
           final double elbowVelScaleFactor = 1.0;
