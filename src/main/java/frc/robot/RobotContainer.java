@@ -107,12 +107,11 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
-        vision = // Disable vision processing until the camera is attached. Potential loop overruns otherwise.
-            new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-            /*new Vision(
+        vision =
+            new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0),
-                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));*/
+                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));
         break;
 
       case SIM:

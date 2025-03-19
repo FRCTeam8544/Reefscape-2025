@@ -21,12 +21,8 @@ import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
 
-  // Vision feature enable flags
-  // TRUE - vision subsystem will send its best field relative robot
-  //        pose estimate to the Drive subsystems pose estimator
-  // FALSE - No vison based pose estimates provided, Use for lab testing without field
-  public static final boolean submitVisonObsToDrivePoseEstimate = false;
-
+  public static final int missedUpdateLimit = 500; // 250 updates per second
+  
   // AprilTag layout
   public static AprilTagFieldLayout aprilTagLayout =
      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // FRC NE

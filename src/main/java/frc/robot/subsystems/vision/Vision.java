@@ -35,15 +35,18 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  private final Integer[] missedUpdateCount;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
     this.io = io;
 
+    missedUpdateCount = new Integer[io.length];
     // Initialize inputs
     this.inputs = new VisionIOInputsAutoLogged[io.length];
     for (int i = 0; i < inputs.length; i++) {
       inputs[i] = new VisionIOInputsAutoLogged();
+      missedUpdateCount[i] = 0;
     }
 
     // Initialize disconnected alerts
@@ -66,9 +69,32 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    
     for (int i = 0; i < io.length; i++) {
-      io[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+      if (missedUpdateCount[i] < missedUpdateLimit) {
+        io[i].updateInputs(inputs[i]);
+
+        if (!inputs[i].connected) {
+          missedUpdateCount[i]++;
+        }
+        else {
+          missedUpdateCount[i] = Math.max(0,missedUpdateCount[i] - 1); // Forgive missing updates that only last a short time
+        }
+
+        // Update disconnected alert
+        disconnectedAlerts[i].set(!inputs[i].connected);
+
+        Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+      }
+      // Camera has failed alert only once
+      else if (missedUpdateCount[i] == missedUpdateLimit) {
+        // Update disconnected alert
+        disconnectedAlerts[i].set(true);
+        missedUpdateCount[i]++; // Increase to prevent multiple alert triggers after the camera has failed
+      }
+      else { // Stop alerts after the camera has failed
+        disconnectedAlerts[i].set(false);
+      }
     }
 
     // Initialize logging values
@@ -79,8 +105,11 @@ public class Vision extends SubsystemBase {
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
-      // Update disconnected alert
-      disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
+
+      // Skip camera processing if it has been disconnected too long
+      if (missedUpdateCount[cameraIndex] >= missedUpdateLimit) {
+         continue; // Skip this camera.
+      }
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();
@@ -140,12 +169,10 @@ public class Vision extends SubsystemBase {
         }
 
         // Send vision observation
-        if (submitVisonObsToDrivePoseEstimate) {
-          consumer.accept(
-              observation.pose().toPose2d(),
-              observation.timestamp(),
+        consumer.accept(
+            observation.pose().toPose2d(),
+            observation.timestamp(),
               VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
-        }
       }
 
       // Log camera datadata
