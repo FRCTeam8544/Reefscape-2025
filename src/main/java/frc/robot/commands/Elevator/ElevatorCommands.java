@@ -61,7 +61,7 @@ public class ElevatorCommands {
           final double elevatorVelScaleFactor = 0.5; 
           final double elevatorScaledVelocity = elevatorVelScaleFactor * elevatorStickVelocity;
 
-          final double elbowVelScaleFactor = 1.0;
+          final double elbowVelScaleFactor = 0.5;
           final double elbowScaledVelocity = elbowVelScaleFactor * elbowStickVelocity;
 
           // Apply velocities
