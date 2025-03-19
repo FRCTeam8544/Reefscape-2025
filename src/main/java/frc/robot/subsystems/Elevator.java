@@ -19,7 +19,6 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Velocity;
@@ -27,9 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.Logger;
-
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
@@ -114,7 +111,7 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(stallLimit);
         leftMotorConfig.inverted(false);
-        leftMotorConfig.voltageCompensation(12);
+        leftMotorConfig.voltageCompensation(12); 
         leftMotorConfig.softLimit.forwardSoftLimitEnabled(true);
         leftMotorConfig.softLimit.forwardSoftLimit(upSoftStopValue);
         leftMotorConfig.softLimit.reverseSoftLimitEnabled(true);
@@ -133,9 +130,9 @@ public class Elevator extends SubsystemBase {
           .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
           // Velocity control
           .p(0.0006, ClosedLoopSlot.kSlot1)
-          .i(0.000005, ClosedLoopSlot.kSlot1)
+          .i(0.00001, ClosedLoopSlot.kSlot1)
           .d(0.0006, ClosedLoopSlot.kSlot1)
-          .iMaxAccum(0.00001, ClosedLoopSlot.kSlot1)
+          .iMaxAccum(0.018, ClosedLoopSlot.kSlot1)
           .outputRange(-1,1, ClosedLoopSlot.kSlot1)
           // Hold velocity control Do not use!!!
          // .p(0.0006, ClosedLoopSlot.kSlot1)
@@ -305,9 +302,12 @@ public class Elevator extends SubsystemBase {
       public void elevatorMove(boolean up) {
         if (!upStopHit && up) {
           setVelocitySetPoint(0.4);
+          //setVoltageSetPoint(elevator_kG); 
+          //elevator_kG += .0001;
         }
         else {
           holdPositionSetPoint();
+         //setVoltageSetPoint(0);
         }
 
         // TODO hijack elbow forward to increase kG every 1/4 second the button is held
@@ -329,9 +329,12 @@ public class Elevator extends SubsystemBase {
           {if (!downStopHit && down) {
             setVelocitySetPoint(-0.3);
             //setPositionSetPoint(encoder.getPosition());
+            //setVoltageSetPoint(elevator_kG);
+            //elevator_kG -= .0001;
           }
           else {
-            holdPositionSetPoint();
+          holdPositionSetPoint();
+          //setVoltageSetPoint(0);
           }
         }
       }
