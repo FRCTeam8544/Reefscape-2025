@@ -14,13 +14,15 @@ public class RollersForward extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
   Trigger xButton;
+  Trigger bButton;
 
-  public RollersForward(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton) {
+  public RollersForward(ClawIntake clawIntake, CommandXboxController juliet, Trigger xButton, Trigger bButton) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
     this.xButton = xButton;
+    this.bButton = bButton;
 
-    xButton = juliet.x();
+   // xButton = juliet.x();
     addRequirements(clawIntake);
   }
 
@@ -33,7 +35,11 @@ public class RollersForward extends Command {
   public void execute() {
     // This command draws the Coral into the intake when the button is pressed and the coral
     // has not been acquired yet.
-    if (xButton.getAsBoolean() && !clawIntake.hasCoral()) {
+    final boolean xButtonHit = xButton.getAsBoolean();
+    final boolean bButtonHit = bButton.getAsBoolean();
+
+    if ( (xButtonHit && !clawIntake.hasCoral()) ||
+         (xButtonHit && bButtonHit) ) {
       clawIntake.rollerRoll(true);
     } else {
       clawIntake.rollerRoll(false);
