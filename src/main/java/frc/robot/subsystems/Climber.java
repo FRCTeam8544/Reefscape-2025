@@ -138,6 +138,11 @@ public class Climber extends SubsystemBase {
     }
   }
 
+  public void stopClimber() {
+    climberInOutData.velocitySetPoint = 0;
+    pusherRight.set(0);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -183,6 +188,8 @@ public class Climber extends SubsystemBase {
     climberInOutData.velocitySetPoint = speed;
     pusherRight.set(climberForwardMaxSpeed);
   }
+
+
   private double positionToClimbSpeed(double position) {
     
     final double length = forwardSoftRotationLimit - backwardSoftRotationLimit;

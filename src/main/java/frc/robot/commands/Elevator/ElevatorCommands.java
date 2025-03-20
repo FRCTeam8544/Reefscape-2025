@@ -36,7 +36,7 @@ public class ElevatorCommands {
 
   public static Command logPose(Climber climber, String prefix) {
     return Commands.run(
-        () -> { climber.logPose(prefix, 0); }, climber);
+        () -> { climber.stopClimber(); climber.logPose(prefix, 0); }, climber);
   }
 
   /** Command elevator using joysticks (controlling linear and angular velocities). */
@@ -66,7 +66,7 @@ public class ElevatorCommands {
 
           // Apply velocities
           elevator.runElevatorVelocity(elevatorScaledVelocity);
-          
+
           if (elbowScaledVelocity >= 0) {
             elevator.spinElbowForward(elbowScaledVelocity != 0.0);
           }
