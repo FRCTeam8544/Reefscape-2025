@@ -215,11 +215,11 @@ public class RobotContainer {
                 .ignoringDisable(true));
     
     //operator functions
-    /*elevator.setDefaultCommand(
+    elevator.setDefaultCommand(
         ElevatorCommands.joystickElevator(
             elevator, () -> -juliet.getLeftY(), () -> juliet.getLeftX()));
              // back is positive, so need to invert
-             // right is positive for tilt, so leave that alone*/
+             // right is positive for tilt, so leave that alone
 
     juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down

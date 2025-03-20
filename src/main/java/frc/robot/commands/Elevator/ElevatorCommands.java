@@ -66,6 +66,7 @@ public class ElevatorCommands {
 
           // Apply velocities
           elevator.runElevatorVelocity(elevatorScaledVelocity);
+          
           if (elbowScaledVelocity >= 0) {
             elevator.spinElbowForward(elbowScaledVelocity != 0.0);
           }

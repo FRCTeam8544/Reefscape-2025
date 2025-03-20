@@ -69,7 +69,6 @@ public class Elevator extends SubsystemBase {
   
   private double DEFAULT_ELEVATOR_KG = 0;
   private double elevator_kG = DEFAULT_ELEVATOR_KG; // Tunable to determine the needed kG term to resist gravity
-  private int updateCounter = 0;
 
   private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
   private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
@@ -134,11 +133,6 @@ public class Elevator extends SubsystemBase {
           .d(0.0006, ClosedLoopSlot.kSlot1)
           .iMaxAccum(0.018, ClosedLoopSlot.kSlot1)
           .outputRange(-1,1, ClosedLoopSlot.kSlot1)
-          // Hold velocity control Do not use!!!
-         // .p(0.0006, ClosedLoopSlot.kSlot1)
-         // .i(0.00001, ClosedLoopSlot.kSlot1) // Was 0.00001 "hot tune"
-         // .d(0.0006, ClosedLoopSlot.kSlot1)
-         // .outputRange(-1,1, ClosedLoopSlot.kSlot2)
           .velocityFF(elevator_kG + 1/Constants.NeoVortexConstants.motorKV, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         setupElbowConfig();
@@ -210,11 +204,6 @@ public class Elevator extends SubsystemBase {
 
         updateDashboard();
 
-        updateCounter++; // TODO count periodic updates
-
-        if (updateCounter > 1000) {
-          updateCounter = 0; // limit to prevent overflow
-        }
       }
       
       // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
@@ -280,7 +269,7 @@ public class Elevator extends SubsystemBase {
 
       // Run the elevator by commanding a speed as percent of max elevator speed
       public void runElevatorVelocity(double speed) {
-     /*   if (speed >= 0) {
+        if (speed >= 0) {
           if (!upStopHit) {
             setVelocitySetPoint(speed);
           }
@@ -295,7 +284,7 @@ public class Elevator extends SubsystemBase {
           else {
             holdPositionSetPoint();
           }
-        }*/
+        }
       }
 
       //elevator basic up/down
