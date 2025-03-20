@@ -122,19 +122,20 @@ public class Elevator extends SubsystemBase {
           .reverseLimitSwitchType(Type.kNormallyOpen); 
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
-          // Position control
+          // Position control (untuned)
           .p(0.0005, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
-          .d(0.00003, ClosedLoopSlot.kSlot0)
+          .d(0.00000, ClosedLoopSlot.kSlot0)
           .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
           // Velocity control
           .p(0.0006, ClosedLoopSlot.kSlot1)
           .i(0.00001, ClosedLoopSlot.kSlot1)
           .d(0.0006, ClosedLoopSlot.kSlot1)
-          .iMaxAccum(0.018, ClosedLoopSlot.kSlot1)
+          .iMaxAccum(0.018, ClosedLoopSlot.kSlot1) // Prevent integral runaway!!!!
           .outputRange(-1,1, ClosedLoopSlot.kSlot1)
-          .velocityFF(elevator_kG + 1/Constants.NeoVortexConstants.motorKV, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
+          .velocityFF(1/Constants.NeoVortexConstants.motorKV, ClosedLoopSlot.kSlot1); //only used in velocity loop & set based on motor type
         leftMotorController.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        
         setupElbowConfig();
       }
     
