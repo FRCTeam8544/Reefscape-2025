@@ -38,13 +38,13 @@ public class Elevator extends SubsystemBase {
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
   public static RelativeEncoder encoder = leftMotorController.getExternalEncoder();
   private static SparkClosedLoopController closedLoop = leftMotorController.getClosedLoopController();
-
-  /* Create elbow joint */
-  public static SparkFlex elbowController = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
-  public static AbsoluteEncoder elbowEncoder = elbowController.getAbsoluteEncoder();
-
   private static SparkFlexConfig motorConfig = new SparkFlexConfig();
   private static SparkFlexConfig leftMotorConfig = new SparkFlexConfig();
+
+  /* Create elbow joint */
+  private static SparkFlex elbowController = new SparkFlex(Constants.elevatorConstants.rightElbowCANID, MotorType.kBrushless);
+  public static AbsoluteEncoder elbowEncoder = elbowController.getAbsoluteEncoder();
+  private static SparkClosedLoopController elbowClosedLoop = elbowController.getClosedLoopController();
   private static SparkFlexConfig spinConfig = new SparkFlexConfig();
   
   // 5.53 inches per rotation of elevator output shaft
@@ -140,10 +140,19 @@ public class Elevator extends SubsystemBase {
       }
     
       public void setupElbowConfig() {
+        //final double kMaxElbowVelocityRPM = 
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
+        spinConfig.voltageCompensation(12); 
         spinConfig.smartCurrentLimit(40);
-        spinConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        spinConfig.closedLoop
+          .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+          .p(0.000000005, ClosedLoopSlot.kSlot0)
+          .i(0, ClosedLoopSlot.kSlot0)
+          .d(0.00000, ClosedLoopSlot.kSlot0)
+          .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
+       //   .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
+        //            .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -247,13 +256,13 @@ public class Elevator extends SubsystemBase {
         // the same position will be used as a set point for 20 ms.
         // Use max of zero and external position to prevent out of bounds position holding
         //double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
-        //setPositionSetPoint(Math.max(limitedPosition,downSoftStopValue));
+        //setPositionSetPoint(0);
         setVelocitySetPoint(0.0);
        // setVoltageSetPoint(elevator_kG);
       }
       
       // Moves elevator to the specified position, in revolutions from zero point, must be positive
-      public void runElevatorPosition(double position)
+      public void runElevatorToPosition(double position)
       {
       // TODO need to finalize position PID loop tuning and add velocity profile limits
       // For now cheese this with velocity run until position, probably will overshoot
@@ -326,6 +335,13 @@ public class Elevator extends SubsystemBase {
           holdPositionSetPoint();
           //setVoltageSetPoint(0);
           }
+        }
+      }
+
+      public void turnElbowToPosition(double position) {
+        if ((position >= backwardSoftStopValue) ||
+            (position <= forwardSoftStopValue)) {
+          elbowClosedLoop.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
         }
       }
   

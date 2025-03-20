@@ -20,8 +20,9 @@ public class IntakePose extends Command {
   }
 
   public void intakePose(){
-    if(clawIntake.wristEncoder.getPosition() > 0) {clawIntake.wrist.set(-.3);}
-    else {clawIntake.wrist.set(0);}
+    clawIntake.turnWristToPosition(0);
+    //if(clawIntake.wristEncoder.getPosition() > 0) {clawIntake.wrist.set(-.3);}
+   // else {clawIntake.wrist.set(0);}
   }
 
   // Called when the command is initially scheduled.

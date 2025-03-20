@@ -21,19 +21,22 @@ public class ScoreAuto4 extends Command {
   }
 
    public void elevatorAuto4(){
-    if (Elevator.encoder.getPosition() < 9.3 || !elevator.upStopHit) {elevator.runElevatorVelocity(.7);}
-    else {elevator.runElevatorVelocity(0);}
+    elevator.runElevatorToPosition(9.3);
+   // if (Elevator.encoder.getPosition() < 9.3 || !elevator.upStopHit) {elevator.runElevatorVelocity(.7);}
+    //else {elevator.runElevatorVelocity(0);}
     } //button map this too? like outake & elevator one button go score 
 
     public void elbowAutoScore() {
-    if(Elevator.elbowEncoder.getPosition() > .3 || elevator.elbowEncoder.getPosition() < .3) 
-        {Elevator.elbowController.set(.15);} //basically become number x (probs not 4)
-       else{elevator.elbowController.set(0);}
+    elevator.runElevatorToPosition(.3);
+    //if(Elevator.elbowEncoder.getPosition() > .3 || elevator.elbowEncoder.getPosition() < .3) 
+    //    {Elevator.elbowController.set(.15);} //basically become number x (probs not 4)
+     //  else{elevator.elbowController.set(0);}
       }
 
       public void wristAuto(){
-        if(clawIntake.wristEncoder.getPosition() < .977) {clawIntake.wrist.set(.3);}
-        else{clawIntake.wrist.set(0);}
+        clawIntake.turnWristToPosition(.977);
+        //if(clawIntake.wristEncoder.getPosition() < .977) {clawIntake.wrist.set(.3);}
+        //else{clawIntake.wrist.set(0);}
       }    
 
   // Called when the command is initially scheduled.
