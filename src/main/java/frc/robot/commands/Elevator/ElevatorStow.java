@@ -33,10 +33,9 @@ public class ElevatorStow extends Command {
   @Override
   public void execute() {
     if (button.getAsBoolean() && !elevator.downStop.getAsBoolean()) {
-      elevator.elevatorElbowIssueDown(); // will move elbow in/out as well.
-    } else {
-      elevator.elevatorLow(false); // Stop the elevator
+      elevator.runElevatorToPosition(0);
     }
+    // TODO stow elbow??? or do that in different command?
   }
 
   // Called once the command ends or is interrupted.

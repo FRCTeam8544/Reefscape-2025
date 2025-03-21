@@ -79,6 +79,10 @@ public class Elevator extends SubsystemBase {
   public boolean upStopHit;
   public boolean downStopHit;
 
+  // Cheesy position control for elbow
+  private boolean elbowTurnActive = false;
+  private double elbowTurnStartPos = 0.0;
+
 /* */      
   public BooleanSupplier upStop =
             () -> {
@@ -194,7 +198,38 @@ public class Elevator extends SubsystemBase {
           elbowController.set(0.0); // Stop imediataly
         } */
 
-    
+        // Implement stupid simple position target control for elbow since position PID does not work yet!
+        if (elbowTurnActive) {
+          final double curElbowPosition = elbowEncoder.getPosition();
+           // forward target
+          if (elbowInOutData.positionSetPoint - elbowTurnStartPos > 0) {
+            // Target acheived, may overshoot
+            if ( elbowInOutData.absolutePosition >= curElbowPosition) {
+              spinElbowForward(false);
+              elbowTurnStartPos = curElbowPosition;
+              elbowTurnActive = false;
+            }
+            else { // Keep going forward...
+              spinElbowForward(true);
+            }
+          }
+          else if (elbowInOutData.positionSetPoint - elbowTurnStartPos < 0) { // backwards target
+            if (elbowInOutData.absolutePosition <= curElbowPosition) { // Target acheived, may overshoot
+              spinElbowBackwards(false);
+              elbowTurnStartPos = curElbowPosition;
+              elbowTurnActive = false;
+            }
+            else { // Keep going backwards
+              spinElbowBackwards(true);
+            }
+          }
+          else { // Aleady in the correct place
+            spinElbowForward(false); // Default to not moving
+            elbowTurnStartPos = elbowInOutData.positionSetPoint;
+            elbowTurnActive = false;
+          }
+        }
+
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
 
@@ -271,30 +306,37 @@ public class Elevator extends SubsystemBase {
         }
       }
 
-      //elevator basic up/down
+      //elevator basic up/down: Do not use!!!! Use position instead
       public void elevatorMove(boolean up) {
-        if (!upStopHit && up) {
+        /*if (!upStopHit && up) {
           setVelocitySetPoint(0.4);
         }
         else {
           setVelocitySetPoint(0);
-        }
+        }*/
       }
 
+      // Using position control do not use
       public void elevatorLow(boolean down) {
-
-          if (!downStopHit && down) {
+          
+          /*if (!downStopHit && down) {
             setVelocitySetPoint(-0.3);
           }
           else {
             setVelocitySetPoint(0);
-          }
+          }*/
       }
 
-      public void turnElbowToPosition(double position) {
-        if ((position >= backwardSoftStopValue) ||
-            (position <= forwardSoftStopValue)) {
-          elbowClosedLoop.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+      // Call once to start turn to a position
+      public void turnElbowToPosition( double startPos, double targetPosition) {
+        if ((targetPosition >= backwardSoftStopValue) ||
+            (targetPosition <= forwardSoftStopValue)) {
+          
+          elbowTurnStartPos = startPos;
+          elbowInOutData.positionSetPoint = targetPosition;
+          elbowTurnActive = true;
+          // PID does not work so leverage periodic loop to handle this....
+          //elbowClosedLoop.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
         }
       }
   
@@ -311,7 +353,7 @@ public class Elevator extends SubsystemBase {
     
 
       //problem range elevator/elbow
-      public void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
+  /*    public void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
 
         final double elevatorPosition = elevatorInOutData.externalPosition;
         final double elbowPosition = elbowInOutData.absolutePosition;
@@ -336,8 +378,8 @@ public class Elevator extends SubsystemBase {
           }
         }
       }
-
-      public void elevatorElbowIssueDown(){
+*/
+   /*    public void elevatorElbowIssueDown(){
         final double elevatorPosition = elevatorInOutData.externalPosition;
         final double elbowPosition = elbowInOutData.absolutePosition;
  
@@ -360,7 +402,7 @@ public class Elevator extends SubsystemBase {
             elbowController.set(0);
           }
         }
-      }
+      }*/
 
    public void updateDashboard(){
     SmartDashboard.putNumber("elevator Speed", encoder.getVelocity());  
@@ -382,11 +424,11 @@ public class Elevator extends SubsystemBase {
           prefix + "/Elbow/absolutePosition", elbowInOutData.absolutePosition);
   }
 
-  // Retrieve elevator height
+  // Retrieve elevator height in revolutions
   public double getElevatorPosition() {
-    final double rotationsToInches = 5.53;
+    //final double rotationsToInches = 5.53; ??
     // Todo add height from floor to start of elevator?
-    return elevatorInOutData.externalPosition; // return position in inches
+    return elevatorInOutData.externalPosition; // return position in rotations
   }
 
   public double getElevatorVelocity(){
@@ -394,7 +436,7 @@ public class Elevator extends SubsystemBase {
   }
     
   // Provide the max elevator speed in radians per second
-  private double getMaxElevatorSpeedRadiansPerSec() {
+ private double getMaxElevatorSpeedRadiansPerSec() {
     // Radians per second
     final double timeSec = .2;
     final double maxSpeedRadiansPerSecond = 2 * (Math.PI) / timeSec;
