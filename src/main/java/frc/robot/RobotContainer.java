@@ -238,6 +238,8 @@ public class RobotContainer {
         .a().onTrue(runRightApproach());
     romeo
         .x().onTrue(runLeftApproach());
+    romeo
+        .y().onTrue(runSourceApproach());
     
 
     //operator functions
@@ -316,37 +318,37 @@ public class RobotContainer {
     }
     PathPlannerPath center7 = null;
     try {
-        center7 = PathPlannerPath.fromPathFile("Center 1");
+        center7 = PathPlannerPath.fromPathFile("Center 7");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath center8 = null;
     try {
-        center8 = PathPlannerPath.fromPathFile("Center 2");
+        center8 = PathPlannerPath.fromPathFile("Center 8");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath center9 = null;
     try {
-        center9 = PathPlannerPath.fromPathFile("Center 3");
+        center9 = PathPlannerPath.fromPathFile("Center 9");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath center10 = null;
     try {
-        center10 = PathPlannerPath.fromPathFile("Center 4");
+        center10 = PathPlannerPath.fromPathFile("Center 10");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath center11 = null;
     try {
-        center11 = PathPlannerPath.fromPathFile("Center 5");
+        center11 = PathPlannerPath.fromPathFile("Center 11");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath center12 = null;
     try {
-        center12 = PathPlannerPath.fromPathFile("Center 6");
+        center12 = PathPlannerPath.fromPathFile("Center 12");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
@@ -378,9 +380,7 @@ public class RobotContainer {
             path = center12;
 
     }
-
     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-
     return pathfindingCommand;
   }
 
@@ -424,37 +424,37 @@ public class RobotContainer {
     }
     PathPlannerPath left7 = null;
     try {
-        left7 = PathPlannerPath.fromPathFile("Left 1");
+        left7 = PathPlannerPath.fromPathFile("Left 7");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath left8 = null;
     try {
-        left8 = PathPlannerPath.fromPathFile("Left 2");
+        left8 = PathPlannerPath.fromPathFile("Left 8");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath left9 = null;
     try {
-        left9 = PathPlannerPath.fromPathFile("Left 3");
+        left9 = PathPlannerPath.fromPathFile("Left 9");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath left10 = null;
     try {
-        left10 = PathPlannerPath.fromPathFile("Left 4");
+        left10 = PathPlannerPath.fromPathFile("Left 10");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath left11 = null;
     try {
-        left11 = PathPlannerPath.fromPathFile("Left 5");
+        left11 = PathPlannerPath.fromPathFile("Left 11");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath left12 = null;
     try {
-        left12 = PathPlannerPath.fromPathFile("Left 6");
+        left12 = PathPlannerPath.fromPathFile("Left 12");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
@@ -485,9 +485,7 @@ public class RobotContainer {
         case 11:
             path = left12;
     }
-
     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-
     return pathfindingCommand;
   }
 
@@ -531,37 +529,37 @@ public class RobotContainer {
     }
     PathPlannerPath right7 = null;
     try {
-        right7 = PathPlannerPath.fromPathFile("Right 1");
+        right7 = PathPlannerPath.fromPathFile("Right 7");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath right8 = null;
     try {
-        right8 = PathPlannerPath.fromPathFile("Right 2");
+        right8 = PathPlannerPath.fromPathFile("Right 8");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath right9 = null;
     try {
-        right9 = PathPlannerPath.fromPathFile("Right 3");
+        right9 = PathPlannerPath.fromPathFile("Right 9");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath right10 = null;
     try {
-        right10 = PathPlannerPath.fromPathFile("Right 4");
+        right10 = PathPlannerPath.fromPathFile("Right 10");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath right11 = null;
     try {
-        right11 = PathPlannerPath.fromPathFile("Right 5");
+        right11 = PathPlannerPath.fromPathFile("Right 11");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
     PathPlannerPath right12 = null;
     try {
-        right12 = PathPlannerPath.fromPathFile("Right 6");
+        right12 = PathPlannerPath.fromPathFile("Right 12");
     } catch (FileVersionException | IOException | ParseException e) {
         e.printStackTrace();
     }
@@ -592,11 +590,51 @@ public class RobotContainer {
         case 11:
             path = right12;
     }
-
     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-
     return pathfindingCommand;
   }
+
+  public Command runSourceApproach() {
+    PathPlannerPath path = null;
+    PathPlannerPath blue1 = null;
+    try {
+        blue1 = PathPlannerPath.fromPathFile("Blue Source 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath blue2 = null;
+    try {
+        blue2 = PathPlannerPath.fromPathFile("Blue Source 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath red3 = null;
+    try {
+        red3 = PathPlannerPath.fromPathFile("Red Source 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath red4 = null;
+    try {
+        red4 = PathPlannerPath.fromPathFile("Red Source 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+
+    switch (findBestTargetID()) {
+        case 13:
+            path = blue1;
+        case 12: 
+            path = blue2;
+        case 2:
+            path = red3;
+        case 1:
+            path = red4;
+    }
+    Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
+    return pathfindingCommand;
+}
+
 
   private int findBestTargetID() { //compares both camera's best tags ambiguitity
     int leftBest = leftCamera.getBestTargetID();
