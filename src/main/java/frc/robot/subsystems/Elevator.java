@@ -97,7 +97,7 @@ public class Elevator extends SubsystemBase {
         elbowInOutData = new MotorJointIOInputsAutoLogged();
 
         elevatorCalibrated = false;
-        motorConfig.idleMode(IdleMode.kCoast);
+        motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(stallLimit);
         motorConfig.follow(Constants.elevatorConstants.leftElevatorCANID, true); 
         motorConfig.voltageCompensation(12);
@@ -107,7 +107,7 @@ public class Elevator extends SubsystemBase {
         motorConfig.limitSwitch.reverseLimitSwitchEnabled(false);
         motorController.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
-        leftMotorConfig.idleMode(IdleMode.kCoast);
+        leftMotorConfig.idleMode(IdleMode.kBrake);
         leftMotorConfig.smartCurrentLimit(stallLimit);
         leftMotorConfig.inverted(false);
         leftMotorConfig.voltageCompensation(12); 
