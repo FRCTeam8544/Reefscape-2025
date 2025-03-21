@@ -626,9 +626,9 @@ public class RobotContainer {
             path = blue1;
         case 12: 
             path = blue2;
-        case 2:
-            path = red3;
         case 1:
+            path = red3;
+        case 2:
             path = red4;
     }
     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
