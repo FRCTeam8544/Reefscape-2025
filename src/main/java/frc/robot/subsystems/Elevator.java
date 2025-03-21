@@ -67,7 +67,7 @@ public class Elevator extends SubsystemBase {
   private static MotorJointIO elbowMotorIO = new MotorJointSparkFlex(elbowController, "Elbow", Constants.elevatorConstants.rightElbowCANID,
                                                                      backwardSoftStopValue, forwardSoftStopValue, true);
   
-  private double DEFAULT_ELEVATOR_KG = 0;
+  private double DEFAULT_ELEVATOR_KG = 0.614;
   private double elevator_kG = DEFAULT_ELEVATOR_KG; // Tunable to determine the needed kG term to resist gravity
 
   private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
@@ -186,21 +186,7 @@ public class Elevator extends SubsystemBase {
         //forwardStopHit = elbowInOutData.upperSoftLimitHit;
         //backwardStopHit = elbowInOutData.lowerSoftLimitHit;
     
-        // Hard limits
-        // Combine Hard limit wrist check with soft limit results:
-        // TODO hook limit switches to the spark controllers directly???
-        // What about feedback to the software to let it know that a limit has been reached?
-
-       /* if (elevatorCalibrated) {
-          upStopHit = false; //|| elevatorInOutData.upperSoftLimitHit; //took out limit switch
-          downStopHit = false; //|| elevatorInOutData.lowerSoftLimitHit;
-        } 
-        else { // Ignore soft limits when elevator position is not calibrated
-          upStopHit = upStop.getAsBoolean();
-          downStopHit = downStop.getAsBoolean();
-        } 
-    
-        if (upStopHit || downStopHit) {
+        /*if (upStopHit || downStopHit) {
           motorController.set(0.0); // Stop imediately regardless of the running command
         }
 
@@ -234,7 +220,7 @@ public class Elevator extends SubsystemBase {
       }
 
       // Attempt to hit a specific elevator position, via PID
-      public void setPositionSetPoint(double pointSet) {
+      private void setPositionSetPoint(double pointSet) {
       
         elevatorInOutData.positionSetPoint = pointSet;
         elevatorInOutData.velocitySetPoint = 0;
@@ -248,34 +234,17 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData.voltageSetPoint = voltage;
         leftMotorController.setVoltage(voltage);
       }
-
-      // Attempt to keep the elevator at the same position
-      private void holdPositionSetPoint(double lastPosition) {
-      
-        elevatorInOutData.positionSetPoint = lastPosition;
-        elevatorInOutData.velocitySetPoint = 0;
-        elevatorInOutData.voltageSetPoint = 0;
-
-        closedLoop.setReference(lastPosition, ControlType.kPosition, 
-                                ClosedLoopSlot.kSlot0,0.7);
-        //setVelocitySetPoint(0.0);
-       // setVoltageSetPoint(elevator_kG);
-      }
       
       // Moves elevator to the specified position, in revolutions from zero point, must be positive
       public void runElevatorToPosition(double position)
       {
-      // TODO need to finalize position PID loop tuning and add velocity profile limits
-      // For now cheese this with velocity run until position, probably will overshoot
-        final double limitedPosition = Math.max( Math.min(upSoftStopValue, position), // enforce upper limit
-                                                 downSoftStopValue // enforce lower limit
-                                               );
-        final double positionDelta = Math.abs(position - elevatorInOutData.externalPosition);
-
-       // figure out max distance... or just use smart motion limits???
-       // getMaxElevatorSpeedRadiansPerSec()
-
-       // runElevatorVelocity(Math.copySign(velocity, positionDelta));
+        if (position < downSoftStopValue) {
+           position = downSoftStopValue;
+        }
+        else if (position > upSoftStopValue) {
+          position = upSoftStopValue;
+        }
+        setPositionSetPoint(position);
       }
 
       // Run the elevator by commanding a speed as percent of max elevator speed
@@ -302,41 +271,20 @@ public class Elevator extends SubsystemBase {
       public void elevatorMove(boolean up) {
         if (!upStopHit && up) {
           setVelocitySetPoint(0.4);
-          //setVoltageSetPoint(elevator_kG); 
-          //elevator_kG += .0001;
         }
         else {
-          holdPositionSetPoint(encoder.getPosition());
-         //setVoltageSetPoint(0);
+          setVelocitySetPoint(0);
         }
-
-        // TODO hijack elbow forward to increase kG every 1/4 second the button is held
-      //  if (up && (updateCounter % 25 == 0)) {
-      //    elevator_kG += 0.05;
-      //  }
       }
 
       public void elevatorLow(boolean down) {
 
-      // TODO hijack elbow forward to decrease kG every 1/4 second the button is held
-       // if (down && (updateCounter % 25 == 0)) {
-      //    elevator_kG -= 0.05;
-       // }
-
-       /* if (elevatorCalibrated && down && (elevatorInOutData.externalPosition <= 0.5)) { // last couple inches
-          // Do nothing, let it brake mode fall to the zero position
-        }*/
-          {if (!downStopHit && down) {
+          if (!downStopHit && down) {
             setVelocitySetPoint(-0.3);
-            //setPositionSetPoint(encoder.getPosition());
-            //setVoltageSetPoint(elevator_kG);
-            //elevator_kG -= .0001;
           }
           else {
-          holdPositionSetPoint(encoder.getPosition());
-          //setVoltageSetPoint(0);
+            setVelocitySetPoint(0);
           }
-        }
       }
 
       public void turnElbowToPosition(double position) {

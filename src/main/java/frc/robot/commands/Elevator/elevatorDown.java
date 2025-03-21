@@ -17,7 +17,6 @@ public class elevatorDown extends Command {
   Elevator elevator;
   Trigger aButton;
 
-  double lastCmdPosition = 0;
 
   public elevatorDown(Elevator elevator, CommandXboxController juliet, Trigger aButton) {
     this.elevator = elevator;
@@ -35,14 +34,16 @@ public class elevatorDown extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+   
+    
     if (aButton.getAsBoolean()) {
+      final double setPoint = 0.5;
+      elevator.runElevatorToPosition(setPoint);
      // elevator.elevatorLow(true);} 
-     double setPoint = 0.5;
-     lastCmdPosition = setPoint;
-     elevator.setPositionSetPoint(setPoint);
     }
-     // else {elevator.holdPositionSetPoint(lastCmdPosition);
- //   }
+    /*else {
+      elevator.elevatorLow(false);
+    }*/
   }
 
   // Called once the command ends or is interrupted.
