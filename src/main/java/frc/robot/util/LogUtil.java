@@ -47,6 +47,8 @@ public class LogUtil {
           prefix + "/SetPoint/position", inOutData.positionSetPoint);
       Logger.recordOutput(
           prefix + "/SetPoint/velocity", inOutData.velocitySetPoint);
+      Logger.recordOutput(
+          prefix + "/SetPoint/voltage", inOutData.voltageSetPoint);
     }
 
     public static void logData(String prefix, LaserCANIOInputs inputs)
