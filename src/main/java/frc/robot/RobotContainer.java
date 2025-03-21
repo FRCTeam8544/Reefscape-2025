@@ -217,7 +217,7 @@ public class RobotContainer {
     //operator functions
     elevator.setDefaultCommand(
         ElevatorCommands.joystickElevator(
-            elevator, () -> -juliet.getLeftY(), () -> juliet.getLeftX()));
+            elevator, () -> -juliet.getLeftY(), rightBackTop, leftBackTop));
              // back is positive, so need to invert
              // right is positive for tilt, so leave that alone
 
@@ -227,8 +227,9 @@ public class RobotContainer {
     juliet.leftBumper().onTrue(new WristBack(clawIntake, juliet, leftBack)); // wrist backward
     juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
-    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
-    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
+// These are still tied to the triggers, but controlled through the default elevator command
+//    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
+//    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
     juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
     juliet.back().onTrue(new ClimbBack(climber, juliet, backButton)); //climber back

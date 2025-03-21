@@ -11,13 +11,12 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ElevatorCommands {
 
@@ -25,7 +24,7 @@ public class ElevatorCommands {
   private static final double ELBOW_DEADBAND = 0.2;
 
   private static int snapCount = 0;
-  private static int clawSnapCount = 0; // TODO move claw to other class
+  private static int clawSnapCount = 0;
 
   public static Command logPose(Elevator elevator, String prefix) {
     return Commands.run(
@@ -44,7 +43,8 @@ public class ElevatorCommands {
   
   /** Command elevator using joysticks (controlling linear and angular velocities). */
   public static Command joystickElevator(
-      Elevator elevator, DoubleSupplier verticalSupplier, DoubleSupplier tiltSupplier) {
+      Elevator elevator, DoubleSupplier verticalSupplier, 
+               Trigger elbowForwardTrigger, Trigger elbowBackwardTrigger) {
     return Commands.run(
         () -> {
           // Get linear velocity
@@ -60,21 +60,18 @@ public class ElevatorCommands {
           //     linearVelocity.getY(),
           //     ELBOW_DEADBAND);
 
-          // Limit to 60 percent speed: Note stick velocity will always be within -1 to 1 so scale works
-          final double elevatorVelScaleFactor = 0.5; 
-          final double elevatorScaledVelocity = elevatorVelScaleFactor * elevatorStickVelocity;
-
           final double dE = elevatorStickVelocity > 0 ? elevatorStickVelocity * 0.3 : elevatorStickVelocity * 0.1;
 
-          // final double elbowVelScaleFactor = 0.5;
-          // final double elbowScaledVelocity = elbowVelScaleFactor * elbowStickVelocity;
-
           // Apply velocities
-          //elevator.runElevatorVelocity(elevatorScaledVelocity);
 
           double pos = elevator.getElevatorPosition();
-          if ((pos >= 0.75 && dE < 0) || (pos <= 2.75 && dE > 0)){
+          double dE_apply_StartRegion = 0.75;
+          double dE_apply_StopRegion = 2.75; //TODO update upper limit for joystick
+          if ((pos >= dE_apply_StartRegion && dE < 0) || (pos <= dE_apply_StopRegion && dE > 0)) {
             elevator.runElevatorToPosition(pos + dE);
+          }
+          else {
+            // TODO allow joystick to end limits
           }
           // }else if (pos >= 2.75 && dE > 0){
           //   elevator.runElevatorToPosition(3);
@@ -82,14 +79,15 @@ public class ElevatorCommands {
           //   elevator.runElevatorToPosition(0.5);
           // }
           
-          
-
-          // if (elbowScaledVelocity >= 0) {
-          //   elevator.spinElbowForward(elbowScaledVelocity != 0.0);
-          // }
-          // else {
-          //   elevator.spinElbowBackwards(true);
-          // }
+          final boolean elbowForward = elbowForwardTrigger.getAsBoolean();
+          final boolean elbowBackward = elbowBackwardTrigger.getAsBoolean();
+          if ( (elbowForward && elbowBackward) ) {
+            elevator.spinElbowForward(false); // Stop if inputs conflict
+          }
+          else {
+             elevator.spinElbowForward(elbowForward);
+             elevator.spinElbowBackwards(elbowBackward);
+          }
         },
         elevator);
   }
