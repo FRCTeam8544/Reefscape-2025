@@ -73,7 +73,7 @@ public class ElevatorCommands {
           //elevator.runElevatorVelocity(elevatorScaledVelocity);
 
           double pos = elevator.getElevatorPosition();
-          if ((pos >= 0.75 && dE < 0) || (pos <= 2.75 && dE > 0)){
+          if ((pos >= 0.75 && dE < 0) || (pos <= 9.3 && dE > 0)){
             elevator.runElevatorToPosition(pos + dE);
           }
           // }else if (pos >= 2.75 && dE > 0){
