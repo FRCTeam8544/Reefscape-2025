@@ -18,6 +18,8 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -136,6 +138,44 @@ public class VisionIOPhotonVision implements VisionIO {
   }
 
   public int getBestTargetID() {
-    return result.getBestTarget().getFiducialId();
+    int id = result.getBestTarget().getFiducialId();
+    SmartDashboard.putNumber("Current Target ID", id);
+    String targetLocationName = null;
+    switch(id) {
+      case 19:
+          targetLocationName = "Blue Reef 1";
+        case 18: 
+          targetLocationName = "Blue Reef 2";
+        case 17:
+            targetLocationName = "Blue Reef 3";
+        case 22:
+            targetLocationName = "Blue Reef 4";
+        case 21:
+             targetLocationName = "Blue Reef 5";
+        case 20:
+             targetLocationName = "Blue Reef 6";
+        case 6:
+              targetLocationName = "Red Reef 1";
+        case 7:
+              targetLocationName = "Red Reef 2";   
+        case 8:
+              targetLocationName = "Red Reef 3";
+        case 9:
+             targetLocationName = "Red Reef 4"; 
+        case 10:
+             targetLocationName = "Red Reef 5";
+        case 11:
+             targetLocationName = "Red Reef 6";
+        case 13:
+              targetLocationName = "Blue Source 1";
+         case 12: 
+              targetLocationName = "Blue Source 2";
+         case 1:
+              targetLocationName = "Red Source 1";
+         case 2:
+               targetLocationName = "Red Source 2";
+    }
+    SmartDashboard.putString("Current Target Tag", targetLocationName);
+    return id;
   }
 }
