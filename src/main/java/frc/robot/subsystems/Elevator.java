@@ -198,6 +198,17 @@ public class Elevator extends SubsystemBase {
           elbowController.set(0.0); // Stop imediataly
         } */
 
+        // If active, Implement stupid simple position target control for elbow since position PID does not work yet!
+        updateElbowPath();
+
+        LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
+        LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
+
+        updateDashboard();
+
+      }
+
+      private void updateElbowPath() {
         // Implement stupid simple position target control for elbow since position PID does not work yet!
         if (elbowTurnActive) {
           final double curElbowPosition = elbowEncoder.getPosition();
@@ -229,12 +240,6 @@ public class Elevator extends SubsystemBase {
             elbowTurnActive = false;
           }
         }
-
-        LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
-        LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
-
-        updateDashboard();
-
       }
 
       public double getError(double setpoint){
@@ -244,10 +249,7 @@ public class Elevator extends SubsystemBase {
       // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
       // Note max speed may vary as the elevator nears the extents of its travel.
       private void setVelocitySetPoint(double setPoint){
-        //final double maxSpeedRatio = 1;//getMaxElevatorSpeedPercent();
-
-        // Limit speed percentage within range and preserve direction
-        //double adjSetPoint = Math.copySign(Math.min(Math.abs(setPoint), maxSpeedRatio),setPoint);
+        /*
 
         final double maxSpeed = getMaxElevatorSpeedRadiansPerSec();
         double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
@@ -256,6 +258,7 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData.positionSetPoint = 0;
         elevatorInOutData.voltageSetPoint = 0;
         closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+        */
       }
 
       // Attempt to hit a specific elevator position, via PID
