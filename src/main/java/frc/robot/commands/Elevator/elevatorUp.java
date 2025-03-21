@@ -14,6 +14,9 @@ public class elevatorUp extends Command {
   CommandXboxController juliet;
   Elevator elevator;
   Trigger yButton;
+  Trigger aButton;
+
+  double lastCmdPosition = 0;
 
   public elevatorUp(Elevator elevator, CommandXboxController juliet, Trigger yButton) {
     this.elevator = elevator;
@@ -34,12 +37,14 @@ public class elevatorUp extends Command {
   public void execute() {
     if (yButton.getAsBoolean()) {
       //elevator.elevatorMove(true);} 
-      elevator.setPositionSetPoint(3);
+      double setPoint = 3;
+      elevator.setPositionSetPoint(setPoint);
+      lastCmdPosition = setPoint;
       //else {elevator.elevatorMove(false); // Stop the elevator
     }
-    else{
-      elevator.holdPositionSetPoint();
-    }
+   // else{
+   //   elevator.holdPositionSetPoint(lastCmdPosition);
+ //   }
   }
 
   // Called once the command ends or is interrupted.

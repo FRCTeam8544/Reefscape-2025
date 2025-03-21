@@ -17,6 +17,8 @@ public class elevatorDown extends Command {
   Elevator elevator;
   Trigger aButton;
 
+  double lastCmdPosition = 0;
+
   public elevatorDown(Elevator elevator, CommandXboxController juliet, Trigger aButton) {
     this.elevator = elevator;
     this.juliet = juliet;
@@ -35,10 +37,12 @@ public class elevatorDown extends Command {
   public void execute() {
     if (aButton.getAsBoolean()) {
      // elevator.elevatorLow(true);} 
-     elevator.setPositionSetPoint(0.5);
+     double setPoint = 0.5;
+     lastCmdPosition = setPoint;
+     elevator.setPositionSetPoint(setPoint);
     }
-      else {elevator.holdPositionSetPoint();//elevatorLow(false);
-    }
+     // else {elevator.holdPositionSetPoint(lastCmdPosition);
+ //   }
   }
 
   // Called once the command ends or is interrupted.
