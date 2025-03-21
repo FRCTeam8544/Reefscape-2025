@@ -79,6 +79,8 @@ public class Elevator extends SubsystemBase {
   public boolean upStopHit;
   public boolean downStopHit;
 
+  public double lastCmdPosition=0;
+
 /* */      
   public BooleanSupplier upStop =
             () -> {
@@ -123,10 +125,10 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
           // Position control (untuned)
-          .p(0.0005, ClosedLoopSlot.kSlot0)
+          .p(1.2, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
-          .d(0.00000, ClosedLoopSlot.kSlot0)
-          .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
+          .d(0.001, ClosedLoopSlot.kSlot0)
+          .outputRange(-0.3, 0.3, ClosedLoopSlot.kSlot0)
           // Velocity control
           .p(0.0006, ClosedLoopSlot.kSlot1)
           .i(0.00001, ClosedLoopSlot.kSlot1)
@@ -234,14 +236,27 @@ public class Elevator extends SubsystemBase {
       }
 
       // Attempt to hit a specific elevator position, via PID
-      private void setPositionSetPoint(double pointSet){
-        pointSet = encoder.getPosition();
-
+      public void setPositionSetPoint(double pointSet){
+        boolean downCommand = false;
+        if (encoder.getPosition() < lastCmdPosition)
+        {
+          downCommand = true;
+        }
+lastCmdPosition = pointSet;
         elevatorInOutData.positionSetPoint = pointSet;
         elevatorInOutData.velocitySetPoint = 0;
         elevatorInOutData.voltageSetPoint = 0;
 
+        if (downCommand)
+        {
         closedLoop.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        }
+        else{
+          
+        closedLoop.setReference(pointSet, ControlType.kPosition, 
+                                ClosedLoopSlot.kSlot0,0.7);
+
+        }
       }
 
       // Apply a voltage to move the elevator motors, without PID control
@@ -256,8 +271,8 @@ public class Elevator extends SubsystemBase {
         // the same position will be used as a set point for 20 ms.
         // Use max of zero and external position to prevent out of bounds position holding
         //double limitedPosition = Math.min(elevatorInOutData.externalPosition,upSoftStopValue);
-        //setPositionSetPoint(0);
-        setVelocitySetPoint(0.0);
+        setPositionSetPoint(lastCmdPosition);
+        //setVelocitySetPoint(0.0);
        // setVoltageSetPoint(elevator_kG);
       }
       

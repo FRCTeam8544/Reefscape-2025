@@ -33,8 +33,12 @@ public class elevatorUp extends Command {
   @Override
   public void execute() {
     if (yButton.getAsBoolean()) {
-      elevator.elevatorMove(true);} 
-      else {elevator.elevatorMove(false); // Stop the elevator
+      //elevator.elevatorMove(true);} 
+      elevator.setPositionSetPoint(3);
+      //else {elevator.elevatorMove(false); // Stop the elevator
+    }
+    else{
+      elevator.holdPositionSetPoint();
     }
   }
 

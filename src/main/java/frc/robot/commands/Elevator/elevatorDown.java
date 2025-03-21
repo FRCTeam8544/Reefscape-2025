@@ -34,8 +34,10 @@ public class elevatorDown extends Command {
   @Override
   public void execute() {
     if (aButton.getAsBoolean()) {
-      elevator.elevatorLow(true);} 
-      else {elevator.elevatorLow(false);
+     // elevator.elevatorLow(true);} 
+     elevator.setPositionSetPoint(0.5);
+    }
+      else {elevator.holdPositionSetPoint();//elevatorLow(false);
     }
   }
 
