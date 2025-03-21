@@ -41,6 +41,12 @@ public interface MotorJointIO {
     public double positionSetPoint = 0.0; // Rotations in radians
     public double velocitySetPoint = 0.0; // Percent of max motor speed (0...1)
     public double voltageSetPoint = 0.0; // Motor voltage, usually not directly controlled
+
+    //elevator
+    public double Xjoystick;
+    public double Yjoustick;
+    public double dE;
+    public double pos;
   }
 
   public String getName();

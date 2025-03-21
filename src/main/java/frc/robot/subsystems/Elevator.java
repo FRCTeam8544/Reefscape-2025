@@ -201,6 +201,10 @@ public class Elevator extends SubsystemBase {
         updateDashboard();
 
       }
+
+      public double getError(double setpoint){
+        return setpoint - getElevatorPosition();
+      }
       
       // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
       // Note max speed may vary as the elevator nears the extents of its travel.
@@ -382,7 +386,7 @@ public class Elevator extends SubsystemBase {
   public double getElevatorPosition() {
     final double rotationsToInches = 5.53;
     // Todo add height from floor to start of elevator?
-    return rotationsToInches * elevatorInOutData.externalPosition; // return position in inches
+    return elevatorInOutData.externalPosition; // return position in inches
   }
 
   public double getElevatorVelocity(){

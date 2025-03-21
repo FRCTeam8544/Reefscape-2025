@@ -16,6 +16,9 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+
 public class ElevatorCommands {
 
   private static final double ELEVATOR_DEADBAND = 0.1;
@@ -38,7 +41,7 @@ public class ElevatorCommands {
     return Commands.run(
         () -> { climber.stopClimber(); climber.logPose(prefix, 0); }, climber);
   }
-
+  
   /** Command elevator using joysticks (controlling linear and angular velocities). */
   public static Command joystickElevator(
       Elevator elevator, DoubleSupplier verticalSupplier, DoubleSupplier tiltSupplier) {
@@ -51,21 +54,34 @@ public class ElevatorCommands {
                  
           // Convert to elevator relative speeds
           final double elevatorStickVelocity = MathUtil.applyDeadband(
-              linearVelocity.getX(),
+              linearVelocity.getY(),
               ELEVATOR_DEADBAND);
           final double elbowStickVelocity = MathUtil.applyDeadband(
-              linearVelocity.getY(),
+              linearVelocity.getX(),
               ELBOW_DEADBAND);
 
           // Limit to 60 percent speed: Note stick velocity will always be within -1 to 1 so scale works
           final double elevatorVelScaleFactor = 0.5; 
           final double elevatorScaledVelocity = elevatorVelScaleFactor * elevatorStickVelocity;
 
+          final double dE = elevatorStickVelocity * 0.00000001;
+
           final double elbowVelScaleFactor = 0.5;
           final double elbowScaledVelocity = elbowVelScaleFactor * elbowStickVelocity;
 
           // Apply velocities
-          elevator.runElevatorVelocity(elevatorScaledVelocity);
+          //elevator.runElevatorVelocity(elevatorScaledVelocity);
+
+          double pos = elevator.getElevatorPosition();
+          if ((pos >= 0.75 && dE < 0) || (pos <= 2.75 && dE > 0)){
+            elevator.runElevatorToPosition(pos + dE);
+          }else if (pos >= 2.75 && dE > 0){
+            elevator.runElevatorToPosition(3);
+          }else if(pos <= 0.75 && dE < 0){
+            elevator.runElevatorToPosition(0.5);
+          }
+          
+          
 
           if (elbowScaledVelocity >= 0) {
             elevator.spinElbowForward(elbowScaledVelocity != 0.0);
