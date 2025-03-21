@@ -69,7 +69,7 @@ public class Climber extends SubsystemBase {
     
     // Configure right motor
     rightConfig.idleMode(IdleMode.kBrake);
-    rightConfig.inverted(false);
+    rightConfig.inverted(true);
     rightConfig.smartCurrentLimit(motorStallAmpLimit);
     /*rightConfig.encoder.positionConversionFactor(1);
     rightConfig.encoder.velocityConversionFactor(1);
