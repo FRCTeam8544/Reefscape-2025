@@ -221,8 +221,8 @@ public class RobotContainer {
              // back is positive, so need to invert
              // right is positive for tilt, so leave that alone
 
-    juliet.y().onTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
-    juliet.a().onTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
+    juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
+    juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
     juliet.rightBumper().onTrue(new WristForward(clawIntake, juliet, rightBack)); // wrist forward
     juliet.leftBumper().onTrue(new WristBack(clawIntake, juliet, leftBack)); // wrist backward
     juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
