@@ -66,7 +66,7 @@ public class ElevatorCommands {
 
           double pos = elevator.getElevatorPosition();
           double dE_apply_StartRegion = 0.75;
-          double dE_apply_StopRegion = 2.75; //TODO update upper limit for joystick
+          double dE_apply_StopRegion = 9.3; //TODO update upper limit for joystick
           if ((pos >= dE_apply_StartRegion && dE < 0) || (pos <= dE_apply_StopRegion && dE > 0)) {
             elevator.runElevatorToPosition(pos + dE);
           }
@@ -81,13 +81,16 @@ public class ElevatorCommands {
           
           final boolean elbowForward = elbowForwardTrigger.getAsBoolean();
           final boolean elbowBackward = elbowBackwardTrigger.getAsBoolean();
-          if ( (elbowForward && elbowBackward) ) {
-            elevator.spinElbowForward(false); // Stop if inputs conflict
-          }
-          else {
-             elevator.spinElbowForward(elbowForward);
-             elevator.spinElbowBackwards(elbowBackward);
-          }
+          // if ( (elbowForward && elbowBackward) ) {
+          //   elevator.spinElbowForward(false); // Stop if inputs conflict
+          // }
+          // else {
+          //    elevator.spinElbowForward(elbowForward);
+          //    elevator.spinElbowBackwards(elbowBackward);
+          // }
+          if (elbowBackward){elevator.spinElbowBackwards(true);}
+          else if (elbowForward){elevator.spinElbowForward(true);}
+          else{elevator.spinElbowForward(false);}
         },
         elevator);
   }
