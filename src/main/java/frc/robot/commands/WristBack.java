@@ -13,14 +13,16 @@ import frc.robot.subsystems.ClawIntake;
 public class WristBack extends Command {
   ClawIntake clawIntake;
   CommandXboxController juliet;
-  Trigger leftBack;
+  Trigger leftBack, rightBack;
 
-  public WristBack(ClawIntake clawIntake, CommandXboxController juliet, Trigger leftBack) {
+  public WristBack(ClawIntake clawIntake, CommandXboxController juliet, Trigger leftBack, Trigger rightBack) {
     this.clawIntake = clawIntake;
     this.juliet = juliet;
     this.leftBack = leftBack;
+    this.rightBack = rightBack;
 
     leftBack = juliet.leftBumper();
+    rightBack = juliet.rightBumper();
     addRequirements(clawIntake);
   }
 
@@ -33,14 +35,14 @@ public class WristBack extends Command {
   public void execute() {
     if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
       clawIntake.wristTurnBack(true);
-    } else {
-      clawIntake.wristTurnBack(false);
+    }else if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()){
+      clawIntake.wristTurn(true);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {clawIntake.wristTurnBack(false);}
 
   // Returns true when the command should end.
   @Override

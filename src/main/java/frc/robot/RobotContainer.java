@@ -40,6 +40,7 @@ import frc.robot.commands.RollersForward;
 import frc.robot.commands.RollersBack;
 import frc.robot.commands.ElbowForward;
 import frc.robot.commands.WristBack;
+import frc.robot.commands.WristCommand;
 import frc.robot.commands.Elevator.elevatorDown;
 import frc.robot.commands.Elevator.elevatorUp;
 import frc.robot.commands.Elevator.ElevatorCommands;
@@ -220,13 +221,16 @@ public class RobotContainer {
             elevator, () -> -juliet.getLeftY(), rightBackTop, leftBackTop));
              // back is positive, so need to invert
              // right is positive for tilt, so leave that alone
-
+    clawIntake.setDefaultCommand(
+        WristCommand.wristCommand(clawIntake, rightBack, leftBack, xButton, bButton)
+    );
     juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
-    juliet.rightBumper().onTrue(new WristForward(clawIntake, juliet, rightBack)); // wrist forward
-    juliet.leftBumper().onTrue(new WristBack(clawIntake, juliet, leftBack)); // wrist backward
-    juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
-    juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
+    //juliet.rightBumper().whileTrue(new WristForward(clawIntake, juliet, rightBack, leftBack)); // wrist forward
+    //juliet.leftBumper().or(juliet.rightBumper()).whileTrue(new WristBack(clawIntake, juliet, leftBack, rightBack)); // wrist backward
+    
+    //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
+    //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
 //    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
 //    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
