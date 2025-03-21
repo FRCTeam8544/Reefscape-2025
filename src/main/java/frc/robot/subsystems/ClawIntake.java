@@ -74,6 +74,11 @@ public class ClawIntake extends SubsystemBase {
   public boolean wristForwardStopHit = false;
   public boolean wristBackwardStopHit = false;
 
+
+  // Cheesy position control for elbow
+  private boolean wristTurnActive = false;
+  private double wristTurnStartPos = 0.0;
+
   public BooleanSupplier wristForwardStop =
       () -> {
         return forwardLimitSwitch.isPressed();
@@ -111,10 +116,10 @@ public class ClawIntake extends SubsystemBase {
         .forwardLimitSwitchEnabled(true)
         .reverseLimitSwitchType(Type.kNormallyOpen)
         .reverseLimitSwitchEnabled(true);
-   // wristConfig.softLimit.forwardSoftLimitEnabled(true)
-    //                     .forwardSoftLimit(upSoftRotationLimit);
-    //wristConfig.softLimit.reverseSoftLimitEnabled(true)
-    //                     .reverseSoftLimit(downSoftRotationLimit);
+    wristConfig.softLimit.forwardSoftLimitEnabled(true)
+                         .forwardSoftLimit(upSoftRotationLimit);
+    wristConfig.softLimit.reverseSoftLimitEnabled(true)
+                         .reverseSoftLimit(downSoftRotationLimit);
     wristConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
       // Position control
@@ -144,9 +149,46 @@ public class ClawIntake extends SubsystemBase {
     // Check for coral
     checkIntakeForCoral();
     
+    // Cheesy wrist path
+    updateWristPath();
+
     LogUtil.logData(wristIO.getName(), wristInOutData);
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
 
+  }
+
+  private void updateWristPath() {
+    // Implement stupid simple position target control for elbow since position PID does not work yet!
+    if (wristTurnActive) {
+      final double curElbowPosition = wristEncoder.getPosition();
+        // forward target
+      if (wristInOutData.positionSetPoint - wristTurnStartPos > 0) {
+        // Target acheived, may overshoot
+        if ( wristInOutData.absolutePosition >= curElbowPosition) {
+          wristTurn(false);
+          wristTurnStartPos = curElbowPosition;
+          wristTurnActive = false;
+        }
+        else { // Keep going forward...
+          wristTurn(true);
+        }
+      }
+      else if (wristInOutData.positionSetPoint - wristTurnStartPos < 0) { // backwards target
+        if (wristInOutData.absolutePosition <= curElbowPosition) { // Target acheived, may overshoot
+          wristTurnBack(false);
+          wristTurnStartPos = curElbowPosition;
+          wristTurnActive = false;
+        }
+        else { // Keep going backwards
+          wristTurnBack(true);
+        }
+      }
+      else { // Aleady in the correct place
+        wristTurn(false); // Default to not moving
+        wristTurnStartPos = wristInOutData.positionSetPoint;
+        wristTurnActive = false;
+      }
+    }
   }
 
   private void setPositionSetPoint(double pointSet){
@@ -205,12 +247,14 @@ public class ClawIntake extends SubsystemBase {
     if (roll) {rollerRight.setVoltage(-7);} // out
     else {rollerRight.setVoltage(0);}
   }
-
+  
   // Provide joint position in rotations from absolute encoder zero
-  public void turnWristToPosition(double position) {
-    if ((position <= upSoftRotationLimit) &&
-         (position >= downSoftRotationLimit) ) {
-      setPositionSetPoint(position);
+  public void turnWristToPosition(double startPosition, double targetPosition) {
+    if ((targetPosition <= upSoftRotationLimit) &&
+         (targetPosition >= downSoftRotationLimit) ) {
+      wristTurnActive = true;
+      wristTurnStartPos = startPosition;
+      wristInOutData.positionSetPoint = targetPosition;
     }
   }
 
