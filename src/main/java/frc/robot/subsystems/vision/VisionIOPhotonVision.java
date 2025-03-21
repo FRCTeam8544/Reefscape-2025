@@ -23,11 +23,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 /** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
+  private PhotonPipelineResult result = null;
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -127,5 +129,13 @@ public class VisionIOPhotonVision implements VisionIO {
     for (int id : tagIds) {
       inputs.tagIds[i++] = id;
     }
+  }
+
+  public double getBestTargetAbiguitity() {
+    return result.getBestTarget().getPoseAmbiguity();
+  }
+
+  public int getBestTargetID() {
+    return result.getBestTarget().getFiducialId();
   }
 }

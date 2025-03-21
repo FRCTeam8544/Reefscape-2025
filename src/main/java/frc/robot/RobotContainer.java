@@ -15,13 +15,22 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.util.FileVersionException;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,6 +66,8 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -69,6 +80,9 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+  private int bestTargetID = -1;
+  private final VisionIOPhotonVision leftCamera =  new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0);
+  private final VisionIOPhotonVision rightCamera =  new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1);
   private final Elevator elevator = new Elevator();
   private final ClawIntake clawIntake = new ClawIntake();
   private final Climber climber = new Climber();
@@ -86,6 +100,11 @@ public class RobotContainer {
   private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
   private final Trigger startButton = new Trigger(juliet.start());
   private final Trigger backButton = new Trigger(juliet.back()); 
+
+  // PathPlanner
+  private final PathConstraints constraints = new PathConstraints(
+    3.0, 4.0,
+    Units.degreesToRadians(540), Units.degreesToRadians(720));
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -110,8 +129,7 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0),
-                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));
+                leftCamera, rightCamera);
         break;
 
       case SIM:
@@ -200,12 +218,12 @@ public class RobotContainer {
     romeo.leftBumper().whileTrue(DriveCommands.dpadDriveRobot(drive, 270)); // Crab robot left
     romeo.rightBumper().whileTrue(DriveCommands.dpadDriveRobot(drive, 90)); // Crab robot right
 
-    // Switch to X pattern when X button is pressed
-    romeo.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // Switch to X pattern when Back button is pressed
+    romeo.back().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when Start button is pressed
     romeo
-        .b()
+        .start()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -213,7 +231,15 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    romeo
+        .b().onTrue(runCenterApproach());
+    romeo
+        .a().onTrue(runRightApproach());
+    romeo
+        .x().onTrue(runLeftApproach());
     
+
     //operator functions
     elevator.setDefaultCommand(
         ElevatorCommands.joystickElevator(
@@ -248,5 +274,339 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+  //all approach commands assume blue tags are 1-6 and red tags are 7-12
+  public Command runCenterApproach() {
+    PathPlannerPath path = null;
+    PathPlannerPath center1 = null;
+    try {
+        center1 = PathPlannerPath.fromPathFile("Center 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center2 = null;
+    try {
+        center2 = PathPlannerPath.fromPathFile("Center 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center3 = null;
+    try {
+        center3 = PathPlannerPath.fromPathFile("Center 3");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center4 = null;
+    try {
+        center4 = PathPlannerPath.fromPathFile("Center 4");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center5 = null;
+    try {
+        center5 = PathPlannerPath.fromPathFile("Center 5");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center6 = null;
+    try {
+        center6 = PathPlannerPath.fromPathFile("Center 6");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center7 = null;
+    try {
+        center7 = PathPlannerPath.fromPathFile("Center 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center8 = null;
+    try {
+        center8 = PathPlannerPath.fromPathFile("Center 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center9 = null;
+    try {
+        center9 = PathPlannerPath.fromPathFile("Center 3");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center10 = null;
+    try {
+        center10 = PathPlannerPath.fromPathFile("Center 4");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center11 = null;
+    try {
+        center11 = PathPlannerPath.fromPathFile("Center 5");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath center12 = null;
+    try {
+        center12 = PathPlannerPath.fromPathFile("Center 6");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+
+    switch (findBestTargetID()) {
+        case 19:
+            path = center1;
+        case 18: 
+            path = center2;
+        case 17:
+            path = center3;
+        case 22:
+            path = center4;
+        case 21:
+            path = center5;
+        case 20:
+            path = center6;
+        case 6:
+            path = center7;
+        case 7:
+            path = center8;
+        case 8:
+            path = center9;
+        case 9:
+            path = center10;
+        case 10:
+            path = center11;
+        case 11:
+            path = center12;
+
+    }
+
+    Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
+
+    return pathfindingCommand;
+  }
+
+  public Command runLeftApproach() {
+    PathPlannerPath path = null;
+    PathPlannerPath left1 = null;
+    try {
+        left1 = PathPlannerPath.fromPathFile("Left 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left2 = null;
+    try {
+        left2 = PathPlannerPath.fromPathFile("Left 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left3 = null;
+    try {
+        left3 = PathPlannerPath.fromPathFile("Left 3");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left4 = null;
+    try {
+        left4 = PathPlannerPath.fromPathFile("Left 4");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left5 = null;
+    try {
+        left5 = PathPlannerPath.fromPathFile("Left 5");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left6 = null;
+    try {
+        left6 = PathPlannerPath.fromPathFile("Left 6");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left7 = null;
+    try {
+        left7 = PathPlannerPath.fromPathFile("Left 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left8 = null;
+    try {
+        left8 = PathPlannerPath.fromPathFile("Left 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left9 = null;
+    try {
+        left9 = PathPlannerPath.fromPathFile("Left 3");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left10 = null;
+    try {
+        left10 = PathPlannerPath.fromPathFile("Left 4");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left11 = null;
+    try {
+        left11 = PathPlannerPath.fromPathFile("Left 5");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath left12 = null;
+    try {
+        left12 = PathPlannerPath.fromPathFile("Left 6");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+
+    switch (findBestTargetID()) {
+        case 19:
+            path = left1;
+        case 18: 
+            path = left2;
+        case 17:
+            path = left3;
+        case 22:
+            path = left4;
+        case 21:
+            path = left5;
+        case 20:
+            path = left6;
+        case 6:
+            path = left7;
+        case 7:
+            path = left8;
+        case 8:
+            path = left9;
+        case 9:
+            path = left10;
+        case 10:
+            path = left11;
+        case 11:
+            path = left12;
+    }
+
+    Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
+
+    return pathfindingCommand;
+  }
+
+  public Command runRightApproach() {
+    PathPlannerPath path = null;
+    PathPlannerPath right1 = null;
+    try {
+        right1 = PathPlannerPath.fromPathFile("Right 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right2 = null;
+    try {
+        right2 = PathPlannerPath.fromPathFile("Right 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right3 = null;
+    try {
+        right3 = PathPlannerPath.fromPathFile("Right 3");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right4 = null;
+    try {
+        right4 = PathPlannerPath.fromPathFile("Right 4");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right5 = null;
+    try {
+        right5 = PathPlannerPath.fromPathFile("Right 5");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right6 = null;
+    try {
+        right6 = PathPlannerPath.fromPathFile("Right 6");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right7 = null;
+    try {
+        right7 = PathPlannerPath.fromPathFile("Right 1");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right8 = null;
+    try {
+        right8 = PathPlannerPath.fromPathFile("Right 2");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right9 = null;
+    try {
+        right9 = PathPlannerPath.fromPathFile("Right 3");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right10 = null;
+    try {
+        right10 = PathPlannerPath.fromPathFile("Right 4");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right11 = null;
+    try {
+        right11 = PathPlannerPath.fromPathFile("Right 5");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+    PathPlannerPath right12 = null;
+    try {
+        right12 = PathPlannerPath.fromPathFile("Right 6");
+    } catch (FileVersionException | IOException | ParseException e) {
+        e.printStackTrace();
+    }
+
+    switch (findBestTargetID()) {
+        case 19:
+            path = right1;
+        case 18: 
+            path = right2;
+        case 17:
+            path = right3;
+        case 22:
+            path = right4;
+        case 21:
+            path = right5;
+        case 20:
+            path = right6;
+        case 6:
+            path = right7;
+        case 7:
+            path = right8;
+        case 8:
+            path = right9;
+        case 9:
+            path = right10;
+        case 10:
+            path = right11;
+        case 11:
+            path = right12;
+    }
+
+    Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
+
+    return pathfindingCommand;
+  }
+
+  private int findBestTargetID() { //compares both camera's best tags ambiguitity
+    int leftBest = leftCamera.getBestTargetID();
+    int rightBest = rightCamera.getBestTargetID();
+
+    if(leftBest == rightBest)
+        return leftBest;
+    else if (leftCamera.getBestTargetAbiguitity() < rightCamera.getBestTargetAbiguitity())
+        return leftBest; //has lower ambiguitity, so probably more correct
+    else
+        return rightBest;
   }
 }

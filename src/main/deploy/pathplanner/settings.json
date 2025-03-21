@@ -3,7 +3,8 @@
   "robotLength": 1.0,
   "holonomicMode": true,
   "pathFolders": [
-    "Leave"
+    "Leave",
+    "ReefTarget"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
