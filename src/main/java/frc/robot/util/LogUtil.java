@@ -49,14 +49,6 @@ public class LogUtil {
           prefix + "/SetPoint/velocity", inOutData.velocitySetPoint);
       Logger.recordOutput(
           prefix + "/SetPoint/voltage", inOutData.voltageSetPoint);
-        Logger.recordOutput(
-            prefix + "/Elevator/Xjoystick", inOutData.Xjoystick);
-        Logger.recordOutput(
-            prefix + "/Elevator/Yjoystick", inOutData.Yjoustick);
-        Logger.recordOutput(
-            prefix + "/Elevator/dE", inOutData.dE);
-        Logger.recordOutput(
-            prefix + "/Elevator/pos", inOutData.pos);
     }
 
     public static void logData(String prefix, LaserCANIOInputs inputs)
