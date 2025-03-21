@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase {
   // 5.53 inches per rotation of elevator output shaft
   final static int stallLimit = 40; //change to change both at once!
   final static double elevatorMaxSpeed = .2; // % of max speed ???
-  final static double upSoftStopValue = 9.5; // Rotations, enough to reach level 4 coral
+  final static double upSoftStopValue = 9.35; // hard 9.4; Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
   final static double backwardSoftStopValue = 0; // TODO need to set zero point in stow with rev client
   final static double forwardSoftStopValue = 0.3; // 108 degrees as rotations, TODO confirm this limit
