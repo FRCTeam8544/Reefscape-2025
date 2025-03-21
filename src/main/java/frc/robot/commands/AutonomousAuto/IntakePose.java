@@ -20,7 +20,7 @@ public class IntakePose extends Command {
   }
 
   public void intakePose(){
-    clawIntake.turnWristToPosition(0);
+    //clawIntake.turnWristToPosition(0); // Needs start point, only call once to move
     //if(clawIntake.wristEncoder.getPosition() > 0) {clawIntake.wrist.set(-.3);}
    // else {clawIntake.wrist.set(0);}
   }

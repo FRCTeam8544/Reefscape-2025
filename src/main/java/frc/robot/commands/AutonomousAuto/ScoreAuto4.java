@@ -34,7 +34,7 @@ public class ScoreAuto4 extends Command {
       }
 
       public void wristAuto(){
-        clawIntake.turnWristToPosition(.977);
+        //clawIntake.turnWristToPosition(.977); // Needs start position, should only be called once to start movement
         //if(clawIntake.wristEncoder.getPosition() < .977) {clawIntake.wrist.set(.3);}
         //else{clawIntake.wrist.set(0);}
       }    

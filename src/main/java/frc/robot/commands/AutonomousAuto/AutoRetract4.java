@@ -21,7 +21,7 @@ public class AutoRetract4 extends Command {
   }
 
   public void wristAutoRetract() {
-    clawIntake.turnWristToPosition(0.1);
+    //clawIntake.turnWristToPosition(0.1); // TODO add start position, only call once
     //if(ClawIntake.wristEncoder.getPosition() > 0.1) {clawIntake.wrist(-.3);} 
    // else{clawIntake.wrist.set(0);}
   }
