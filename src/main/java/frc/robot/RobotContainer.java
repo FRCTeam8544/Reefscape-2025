@@ -23,10 +23,12 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.WristForward;
@@ -43,6 +45,7 @@ import frc.robot.commands.WristBack;
 import frc.robot.commands.WristCommand;
 import frc.robot.commands.Elevator.elevatorDown;
 import frc.robot.commands.Elevator.elevatorUp;
+import frc.robot.commands.Elevator.ElevatorAuto3;
 import frc.robot.commands.Elevator.ElevatorCommands;
 import frc.robot.commands.Elevator.ElevatorStow;
 import frc.robot.subsystems.ClawIntake;
@@ -224,19 +227,20 @@ public class RobotContainer {
     clawIntake.setDefaultCommand(
         WristCommand.wristCommand(clawIntake, rightBack, leftBack, xButton, bButton)
     );
-    juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
-    juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
+    //juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
+    //juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
+    //juliet.y().whileTrue(new ElevatorAuto3());
     //juliet.rightBumper().whileTrue(new WristForward(clawIntake, juliet, rightBack, leftBack)); // wrist forward
     //juliet.leftBumper().or(juliet.rightBumper()).whileTrue(new WristBack(clawIntake, juliet, leftBack, rightBack)); // wrist backward
-    
+    juliet.y().whileTrue(new ElevatorAuto3(elevator, clawIntake));
     //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
 //    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
 //    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
-    juliet.start().onTrue(new Climb(juliet, climber, startButton)); // climber
+    juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
-    juliet.back().onTrue(new ClimbBack(climber, juliet, backButton)); //climber back
+    juliet.back().whileTrue(new ClimbBack(climber, juliet, backButton)); //climber back
 
     juliet.back().and(juliet.start()).onTrue(
         ElevatorCommands.logPose(elevator, "SnapPose").andThen(

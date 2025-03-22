@@ -223,6 +223,10 @@ public class ClawIntake extends SubsystemBase {
     }
   }
 
+  public double getPos(){
+    return wristEncoder.getPosition();
+  }
+
   public boolean hasCoral() { return coralAcquired; }
 
   // Return the offset from intake center in mm.
