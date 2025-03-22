@@ -24,17 +24,17 @@ public class transversepose extends Command{
 
     @Override
     public void execute(){
-        if (elevator.getElbowPos() >  && !(elevator.getElbowPos() < 0.6)){
+        if (elevator.getElbowPos() > elbpos - 0.1 && !(elevator.getElbowPos() < elbpos + 0.1)){
             elevator.spinElbowBackwards(true);
-        }else if (elevator.getElbowPos() < 0.6 && !(elevator.getElbowPos() > 0.5)){
+        }else if (elevator.getElbowPos() < elbpos + 0.1 && !(elevator.getElbowPos() > elbpos - 0.1)){
             elevator.spinElbowForward(true);
         }
         else{
             elevator.spinElbowForward(true);
         }
-        if (clawIntake.getPos() > 0.5 && !(clawIntake.getPos() < 0.6)){
+        if (clawIntake.getPos() < wristpos + 0.1 && !(clawIntake.getPos() > wristpos - 0.1)){
             clawIntake.wristTurnBack(true);
-        }else if (clawIntake.getPos() < 0.6 && !(clawIntake.getPos() > 0.5)){
+        }else if (clawIntake.getPos() < wristpos + 0.1 && !(clawIntake.getPos() > wristpos - 0.1)){
             clawIntake.wristTurn(true);
         }
         else{
@@ -50,7 +50,7 @@ public class transversepose extends Command{
 
     @Override
     public boolean isFinished(){
-        return (elevator.getElbowPos() < 0.6 && elevator.getElbowPos() > 0.5 && clawIntake.getPos() > 0.5 && clawIntake.getPos() < 0.6);
+        return (elevator.getElbowPos() < elbpos + 0.1 && elevator.getElbowPos() > elbpos - 0.1 && clawIntake.getPos() > wristpos - 0.1 && clawIntake.getPos() < wristpos + 0.1);
     }
     
 }
