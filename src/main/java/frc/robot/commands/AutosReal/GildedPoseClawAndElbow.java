@@ -24,26 +24,26 @@ public class GildedPoseClawAndElbow extends Command{
 
     @Override
     public void initialize(){
-        
+        clawIntake.wristTurnBack(true);
     }
 
     @Override
     public void execute(){
         if (elevator.getElbowPos() > elbPos - tollerance && !(elevator.getElbowPos() < elbPos + tollerance)){
-            elevator.spinElbowBackwards(true);
-        }else if (elevator.getElbowPos() < elbPos + tollerance && !(elevator.getElbowPos() > elbPos - tollerance)){
             elevator.spinElbowForward(true);
+        }else if (elevator.getElbowPos() < elbPos + tollerance && !(elevator.getElbowPos() > elbPos - tollerance)){
+            elevator.spinElbowBackwards(true);
         }
         else{
-            elevator.spinElbowForward(true);
+            elevator.spinElbowForward(false);
         }
         if (clawIntake.getPos() > clawPos - tollerance && !(clawIntake.getPos() < clawPos + tollerance)){
-            clawIntake.wristTurnBack(true);
-        }else if (clawIntake.getPos() < clawPos + tollerance && !(clawIntake.getPos() > clawPos - tollerance)){
             clawIntake.wristTurn(true);
+        }else if (clawIntake.getPos() < clawPos + tollerance && !(clawIntake.getPos() > clawPos - tollerance)){
+            clawIntake.wristTurnBack(true);
         }
         else{
-            clawIntake.wristTurn(true);
+            clawIntake.wristTurn(false);
         }
     }
 

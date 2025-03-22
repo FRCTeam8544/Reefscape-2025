@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.WristForward;
 import frc.robot.commands.AutonomousAuto.AutoScore;
-import frc.robot.commands.AutonomousAuto.IntakeAuto;
+import frc.robot.commands.AutonomousAuto.FAKEIntakeAuto;
 import frc.robot.commands.AutosReal.THEAUTO;
 import frc.robot.commands.Climb;
 import frc.robot.commands.ClimbBack;
@@ -51,6 +51,7 @@ import frc.robot.commands.Elevator.ElevatorAuto3;
 import frc.robot.commands.Elevator.ElevatorAuto4;
 import frc.robot.commands.Elevator.ElevatorCommands;
 import frc.robot.commands.Elevator.ElevatorStow;
+import frc.robot.commands.Elevator.IntakeAuto;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.drive.Drive;
@@ -93,16 +94,19 @@ public class RobotContainer {
   private final Trigger leftBackTop = new Trigger(juliet.leftTrigger());
   private final Trigger startButton = new Trigger(juliet.start());
   private final Trigger backButton = new Trigger(juliet.back()); 
+  private final Trigger UpDPad = new Trigger(juliet.pov(0));
+  private final Trigger DownDPad = new Trigger(juliet.pov(180));
+  
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
-
+    
     //named commands for pathplanner
     NamedCommands.registerCommand("AutoScore4", new AutoScore(elevator, clawIntake));
-    NamedCommands.registerCommand("IntakePose", new IntakeAuto(elevator, clawIntake));
+    NamedCommands.registerCommand("IntakePose", new FAKEIntakeAuto(elevator, clawIntake));
 
     switch (Constants.currentMode) {
       case REAL:
@@ -114,11 +118,12 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0),
-                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0),
+        //         new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));
         break;
 
       case SIM:
@@ -229,7 +234,7 @@ public class RobotContainer {
              // back is positive, so need to invert
              // right is positive for tilt, so leave that alone
     clawIntake.setDefaultCommand(
-        WristCommand.wristCommand(clawIntake, rightBack, leftBack, xButton, bButton)
+        WristCommand.wristCommand(clawIntake, rightBack, leftBack, UpDPad, DownDPad)
     );
     //juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     //juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down

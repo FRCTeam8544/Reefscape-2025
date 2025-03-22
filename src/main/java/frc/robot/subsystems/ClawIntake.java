@@ -265,7 +265,7 @@ public class ClawIntake extends SubsystemBase {
   //wrist basics
   public void wristTurn(boolean forward) {
     if (forward && !wristForwardStopHit) {
-      wrist.set(.15);
+      wrist.set(.3);
     } else {
       wrist.set(0);
     }
@@ -273,7 +273,7 @@ public class ClawIntake extends SubsystemBase {
 
   public void wristTurnBack(boolean backwards) {
     if (backwards && !wristBackwardStopHit) {
-      wrist.set(-.15);
+      wrist.set(-0.3);
     } else {
       wrist.set(0);
     }

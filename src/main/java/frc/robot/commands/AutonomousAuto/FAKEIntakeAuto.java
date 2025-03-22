@@ -14,9 +14,9 @@ import frc.robot.commands.AutonomousAuto.IntakePose;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class IntakeAuto extends SequentialCommandGroup {
+public class FAKEIntakeAuto extends SequentialCommandGroup {
   /** Creates a new IntakeAuto. */
-  public IntakeAuto(Elevator elevator, ClawIntake clawIntake) {
+  public FAKEIntakeAuto(Elevator elevator, ClawIntake clawIntake) {
     addCommands(
       new SequentialCommandGroup(
         new IntakePose(clawIntake, elevator).withTimeout(2), //time to be set but timeout will auto stop wherever

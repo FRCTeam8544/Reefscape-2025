@@ -8,7 +8,7 @@ public class transversepose extends Command{
 
     ClawIntake clawIntake;
     Elevator elevator;
-    double elbpos = 0.09;
+    double elbpos = 0.1;
     double wristpos = 0.96;
 
     public transversepose(ClawIntake clawIntake, Elevator elevator){
@@ -19,26 +19,26 @@ public class transversepose extends Command{
 
     @Override
     public void initialize(){
-
+        elevator.spinElbowForward(true);
     }
 
     @Override
     public void execute(){
-        if (elevator.getElbowPos() > elbpos - 0.1 && !(elevator.getElbowPos() < elbpos + 0.1)){
+        if (elevator.getElbowPos() > elbpos - 0.05 && !(elevator.getElbowPos() < elbpos + 0.05)){
+            elevator.spinElbowForward(true);
+        }else if (elevator.getElbowPos() < elbpos + 0.05 && !(elevator.getElbowPos() > elbpos - 0.05)){
             elevator.spinElbowBackwards(true);
-        }else if (elevator.getElbowPos() < elbpos + 0.1 && !(elevator.getElbowPos() > elbpos - 0.1)){
-            elevator.spinElbowForward(true);
         }
         else{
-            elevator.spinElbowForward(true);
+            elevator.spinElbowForward(false);
         }
-        if (clawIntake.getPos() < wristpos + 0.1 && !(clawIntake.getPos() > wristpos - 0.1)){
+        if (clawIntake.getPos() < wristpos + 0.05 && !(clawIntake.getPos() > wristpos - 0.05)){
+            clawIntake.wristTurn(true);
+        }else if (clawIntake.getPos() > wristpos - 0.05 && !(clawIntake.getPos() < wristpos + 0.05)){
             clawIntake.wristTurnBack(true);
-        }else if (clawIntake.getPos() < wristpos + 0.1 && !(clawIntake.getPos() > wristpos - 0.1)){
-            clawIntake.wristTurn(true);
         }
         else{
-            clawIntake.wristTurn(true);
+            clawIntake.wristTurn(false);
         }
     }
 
@@ -50,7 +50,7 @@ public class transversepose extends Command{
 
     @Override
     public boolean isFinished(){
-        return (elevator.getElbowPos() < elbpos + 0.1 && elevator.getElbowPos() > elbpos - 0.1 && clawIntake.getPos() > wristpos - 0.1 && clawIntake.getPos() < wristpos + 0.1);
+        return (elevator.getElbowPos() < elbpos + 0.05 && elevator.getElbowPos() > elbpos - 0.05 && clawIntake.getPos() > wristpos - 0.05 && clawIntake.getPos() < wristpos + 0.05);
     }
     
 }

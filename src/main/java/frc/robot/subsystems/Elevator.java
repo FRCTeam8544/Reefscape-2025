@@ -345,12 +345,12 @@ public class Elevator extends SubsystemBase {
   
       //elbow basics
       public void spinElbowForward(boolean go) {
-         if (go && !forwardStopHit) {elbowController.set(.2);} 
+         if (go && !forwardStopHit) {elbowController.set(.4);} 
         else {elbowController.set(0);}
       }
     
       public void spinElbowBackwards(boolean execute) {
-        if (execute && !backwardStopHit) {elbowController.set(-.2);} 
+        if (execute && !backwardStopHit) {elbowController.set(-.4);} 
         else {elbowController.set(0);}
       }
       public double getElbowPos(){

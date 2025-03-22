@@ -3,6 +3,7 @@ package frc.robot.commands.AutosReal;
 import static edu.wpi.first.units.Units.Meter;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.Drive;
@@ -15,13 +16,14 @@ public class DriveAuto extends Command{
 
     public DriveAuto(Drive drive){
         this.drive = drive;
+        chassisSpeeds = new ChassisSpeeds();
         addRequirements(drive);
     }
 
     @Override
     public void initialize(){
-        chassisSpeeds.vyMetersPerSecond = 1;
-        chassisSpeeds.vxMetersPerSecond = 0;
+        chassisSpeeds.vxMetersPerSecond = 1.0;
+        chassisSpeeds.vyMetersPerSecond = 0.0;
         pose = drive.getPose();
     }
 
