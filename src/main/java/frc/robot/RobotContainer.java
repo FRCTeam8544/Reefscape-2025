@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.WristForward;
 import frc.robot.commands.AutonomousAuto.AutoScore;
 import frc.robot.commands.AutonomousAuto.IntakeAuto;
+import frc.robot.commands.AutosReal.THEAUTO;
 import frc.robot.commands.Climb;
 import frc.robot.commands.ClimbBack;
 import frc.robot.commands.DriveCommands;
@@ -151,6 +152,7 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser.addDefaultOption("Take the wok to Poland", new THEAUTO(elevator, clawIntake, drive));
 
     // Set up SysId routines do we need this i think it is messing with my autos...
    /* autoChooser.addOption(
