@@ -45,7 +45,9 @@ import frc.robot.commands.WristBack;
 import frc.robot.commands.WristCommand;
 import frc.robot.commands.Elevator.elevatorDown;
 import frc.robot.commands.Elevator.elevatorUp;
+import frc.robot.commands.Elevator.ElevatorAuto2;
 import frc.robot.commands.Elevator.ElevatorAuto3;
+import frc.robot.commands.Elevator.ElevatorAuto4;
 import frc.robot.commands.Elevator.ElevatorCommands;
 import frc.robot.commands.Elevator.ElevatorStow;
 import frc.robot.subsystems.ClawIntake;
@@ -232,7 +234,10 @@ public class RobotContainer {
     //juliet.y().whileTrue(new ElevatorAuto3());
     //juliet.rightBumper().whileTrue(new WristForward(clawIntake, juliet, rightBack, leftBack)); // wrist forward
     //juliet.leftBumper().or(juliet.rightBumper()).whileTrue(new WristBack(clawIntake, juliet, leftBack, rightBack)); // wrist backward
-    juliet.y().whileTrue(new ElevatorAuto3(elevator, clawIntake));
+    juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
+    juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
+    juliet.a().whileTrue(new ElevatorAuto2(elevator, clawIntake));
+    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));
     //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
