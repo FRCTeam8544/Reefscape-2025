@@ -130,7 +130,7 @@ public class Elevator extends SubsystemBase {
           .p(1.2, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.001, ClosedLoopSlot.kSlot0)
-          .outputRange(-0.2, 0.3, ClosedLoopSlot.kSlot0)
+          .outputRange(-0.4, 0.5, ClosedLoopSlot.kSlot0)
           // Velocity control
           .p(0.0006, ClosedLoopSlot.kSlot1)
           .i(0.00001, ClosedLoopSlot.kSlot1)
