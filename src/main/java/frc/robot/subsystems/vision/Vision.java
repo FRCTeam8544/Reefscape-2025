@@ -36,6 +36,7 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
   private final Integer[] missedUpdateCount;
+  private boolean camera0Disabled = false, camera1Disabled = false;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -69,9 +70,15 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+   //SmartDashboard.putData("DisableBlackCamera", camera0Disabled);
     
     for (int i = 0; i < io.length; i++) {
       if (missedUpdateCount[i] < missedUpdateLimit) {
+        if(i == 0 && camera0Disabled)
+          missedUpdateCount[0] = missedUpdateLimit;
+        if(i == 1 && camera1Disabled)
+          missedUpdateCount[1] = missedUpdateLimit;
+
         io[i].updateInputs(inputs[i]);
 
         if (!inputs[i].connected) {
@@ -107,7 +114,7 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
 
       // Skip camera processing if it has been disconnected too long
-      if (missedUpdateCount[cameraIndex] >= missedUpdateLimit) {
+      if (missedUpdateCount[cameraIndex] >= missedUpdateLimit ) {
          continue; // Skip this camera.
       }
 
@@ -215,5 +222,12 @@ public class Vision extends SubsystemBase {
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs);
+  }
+
+  public void disableCamera(int index) {
+    if(index == 0)
+      camera0Disabled = true;
+    else
+      camera1Disabled = true;
   }
 }

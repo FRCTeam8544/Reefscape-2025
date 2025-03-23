@@ -142,7 +142,7 @@ public class VisionIOPhotonVision implements VisionIO {
     SmartDashboard.putNumber("Current Target ID", id);
     String targetLocationName = null;
     switch(id) {
-      case 19:
+        case 19:
           targetLocationName = "Blue Reef 1";
         case 18: 
           targetLocationName = "Blue Reef 2";
@@ -177,5 +177,9 @@ public class VisionIOPhotonVision implements VisionIO {
     }
     SmartDashboard.putString("Current Target Tag", targetLocationName);
     return id;
+  }
+
+  public void disableCamera(VisionIOPhotonVision camera) {
+    
   }
 }

@@ -38,26 +38,19 @@ public class VisionConstants {
   public static String rightChassisApriltag = "rightChassisApriltag"; 
 
   // Robot to camera transforms - Need to be configured relative to gyro
-
-  // Plywood prototype values
-  // 18 and 15 1/2 from the robot front left corner
-  // 7/8 either way from stalk to lens center
-  // the transform should be in meters.
   // These values are centered on the "robot center"
   // Gyro will be offset from this.
-  // Left Chasis
-  public static Transform3d robotToCamera0 = //left camera 
-      new Transform3d(
-          Units.inchesToMeters(8),
-          Units.inchesToMeters(-12.25),
-          Units.inchesToMeters(19),
-          new Rotation3d(0.0, 0, 0.0));
-  // Right Chasis
-  public static Transform3d robotToCamera1 = //right camera
+  public static Transform3d robotToCamera0 = //left camera - white
+  new Transform3d(
+      Units.inchesToMeters(8),
+      Units.inchesToMeters(-12.25),
+      Units.inchesToMeters(27.75),
+      new Rotation3d(0.0, 0, 180));
+  public static Transform3d robotToCamera1 = //right camera - black/blue
       new Transform3d(
           Units.inchesToMeters(8),
           Units.inchesToMeters(12.25),
-          Units.inchesToMeters(22.5),
+          Units.inchesToMeters(19.75),
           new Rotation3d(0.0, 0, 0.0));
 
   // Basic filtering thresholds
