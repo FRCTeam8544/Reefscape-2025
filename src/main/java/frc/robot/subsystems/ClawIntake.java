@@ -53,8 +53,8 @@ public class ClawIntake extends SubsystemBase {
   public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   
-  private final double upSoftRotationLimit = 0.56; // Rotations
-  private final double downSoftRotationLimit = 0;  // Rotations
+  private final double upSoftRotationLimit = 2; // Rotations
+  private final double downSoftRotationLimit = -2;  // Rotations
   private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private static SparkClosedLoopController closedLoop = wrist.getClosedLoopController();
@@ -221,6 +221,10 @@ public class ClawIntake extends SubsystemBase {
     else {
       coralAcquired = false;
     }
+  }
+
+  public double getPos(){
+    return wristEncoder.getPosition();
   }
 
   public boolean hasCoral() { return coralAcquired; }

@@ -353,6 +353,12 @@ public class Elevator extends SubsystemBase {
         if (execute && !backwardStopHit) {elbowController.set(-.2);} 
         else {elbowController.set(0);}
       }
+      public double getElbowPos(){
+        return elbowEncoder.getPosition();
+      }
+      public double getElePos(){
+        return elevatorInOutData.externalPosition;
+      }
     
 
       //problem range elevator/elbow
@@ -432,6 +438,10 @@ public class Elevator extends SubsystemBase {
     //final double rotationsToInches = 5.53; ??
     // Todo add height from floor to start of elevator?
     return elevatorInOutData.externalPosition; // return position in rotations
+  }
+
+  public boolean withinTolleranceElbow(double setpoint){
+    return (elbowEncoder.getPosition() < setpoint + 0.3 && elbowEncoder.getPosition() > setpoint - 0.3); 
   }
 
   public double getElevatorVelocity(){

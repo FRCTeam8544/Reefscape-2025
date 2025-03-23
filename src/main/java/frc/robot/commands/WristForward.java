@@ -12,15 +12,15 @@ import frc.robot.subsystems.ClawIntake;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class WristForward extends Command {
   ClawIntake clawIntake;
-  CommandXboxController juliet;
-  Trigger rightBack;
+  // CommandXboxController juliet;
+  // Trigger rightBack;
 
-  public WristForward(ClawIntake clawIntake, CommandXboxController juliet, Trigger rightBack) {
+  public WristForward(ClawIntake clawIntake){//, CommandXboxController juliet, Trigger rightBack) {
     this.clawIntake = clawIntake;
-    this.juliet = juliet;
-    this.rightBack = rightBack;
+    // this.juliet = juliet;
+    // this.rightBack = rightBack;
 
-    rightBack = juliet.rightBumper();
+    // rightBack = juliet.rightBumper();
     addRequirements(clawIntake);
   }
 
@@ -31,14 +31,13 @@ public class WristForward extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()) {
-      clawIntake.wristTurn(true);} 
-      else {clawIntake.wristTurn(false);}
+    //if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()) {
+      clawIntake.wristTurn(true);//} 
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {clawIntake.wristTurn(false);}
 
   // Returns true when the command should end.
   @Override
