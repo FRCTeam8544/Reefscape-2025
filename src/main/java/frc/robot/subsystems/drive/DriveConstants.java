@@ -22,7 +22,7 @@ import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
   // Driving Parameters
-  public static final double maxSpeedMetersPerSec = 4.8 / 3.0; // TODO for safety
+  public static final double maxSpeedMetersPerSec = 4.8 / 2.0; // TODO for safety
   public static final double odometryFrequency = 100.0; // Hz
 
   // Chassis configuration
