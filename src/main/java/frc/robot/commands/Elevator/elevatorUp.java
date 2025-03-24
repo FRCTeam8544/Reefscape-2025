@@ -14,6 +14,8 @@ public class elevatorUp extends Command {
   CommandXboxController juliet;
   Elevator elevator;
   Trigger yButton;
+  Trigger aButton;
+
 
   public elevatorUp(Elevator elevator, CommandXboxController juliet, Trigger yButton) {
     this.elevator = elevator;
@@ -32,12 +34,14 @@ public class elevatorUp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (yButton.getAsBoolean() && !elevator.upStop.getAsBoolean()) {
-      elevator.elevatorMove(true);
-      //elevator.elevatorElbowIssueUp(); // will move elbow in/out as well.
-    } else {
-      elevator.elevatorMove(false); // Stop the elevator
+    if (yButton.getAsBoolean()) {
+      //elevator.elevatorMove(true);} 
+      double setPoint = 3;
+      elevator.runElevatorToPosition(setPoint);
     }
+   // else{
+   //   elevator.elevatorMove(false);
+ //   }
   }
 
   // Called once the command ends or is interrupted.

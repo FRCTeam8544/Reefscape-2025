@@ -12,17 +12,17 @@ import frc.robot.subsystems.Elevator;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElbowBack extends Command {
 
-  Elevator climber;
+  Elevator elevator;
   CommandXboxController juliet;
   Trigger leftBackTop;
 
-  public ElbowBack(Elevator climber, CommandXboxController juliet, Trigger leftBackTop) {
-    this.climber = climber;
+  public ElbowBack(Elevator elevator, CommandXboxController juliet, Trigger leftBackTop) {
+    this.elevator = elevator;
     this.juliet = juliet;
     this.leftBackTop = leftBackTop;
 
     leftBackTop = juliet.leftTrigger();
-    addRequirements(climber);
+    addRequirements(elevator);
   }
 
   // Called when the command is initially scheduled.
@@ -33,9 +33,9 @@ public class ElbowBack extends Command {
   @Override
   public void execute() {
     if (leftBackTop.getAsBoolean()) {
-      Elevator.spinElbowBackwards(true);
+      elevator.spinElbowBackwards(true);
     } else {
-      Elevator.spinElbowBackwards(false);
+      elevator.spinElbowBackwards(false);
     }
   }
 

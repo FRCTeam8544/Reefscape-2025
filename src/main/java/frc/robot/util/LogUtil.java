@@ -29,9 +29,26 @@ public class LogUtil {
       Logger.recordOutput(
           prefix + "/Measurement/upperLimitHit", inOutData.upperLimitHit);
       Logger.recordOutput(
+          prefix + "/Measurement/velocity", inOutData.velocity);
+
+      Logger.recordOutput(
+            prefix + "/Measurement/busVoltage", inOutData.busVoltage);
+      Logger.recordOutput(
+            prefix + "/Measurement/temperature", inOutData.motorTemperature);
+
+      Logger.recordOutput(
+            prefix + "/SetPoint/appliedOutputDuty", inOutData.outputDuty);
+      Logger.recordOutput(
+            prefix + "/SetPoint/accumulatedIterm", inOutData.accumulatedIterm);
+      Logger.recordOutput(
+            prefix + "/SetPoint/outputCurrent", inOutData.outputCurrent);
+      
+      Logger.recordOutput(
           prefix + "/SetPoint/position", inOutData.positionSetPoint);
       Logger.recordOutput(
           prefix + "/SetPoint/velocity", inOutData.velocitySetPoint);
+      Logger.recordOutput(
+          prefix + "/SetPoint/voltage", inOutData.voltageSetPoint);
     }
 
     public static void logData(String prefix, LaserCANIOInputs inputs)

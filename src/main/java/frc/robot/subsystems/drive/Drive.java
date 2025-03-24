@@ -307,8 +307,16 @@ public class Drive extends SubsystemBase {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    poseEstimator.addVisionMeasurement(
+    
+    // Force vision position estimate to dominate when motors are disabled
+    if (DriverStation.isDisabled()) {
+      poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), visionRobotPoseMeters);
+    }
+    // Otherwise apply vision corrections to the obometry estimate from the modules
+    else {
+      poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    }
   }
 
   /** Returns the maximum linear speed in meters per sec. */

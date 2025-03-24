@@ -5,19 +5,24 @@
 package frc.robot.subsystems;
 
 import frc.robot.util.LogUtil;
+
+import java.util.function.BooleanSupplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.MathUtil;
@@ -28,10 +33,10 @@ import frc.robot.Constants;
 public class Climber extends SubsystemBase {
   private static final double backwardSoftRotationLimit = 0; // rotations
   private static final double forwardSoftRotationLimit = 0.6; // TODO find real values....
-  private static final int motorStallAmpLimit = 20;
+  private static final int motorStallAmpLimit = 40;
 
-  private static final double climberForwardMaxSpeed = 0.2;
-  private static final double climberReverseMaxSpeed = 0.4;
+  private static final double climberForwardMaxSpeed = 0.2; // Percentage of max speed
+  private static final double climberReverseMaxSpeed = 0.4; // Percentage of max speed
 
   /** Creates a new Climber. */
   private SparkMax pusherRight = new SparkMax(Constants.climberConstants.climberCANID, MotorType.kBrushless);
@@ -45,14 +50,26 @@ public class Climber extends SubsystemBase {
                                                           backwardSoftRotationLimit, forwardSoftRotationLimit);
   private MotorJointIOInputsAutoLogged  climberInOutData = new MotorJointIOInputsAutoLogged();
 
+  private SparkLimitSwitch forwardLimitSwitch = pusherRight.getForwardLimitSwitch();
+  private SparkLimitSwitch reverseLimitSwitch = pusherRight.getReverseLimitSwitch();
   private boolean forwardStopLimitHit = false;
   private boolean reverseStopLimitHit = false;
+
+  public BooleanSupplier climberForwardStop =
+      () -> {
+        return forwardLimitSwitch.isPressed();
+      };
+
+  public BooleanSupplier climberBackwardStop = 
+      () -> {
+        return reverseLimitSwitch.isPressed();
+      };
 
   public Climber() {
     
     // Configure right motor
     rightConfig.idleMode(IdleMode.kBrake);
-    rightConfig.inverted(false);
+    rightConfig.inverted(true);
     rightConfig.smartCurrentLimit(motorStallAmpLimit);
     /*rightConfig.encoder.positionConversionFactor(1);
     rightConfig.encoder.velocityConversionFactor(1);
@@ -98,20 +115,32 @@ public class Climber extends SubsystemBase {
   public void climberClimb(boolean go) {
     if (go && !forwardStopLimitHit) {
       //setVelocitySetPoint(positionToClimbSpeed(encoder.getPosition()));
-      setVelocitySetPoint(climberForwardMaxSpeed);
+      //setVelocity(climberForwardMaxSpeed);
+      pusherRight.set(.9);
     } 
     else {
-      setVelocitySetPoint(0);
+      //setVelocitySetPoint(0);
+      //setVelocity(0);
+      pusherRight.set(0);
     }
   }
 
   public void climberBack(boolean move){
     if(move && !reverseStopLimitHit) { 
-      setVelocitySetPoint(climberReverseMaxSpeed);
+      //setVelocitySetPoint(climberReverseMaxSpeed);
+      //setVelocity(climberReverseMaxSpeed);
+      pusherRight.set(-.9);
     }
     else {
-      setVelocitySetPoint(0.0);
+      //setVelocitySetPoint(0.0);
+      //setVelocity(0);
+      pusherRight.set(0);
     }
+  }
+
+  public void stopClimber() {
+    climberInOutData.velocitySetPoint = 0;
+    pusherRight.set(0);
   }
 
   @Override
@@ -120,8 +149,8 @@ public class Climber extends SubsystemBase {
     climberIO.updateInputs(climberInOutData);
 
     // Check limits
-    reverseStopLimitHit = climberInOutData.lowerLimitHit || climberInOutData.lowerSoftLimitHit;
-    forwardStopLimitHit = climberInOutData.upperLimitHit || climberInOutData.upperSoftLimitHit;
+    //reverseStopLimitHit = climberInOutData.lowerLimitHit || climberInOutData.lowerSoftLimitHit;
+    //forwardStopLimitHit = climberInOutData.upperLimitHit || climberInOutData.upperSoftLimitHit;
 
     // Apply limits (Postive velocity is assumed to be climber deploy)
    // if (encoder.getVelocity() > 0.0 && downStopLimitHit) {
@@ -136,25 +165,31 @@ public class Climber extends SubsystemBase {
     LogUtil.logData("Climber", climberInOutData);
   }
 
-  // Speed is percentage of max climber speed
+
+  // Input speed is percentage of max climber speed, which gets converted to an RPM
   private void setVelocitySetPoint(double speed) {
-    
-    if (speed > 0.0) {
-      climberInOutData.velocitySetPoint = Math.min(speed, climberForwardMaxSpeed);
-    }
-    else {
-      climberInOutData.velocitySetPoint = Math.max(speed, climberReverseMaxSpeed);
-    }
-
-    double limitedSpeed = 0.0;
-    final double climbRotationExtent = forwardSoftRotationLimit - backwardSoftRotationLimit;
+    // Determine a "reasonable" max climb speed, adjust in the future as needed
+    final double climbRotationExtent = Math.abs(forwardSoftRotationLimit - backwardSoftRotationLimit);
     final double climbTimeSec = 5;
-    final double maxClimberSpeed = Units.rotationsToRadians(climbRotationExtent) / climbTimeSec; // radians per second
+    final double maxClimberSpeedRadiansPerSec = Units.rotationsToRadians(climbRotationExtent) / climbTimeSec;
 
-    closedLoopController.setReference(Units.radiansPerSecondToRotationsPerMinute(limitedSpeed * maxClimberSpeed),
+    // Convert commanded speed to scaled RPM (limit is maxClimberSpeedRadiansPerSec)
+    double commandedSpeedInRPM = speed * Units.radiansPerSecondToRotationsPerMinute(maxClimberSpeedRadiansPerSec);
+
+    // Log and command the new velocity set point
+    climberInOutData.velocitySetPoint = commandedSpeedInRPM;
+    closedLoopController.setReference(commandedSpeedInRPM,
                                       ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
   
+  // Expects a speed as a percent of max motor speed
+  private void setVelocity(double speed) {
+    // Log and command the new velocity set point
+    climberInOutData.velocitySetPoint = speed;
+    pusherRight.set(climberForwardMaxSpeed);
+  }
+
+
   private double positionToClimbSpeed(double position) {
     
     final double length = forwardSoftRotationLimit - backwardSoftRotationLimit;
@@ -182,5 +217,11 @@ public class Climber extends SubsystemBase {
     else {
       return 0.0;
     }
+  }
+  
+  public void logPose(String prefix, int snapshotId) {
+      Logger.recordOutput(prefix + "/Id", snapshotId);
+      Logger.recordOutput(
+          prefix + "/Climber/absolutePosition", climberInOutData.absolutePosition);
   }
 }

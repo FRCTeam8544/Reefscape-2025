@@ -4,6 +4,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkBase.Faults;
 
 public class MotorJointSparkMax implements MotorJointIO {
 
@@ -39,10 +40,24 @@ public class MotorJointSparkMax implements MotorJointIO {
 
     public void updateInputs(MotorJointIOInputs inOutData) {
 
-      
-      inOutData.connected = false;
+      inOutData.connected = true;
       
       inOutData.zeroOffset = 0;
+      inOutData.motorTemperature = controller.getMotorTemperature();
+      inOutData.outputDuty = controller.getAppliedOutput();
+      inOutData.busVoltage = controller.getBusVoltage();
+      inOutData.outputCurrent = controller.getOutputCurrent();
+      inOutData.accumulatedIterm = controller.getClosedLoopController().getIAccum();
+
+      Faults faults = controller.getFaults();
+      inOutData.faultCan = faults.can;
+      inOutData.faultTemperature = faults.temperature;
+      inOutData.faultSensor = faults.sensor;
+      inOutData.faultGateDriver = faults.gateDriver;
+      inOutData.faultEscEeprom = faults.escEeprom;
+      inOutData.faultFirmware = faults.firmware;
+
+      inOutData.velocity = absoluteEncoder.getVelocity();
       inOutData.rawAbsolutePosition = absoluteEncoder.getPosition();
       inOutData.absolutePosition = inOutData.rawAbsolutePosition;
       inOutData.rawExternalPosition = 0;
@@ -51,10 +66,6 @@ public class MotorJointSparkMax implements MotorJointIO {
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
       inOutData.lowerSoftLimitHit = inOutData.absolutePosition < lowerSoftLimitValue;
       inOutData.upperSoftLimitHit = inOutData.absolutePosition > upperSoftLimitValue;
-
     }
 
-    public void setVelocity(double speed) {
-      controller.set(speed);
-    }
 }

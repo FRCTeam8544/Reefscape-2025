@@ -1,10 +1,15 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.SparkBase.Faults;
+
 import frc.robot.Constants;
 import frc.robot.subsystems.MotorJointIO;
 
@@ -80,11 +85,26 @@ public class MotorJointSparkFlex implements MotorJointIO {
       inOutData.connected = true;
       
       inOutData.zeroOffset = zeroOffset;
+      inOutData.motorTemperature = controller.getMotorTemperature();
+      inOutData.outputDuty = controller.getAppliedOutput();
+      inOutData.busVoltage = controller.getBusVoltage();
+      inOutData.outputCurrent = controller.getOutputCurrent();
+      inOutData.accumulatedIterm = controller.getClosedLoopController().getIAccum();
+
+      Faults faults = controller.getFaults();
+      inOutData.faultCan = faults.can;
+      inOutData.faultTemperature = faults.temperature;
+      inOutData.faultSensor = faults.sensor;
+      inOutData.faultGateDriver = faults.gateDriver;
+      inOutData.faultEscEeprom = faults.escEeprom;
+      inOutData.faultFirmware = faults.firmware;
+
       if (useAbsoluteEncoder) {
         inOutData.rawAbsolutePosition = absoluteEncoder.getPosition();
         inOutData.absolutePosition = inOutData.rawAbsolutePosition - zeroOffset;
         inOutData.rawExternalPosition = 0;
         inOutData.externalPosition = 0;
+        inOutData.velocity = absoluteEncoder.getVelocity();
         if (useAlternateLimits) {
           inOutData.lowerSoftLimitHit = (inOutData.absolutePosition < altLowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.absolutePosition < altUpperSoftLimitValue);
@@ -99,6 +119,7 @@ public class MotorJointSparkFlex implements MotorJointIO {
         inOutData.externalPosition = inOutData.rawExternalPosition - zeroOffset;
         inOutData.rawAbsolutePosition = 0;
         inOutData.absolutePosition = 0;
+        inOutData.velocity = externalEncoder.getVelocity();
         if (useAlternateLimits) {
           inOutData.lowerSoftLimitHit = (inOutData.externalPosition < altLowerSoftLimitValue);
           inOutData.upperSoftLimitHit = (inOutData.externalPosition < altUpperSoftLimitValue);
@@ -112,7 +133,4 @@ public class MotorJointSparkFlex implements MotorJointIO {
       inOutData.upperLimitHit = forwardLimitSwitch.isPressed();
     }
 
-    public void setVelocity(double speed) {
-        controller.set(speed);
-    }
 }

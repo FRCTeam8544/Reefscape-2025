@@ -20,6 +20,12 @@ public class AutoRetract4 extends Command {
     addRequirements(elevator, clawIntake);
   }
 
+  public void wristAutoRetract() {
+    //clawIntake.turnWristToPosition(0.1); // TODO add start position, only call once
+    //if(ClawIntake.wristEncoder.getPosition() > 0.1) {clawIntake.wrist(-.3);} 
+   // else{clawIntake.wrist.set(0);}
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
@@ -27,7 +33,7 @@ public class AutoRetract4 extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    clawIntake.wristAutoRetract();
+    wristAutoRetract();
     elevator.elevatorLow(true);
   }
 

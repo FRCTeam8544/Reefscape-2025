@@ -22,7 +22,7 @@ import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
   // Driving Parameters
-  public static final double maxSpeedMetersPerSec = 4.8 / 3.0; // TODO for safety
+  public static final double maxSpeedMetersPerSec = 4.8 / 2.0; // TODO for safety
   public static final double odometryFrequency = 100.0; // Hz
 
   // Chassis configuration
@@ -60,7 +60,7 @@ public class DriveConstants {
   // Drive motor configuration
   // See https://www.revrobotics.com/rev-21-1652/
   public static final double freeSpeedRpm = 6784;
-  public static final int driveMotorCurrentLimit = 40;
+  public static final int driveMotorCurrentLimit = 50;
 
   // The MAXSwerve module can be configured with one of three pinion gears: 12T,
   // 13T, or 14T. This changes the drive speed of the module (a pinion gear with

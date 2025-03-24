@@ -61,8 +61,6 @@ public final class Constants {
     public static final int rightElbowCANID = 10;
     public static final int rightElevatorCANID = 12;
     public static final int leftElevatorCANID = 13;
-    public static final int limitSwitchPort = 4;
-    public static final int limitSwitch2Port = 3;
 
     // 0 until otherwise tuned...
     public static final double eleKP = 0;

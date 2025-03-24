@@ -5,8 +5,11 @@
 package frc.robot.subsystems;
 import au.grapplerobotics.LaserCan;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -18,6 +21,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.Constants;
 import frc.robot.GameConstants;
 import frc.robot.subsystems.LaserCAN;
@@ -32,8 +38,8 @@ import frc.robot.util.LogUtil;
 
 public class ClawIntake extends SubsystemBase {
   
-  private final double intakeWidth_mm = 250; // TODO Use the laser to determine this number as built
-  private final int coralAcquiredCountThreshold = 3; // Wait 3 * 20 ms before declaring coral acquired
+  private final double intakeWidth_mm = 250;
+  private final int coralAcquiredCountThreshold = 10; // Wait N * 20 ms before declaring coral acquired
 
   private boolean coralAcquired;
   private int coralPresentCount;
@@ -43,23 +49,21 @@ public class ClawIntake extends SubsystemBase {
                                              Constants.clawIntakeConstants.laser1CANID,
                                              LaserCAN.FieldOfView.NARROW_4_BY_4);
 
-  /*private boolean algaeAcquired;
-  private static LaserCANIOInputsAutoLogged algaeLaserInputs;
-  private static LaserCANIO sharkIO = new LaserCAN("AlgaeLaser", 
-                                                 Constants.clawIntakeConstants.laser2CANID,
-                                                 LaserCAN.FieldOfView.WIDE_16_BY_16);*/
-
   /** Creates a new ClawIntake. */
-  private static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
+  public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   
-  private final double upSoftRotationLimit = 0.56; // Rotations
-  private final double downSoftRotationLimit = 0;  // Rotations
+  private final double upSoftRotationLimit = 2; // Rotations
+  private final double downSoftRotationLimit = -2;  // Rotations
   private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
+  private static SparkClosedLoopController closedLoop = wrist.getClosedLoopController();
+  private final double kMaxWristVelocityRPM = (0.2/1) * 60; // (rotation distance / second ) * sec/min Convert rotations per second to RPM
+  private final double kMaxWristAcceleration = kMaxWristVelocityRPM / 0.1; // RPM gained per second
+  
   private MotorJointIO wristIO = new MotorJointSparkFlex(wrist, "Wrist", Constants.clawIntakeConstants.wristCANID, 
                                            downSoftRotationLimit, upSoftRotationLimit, true);
-  private static AbsoluteEncoder wristEncoder = wrist.getAbsoluteEncoder();
+  public static AbsoluteEncoder wristEncoder = wrist.getAbsoluteEncoder();
   
   private static SparkMaxConfig rollerConfigR = new SparkMaxConfig();
   private static SparkMaxConfig rollerConfigL = new SparkMaxConfig();
@@ -69,6 +73,11 @@ public class ClawIntake extends SubsystemBase {
   private SparkLimitSwitch reverseLimitSwitch = wrist.getReverseLimitSwitch();
   public boolean wristForwardStopHit = false;
   public boolean wristBackwardStopHit = false;
+
+
+  // Cheesy position control for elbow
+  private boolean wristTurnActive = false;
+  private double wristTurnStartPos = 0.0;
 
   public BooleanSupplier wristForwardStop =
       () -> {
@@ -86,7 +95,6 @@ public class ClawIntake extends SubsystemBase {
 
     // Initialize inputs
     this.coralLaserInputs = new LaserCANIOInputsAutoLogged();
-    //this.algaeLaserInputs = new LaserCANIOInputsAutoLogged();
     this.wristInOutData = new MotorJointIOInputsAutoLogged();
 
     rollerConfigR.idleMode(IdleMode.kBrake);
@@ -102,12 +110,25 @@ public class ClawIntake extends SubsystemBase {
 
     wristConfig.idleMode(IdleMode.kBrake);
     wristConfig.smartCurrentLimit(40);
-    wristConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    wristConfig.voltageCompensation(12); 
     wristConfig.limitSwitch
         .forwardLimitSwitchType(Type.kNormallyOpen)
         .forwardLimitSwitchEnabled(true)
         .reverseLimitSwitchType(Type.kNormallyOpen)
         .reverseLimitSwitchEnabled(true);
+    wristConfig.softLimit.forwardSoftLimitEnabled(true)
+                         .forwardSoftLimit(upSoftRotationLimit);
+    wristConfig.softLimit.reverseSoftLimitEnabled(true)
+                         .reverseSoftLimit(downSoftRotationLimit);
+    wristConfig.closedLoop
+      .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+      // Position control
+      .p(0.00000005, ClosedLoopSlot.kSlot0)
+      .i(0, ClosedLoopSlot.kSlot0)
+      .d(0.00000, ClosedLoopSlot.kSlot0)
+      .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
+      .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
+                .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -116,7 +137,6 @@ public class ClawIntake extends SubsystemBase {
 
     wristIO.updateInputs(wristInOutData);
     seabassIO.updateInputs(coralLaserInputs);
-    //sharkIO.updateInputs(algaeLaserInputs);
 
     // Combine Hard limit wrist check with soft limit results:
     //wristForwardStopHit = wristForwardStop.getAsBoolean() || wristInOutData.upperSoftLimitHit;
@@ -129,10 +149,55 @@ public class ClawIntake extends SubsystemBase {
     // Check for coral
     checkIntakeForCoral();
     
+    // Cheesy wrist path
+    updateWristPath();
+
     LogUtil.logData(wristIO.getName(), wristInOutData);
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
-   // LogUtil.logData(sharkIO.getName(), algaeLaserInputs);
 
+  }
+
+  private void updateWristPath() {
+    // Implement stupid simple position target control for elbow since position PID does not work yet!
+    if (wristTurnActive) {
+      final double curElbowPosition = wristEncoder.getPosition();
+        // forward target
+      if (wristInOutData.positionSetPoint - wristTurnStartPos > 0) {
+        // Target acheived, may overshoot
+        if ( wristInOutData.absolutePosition >= curElbowPosition) {
+          wristTurn(false);
+          wristTurnStartPos = curElbowPosition;
+          wristTurnActive = false;
+        }
+        else { // Keep going forward...
+          wristTurn(true);
+        }
+      }
+      else if (wristInOutData.positionSetPoint - wristTurnStartPos < 0) { // backwards target
+        if (wristInOutData.absolutePosition <= curElbowPosition) { // Target acheived, may overshoot
+          wristTurnBack(false);
+          wristTurnStartPos = curElbowPosition;
+          wristTurnActive = false;
+        }
+        else { // Keep going backwards
+          wristTurnBack(true);
+        }
+      }
+      else { // Aleady in the correct place
+        wristTurn(false); // Default to not moving
+        wristTurnStartPos = wristInOutData.positionSetPoint;
+        wristTurnActive = false;
+      }
+    }
+  }
+
+  private void setPositionSetPoint(double pointSet){
+
+    wristInOutData.positionSetPoint = pointSet;
+    wristInOutData.velocitySetPoint = 0;
+    wristInOutData.voltageSetPoint = 0;
+
+    closedLoop.setReference(pointSet, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
   }
 
   // Determine coral intake status
@@ -156,6 +221,10 @@ public class ClawIntake extends SubsystemBase {
     else {
       coralAcquired = false;
     }
+  }
+
+  public double getPos(){
+    return wristEncoder.getPosition();
   }
 
   public boolean hasCoral() { return coralAcquired; }
@@ -182,37 +251,21 @@ public class ClawIntake extends SubsystemBase {
     if (roll) {rollerRight.setVoltage(-7);} // out
     else {rollerRight.setVoltage(0);}
   }
-
-  //auto wrist/rollers
-  //again encoders to be set... for all...
-  public void wristAuto(boolean a){
-    if(a && wristEncoder.getPosition() < .3) {wrist.set(.3);}
-    else{wrist.set(0);}
-  }
-
-  public void wristAutoRetract() {
-    if(wristEncoder.getPosition() > 0.1) {wrist.set(-.3);} 
-    else{wrist.set(0);}
-  }
-
-  public void intakePose(){
-    if(wristEncoder.getPosition() > 0) {wrist.set(-.3);}
-    else {wrist.set(0);}
-  }
-
-  public void rollersAuto(boolean b) {
-    if(b) {rollerRight.setVoltage(7);}
-  }
-
-  public void rollersAutoIntake(boolean c) {
-    if(c) {rollerRight.setVoltage(-7);}
-    else {rollerRight.setVoltage(0);}
+  
+  // Provide joint position in rotations from absolute encoder zero
+  public void turnWristToPosition(double startPosition, double targetPosition) {
+    if ((targetPosition <= upSoftRotationLimit) &&
+         (targetPosition >= downSoftRotationLimit) ) {
+      wristTurnActive = true;
+      wristTurnStartPos = startPosition;
+      wristInOutData.positionSetPoint = targetPosition;
+    }
   }
 
   //wrist basics
   public void wristTurn(boolean forward) {
     if (forward && !wristForwardStopHit) {
-      wrist.set(.15);
+      wrist.set(.3);
     } else {
       wrist.set(0);
     }
@@ -220,9 +273,15 @@ public class ClawIntake extends SubsystemBase {
 
   public void wristTurnBack(boolean backwards) {
     if (backwards && !wristBackwardStopHit) {
-      wrist.set(-.15);
+      wrist.set(-0.3);
     } else {
       wrist.set(0);
     }
   }
+
+  public void logPose(String prefix, int snapshotId) {
+      Logger.recordOutput(
+          prefix + "/Wrist/absolutePosition", wristInOutData.absolutePosition);
+  }
+
 }

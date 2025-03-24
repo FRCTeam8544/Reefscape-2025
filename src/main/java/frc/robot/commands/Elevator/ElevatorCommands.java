@@ -11,67 +11,94 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.ClawIntake;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ElevatorCommands extends Command {
 
-  private static final double DEADBAND = 0.1;
+public class ElevatorCommands {
 
+  private static final double ELEVATOR_DEADBAND = 0.1;
+  private static final double ELBOW_DEADBAND = 0.2;
+
+  private static int snapCount = 0;
+  private static int clawSnapCount = 0;
+
+  public static Command logPose(Elevator elevator, String prefix) {
+    return Commands.run(
+        () -> { elevator.logPose(prefix, snapCount++); }, elevator);
+  }
+
+  public static Command logPose(ClawIntake claw, String prefix) {
+    return Commands.run(
+        () -> { claw.logPose(prefix, clawSnapCount++); }, claw);
+  }
+
+  public static Command logPose(Climber climber, String prefix) {
+    return Commands.run(
+        () -> { climber.stopClimber(); climber.logPose(prefix, 0); }, climber);
+  }
+  
   /** Command elevator using joysticks (controlling linear and angular velocities). */
   public static Command joystickElevator(
-      Elevator elevator, DoubleSupplier verticalSupplier, DoubleSupplier tiltSupplier) {
+      Elevator elevator, DoubleSupplier verticalSupplier, 
+               Trigger elbowForwardTrigger, Trigger elbowBackwardTrigger) {
     return Commands.run(
         () -> {
           // Get linear velocity
-          Translation2d linearVelocity =
-              getLinearVelocityFromJoysticks(
-                  verticalSupplier.getAsDouble(), tiltSupplier.getAsDouble());
-
+          // Translation2d linearVelocity =
+          //     getLinearVelocityFromJoysticks(
+          //         verticalSupplier.getAsDouble(), tiltSupplier.getAsDouble());
+                 
           // Convert to elevator relative speeds
-          double elevatorVelocity =
-              linearVelocity.getX(); // * elevator.getMaxLinearSpeedMetersPerSec();
-          double wristVelocity =
-              linearVelocity.getY(); // * elevator.getMaxLinearSpeedMetersPerSec();
+          final double elevatorStickVelocity = MathUtil.applyDeadband(
+              verticalSupplier.getAsDouble(),
+              ELEVATOR_DEADBAND);
+          // final double elbowStickVelocity = MathUtil.applyDeadband(
+          //     linearVelocity.getY(),
+          //     ELBOW_DEADBAND);
 
-          // TODO tie elevator and wrist into one joystick?
-        //  elevator.runElevatorVelocity(elevatorVelocity);
-         // elevator.runWristVelocity(wristVelocity);
+          final double dE = elevatorStickVelocity > 0 ? elevatorStickVelocity * 0.3 : elevatorStickVelocity * 0.1;
+
+          // Apply velocities
+
+          double pos = elevator.getElevatorPosition();
+          double dE_apply_StartRegion = 0.75;
+          double dE_apply_StopRegion = 9.3; //TODO update upper limit for joystick
+          if ((pos >= dE_apply_StartRegion && dE < 0) || (pos <= dE_apply_StopRegion && dE > 0)) {
+            elevator.runElevatorToPosition(pos + dE);
+          }
+          else {
+            // TODO allow joystick to end limits
+          }
+          // }else if (pos >= 2.75 && dE > 0){
+          //   elevator.runElevatorToPosition(3);
+          // }else if(pos <= 0.75 && dE < 0){
+          //   elevator.runElevatorToPosition(0.5);
+          // }
+          
+          final boolean elbowForward = elbowForwardTrigger.getAsBoolean();
+          final boolean elbowBackward = elbowBackwardTrigger.getAsBoolean();
+          // if ( (elbowForward && elbowBackward) ) {
+          //   elevator.spinElbowForward(false); // Stop if inputs conflict
+          // }
+          // else {
+          //    elevator.spinElbowForward(elbowForward);
+          //    elevator.spinElbowBackwards(elbowBackward);
+          // }
+          if (elbowBackward){elevator.spinElbowBackwards(true);}
+          else if (elbowForward){elevator.spinElbowForward(true);}
+          else{elevator.spinElbowForward(false);}
         },
         elevator);
   }
 
-  // Called when the command is initially scheduled.
-  // @Override
-  // public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  // @Override
-  // public void execute() {
-  //  if (!elevator.downStop.getAsBoolean() ) {
-  ///    elevator.elevatorLow(true);
-  // } else {
-  //   elevator.elevatorLow(false);
-  //  }
-  // }
-
-  // Called once the command ends or is interrupted.
-  // @Override
-  // public void end(boolean interrupted) {
-  //  elevator.elevatorLow(false);
-  // }
-
-  // Returns true when the command should end.
-  // @Override
-  // public boolean isFinished() {
-  //   return false;
-  // }
-
   // x and y are joystick relative coordinates??? x (left/right) y (up/down)
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
     // Apply deadband
-    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), ELEVATOR_DEADBAND);
     Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
     // Square magnitude for more precise control
