@@ -35,37 +35,22 @@ public class VisionConstants {
 
   // Camera names, must match names configured on coprocessor
   public static String leftChassisApriltag = "leftChassisApriltag";
-  public static String rightChassisApriltag = "rightChassisApriltag";
-  public static String driverCam = "driverCam";
+  public static String rightChassisApriltag = "rightChassisApriltag"; 
 
   // Robot to camera transforms - Need to be configured relative to gyro
-
-  // Plywood prototype values
-  // 18 and 15 1/2 from the robot front left corner
-  // 7/8 either way from stalk to lens center
-  // the transform should be in meters.
   // These values are centered on the "robot center"
   // Gyro will be offset from this.
-  // Left Chasis
-  public static Transform3d robotToCamera0 =
+  public static Transform3d robotToCamera0 = //left camera - white
+  new Transform3d(
+      Units.inchesToMeters(8),
+      Units.inchesToMeters(-12.25),
+      Units.inchesToMeters(27.75),
+      new Rotation3d(0.0, 0, 180));
+  public static Transform3d robotToCamera1 = //right camera - black/blue
       new Transform3d(
-          Units.inchesToMeters(8.0),
-          Units.inchesToMeters(1.1250),
-          Units.inchesToMeters(23.5),
-          new Rotation3d(0.0, 0, 0.0));
-  // Right Chasis
-  public static Transform3d robotToCamera1 =
-      new Transform3d(
-          Units.inchesToMeters(8.0),
-          Units.inchesToMeters(-2.8750),
-          Units.inchesToMeters(23.5),
-          new Rotation3d(0.0, 0, 0.0));
-  // Driver
-  public static Transform3d robotToCamera2 =
-      new Transform3d(
-          Units.inchesToMeters(12.0),
-          Units.inchesToMeters(0.0),
-          Units.inchesToMeters(10.5),
+          Units.inchesToMeters(8),
+          Units.inchesToMeters(12.25),
+          Units.inchesToMeters(19.75),
           new Rotation3d(0.0, 0, 0.0));
 
   // Basic filtering thresholds
@@ -82,8 +67,7 @@ public class VisionConstants {
   public static double[] cameraStdDevFactors =
       new double[] {
         1.0, // leftChassisApriltag
-        1.0, // rightChassisApriltag
-        1.0 // driverCam
+        1.0 // rightChassisApriltag
       };
 
   // Multipliers to apply for MegaTag 2 observations
