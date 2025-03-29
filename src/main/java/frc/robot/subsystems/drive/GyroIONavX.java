@@ -39,6 +39,7 @@ public class GyroIONavX implements GyroIO {
     // The Roborio is mounted backwards (180 degrees) on the robot.
     // Both yaw position and yaw rate should be read directly instead of inverted.
     // TODO verify this change.
+    //navX.setAngleAdjustment(180);
     inputs.yawPosition = Rotation2d.fromDegrees(navX.getAngle());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(navX.getRawGyroZ());
 
@@ -46,7 +47,7 @@ public class GyroIONavX implements GyroIO {
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryYawPositions =
         yawPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromDegrees(-value))
+            .map((Double value) -> Rotation2d.fromDegrees(value))
             .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
