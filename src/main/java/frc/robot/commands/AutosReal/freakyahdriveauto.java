@@ -21,7 +21,7 @@ public class freakyahdriveauto extends Command{
 
     @Override
     public void execute(){
-
+        drive.runVelocity(chassisSpeeds);
     }
 
     @Override
