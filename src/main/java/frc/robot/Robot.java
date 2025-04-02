@@ -36,7 +36,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
 
   public Robot() {
-    CanBridge.runTCP();
+    CanBridge.runTCP(); // Expose CAN over TCP to allow GrappleHook configuration of LaserCAN, TODO can this move somewhere better?
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);

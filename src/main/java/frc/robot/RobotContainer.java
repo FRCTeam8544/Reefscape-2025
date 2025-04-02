@@ -119,12 +119,11 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        /*vision =
+        vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0),
-                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));*/
+                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));
         break;
 
       case SIM:
