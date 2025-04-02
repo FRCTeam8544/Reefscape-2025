@@ -53,11 +53,11 @@ public class ClawIntake extends SubsystemBase {
   public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   
-  private final double upSoftRotationLimit = 2; // Rotations
-  private final double downSoftRotationLimit = -2;  // Rotations
+  private final double upSoftRotationLimit = .2; // Rotations
+  private final double downSoftRotationLimit = -.15;  // Rotations
   private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
-  private static SparkClosedLoopController closedLoop = wrist.getClosedLoopController();
+  private static SparkClosedLoopController wristController = wrist.getClosedLoopController();
   private final double kMaxWristVelocityRPM = (0.2/1) * 60; // (rotation distance / second ) * sec/min Convert rotations per second to RPM
   private final double kMaxWristAcceleration = kMaxWristVelocityRPM / 0.1; // RPM gained per second
   
@@ -120,15 +120,16 @@ public class ClawIntake extends SubsystemBase {
                          .forwardSoftLimit(upSoftRotationLimit);
     wristConfig.softLimit.reverseSoftLimitEnabled(true)
                          .reverseSoftLimit(downSoftRotationLimit);
+    wristConfig.absoluteEncoder.zeroCentered(true);
     wristConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
       // Position control
-      .p(0.00000005, ClosedLoopSlot.kSlot0)
+      .p(0.0000005, ClosedLoopSlot.kSlot0)
       .i(0, ClosedLoopSlot.kSlot0)
       .d(0.00000, ClosedLoopSlot.kSlot0)
-      .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
-      .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
-                .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
+      .outputRange(-0.3, 0.3, ClosedLoopSlot.kSlot0);
+  //    .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
+    //            .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -150,45 +151,11 @@ public class ClawIntake extends SubsystemBase {
     checkIntakeForCoral();
     
     // Cheesy wrist path
-    updateWristPath();
+   // updateWristPath();
 
     LogUtil.logData(wristIO.getName(), wristInOutData);
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
 
-  }
-
-  private void updateWristPath() {
-    // Implement stupid simple position target control for elbow since position PID does not work yet!
-    if (wristTurnActive) {
-      final double curElbowPosition = wristEncoder.getPosition();
-        // forward target
-      if (wristInOutData.positionSetPoint - wristTurnStartPos > 0) {
-        // Target acheived, may overshoot
-        if ( wristInOutData.absolutePosition >= curElbowPosition) {
-          wristTurn(false);
-          wristTurnStartPos = curElbowPosition;
-          wristTurnActive = false;
-        }
-        else { // Keep going forward...
-          wristTurn(true);
-        }
-      }
-      else if (wristInOutData.positionSetPoint - wristTurnStartPos < 0) { // backwards target
-        if (wristInOutData.absolutePosition <= curElbowPosition) { // Target acheived, may overshoot
-          wristTurnBack(false);
-          wristTurnStartPos = curElbowPosition;
-          wristTurnActive = false;
-        }
-        else { // Keep going backwards
-          wristTurnBack(true);
-        }
-      }
-      else { // Aleady in the correct place
-        wristTurn(false); // Default to not moving
-        wristTurnStartPos = wristInOutData.positionSetPoint;
-        wristTurnActive = false;
-      }
-    }
   }
 
   private void setPositionSetPoint(double pointSet){
@@ -197,7 +164,7 @@ public class ClawIntake extends SubsystemBase {
     wristInOutData.velocitySetPoint = 0;
     wristInOutData.voltageSetPoint = 0;
 
-    closedLoop.setReference(pointSet, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+    wristController.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   // Determine coral intake status
@@ -254,29 +221,35 @@ public class ClawIntake extends SubsystemBase {
   
   // Provide joint position in rotations from absolute encoder zero
   public void turnWristToPosition(double startPosition, double targetPosition) {
-    if ((targetPosition <= upSoftRotationLimit) &&
-         (targetPosition >= downSoftRotationLimit) ) {
-      wristTurnActive = true;
-      wristTurnStartPos = startPosition;
-      wristInOutData.positionSetPoint = targetPosition;
+    double cmdPosition = targetPosition;
+    if (targetPosition <= upSoftRotationLimit) {
+      cmdPosition = upSoftRotationLimit;
     }
+    else if (targetPosition >= downSoftRotationLimit) {
+      cmdPosition = downSoftRotationLimit;
+    }
+    setPositionSetPoint(cmdPosition);
   }
 
   //wrist basics
   public void wristTurn(boolean forward) {
-    if (forward && !wristForwardStopHit) {
-      wrist.set(.3);
-    } else {
-      wrist.set(0);
+
+    double cmdPosition = wristInOutData.absolutePosition;
+
+    if (forward) {
+      cmdPosition += 0.003 / 50; // Advance one degree per second (1/50th of a degree per tick)
     }
+
+    turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
   }
 
   public void wristTurnBack(boolean backwards) {
-    if (backwards && !wristBackwardStopHit) {
-      wrist.set(-0.3);
-    } else {
-      wrist.set(0);
+    double cmdPosition = wristInOutData.absolutePosition;
+
+    if (backwards) {
+      cmdPosition -= 0.003 / 50; // Retreat one degree
     }
+    turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
   }
 
   public void logPose(String prefix, int snapshotId) {

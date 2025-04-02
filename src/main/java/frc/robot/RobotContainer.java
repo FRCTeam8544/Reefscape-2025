@@ -264,6 +264,10 @@ public class RobotContainer {
 
   }
 
+  public void teleopInit() {
+      drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

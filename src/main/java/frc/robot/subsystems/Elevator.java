@@ -52,8 +52,8 @@ public class Elevator extends SubsystemBase {
   final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.35; // hard 9.4; Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
-  final static double backwardSoftStopValue = 0; // TODO need to set zero point in stow with rev client
-  final static double forwardSoftStopValue = 0.3; // 108 degrees as rotations, TODO confirm this limit
+  final static double backwardSoftStopValue = -0.499; // TODO need to set zero point in stow with rev client
+  final static double forwardSoftStopValue = 0.499; // 108 degrees as rotations, TODO confirm this limit
   final static double altBackwardSoftStopValue = 0.05;
   final static double altForwardSoftStopValue = forwardSoftStopValue;
   final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
@@ -144,19 +144,17 @@ public class Elevator extends SubsystemBase {
       }
     
       public void setupElbowConfig() {
-        //final double kMaxElbowVelocityRPM = 
         spinConfig.idleMode(IdleMode.kBrake);
         spinConfig.inverted(false);
         spinConfig.voltageCompensation(12); 
         spinConfig.smartCurrentLimit(40);
+        spinConfig.absoluteEncoder.zeroCentered(true);
         spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-          .p(0.000000005, ClosedLoopSlot.kSlot0)
+          .p(0.000005, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.00000, ClosedLoopSlot.kSlot0)
-          .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
-       //   .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
-        //            .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
+          .outputRange(-0.3, 0.3, ClosedLoopSlot.kSlot0);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -174,13 +172,13 @@ public class Elevator extends SubsystemBase {
         elevatorMotorIO.updateInputs(elevatorInOutData);
         
         // This must be done after updateInputs so that the external position is accurate
-        if (elevatorInOutData.externalPosition >= elbowAlternateLimitsElevatorThresh)
+       /* if (elevatorInOutData.externalPosition >= elbowAlternateLimitsElevatorThresh)
         {
           elbowMotorIO.setAlternateLimits(altBackwardSoftStopValue,altForwardSoftStopValue);
         }
         else {
           elbowMotorIO.clearAlternateLimits();
-        }
+        }*/
         
         upStopHit = false;
         downStopHit = false;
@@ -199,47 +197,13 @@ public class Elevator extends SubsystemBase {
         } */
 
         // If active, Implement stupid simple position target control for elbow since position PID does not work yet!
-        updateElbowPath();
+        //updateElbowPath();
 
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
 
         updateDashboard();
 
-      }
-
-      private void updateElbowPath() {
-        // Implement stupid simple position target control for elbow since position PID does not work yet!
-        if (elbowTurnActive) {
-          final double curElbowPosition = elbowEncoder.getPosition();
-           // forward target
-          if (elbowInOutData.positionSetPoint - elbowTurnStartPos > 0) {
-            // Target acheived, may overshoot
-            if ( elbowInOutData.absolutePosition >= curElbowPosition) {
-              spinElbowForward(false);
-              elbowTurnStartPos = curElbowPosition;
-              elbowTurnActive = false;
-            }
-            else { // Keep going forward...
-              spinElbowForward(true);
-            }
-          }
-          else if (elbowInOutData.positionSetPoint - elbowTurnStartPos < 0) { // backwards target
-            if (elbowInOutData.absolutePosition <= curElbowPosition) { // Target acheived, may overshoot
-              spinElbowBackwards(false);
-              elbowTurnStartPos = curElbowPosition;
-              elbowTurnActive = false;
-            }
-            else { // Keep going backwards
-              spinElbowBackwards(true);
-            }
-          }
-          else { // Aleady in the correct place
-            spinElbowForward(false); // Default to not moving
-            elbowTurnStartPos = elbowInOutData.positionSetPoint;
-            elbowTurnActive = false;
-          }
-        }
       }
 
       public double getError(double setpoint){
@@ -291,22 +255,7 @@ public class Elevator extends SubsystemBase {
 
       // Run the elevator by commanding a speed as percent of max elevator speed
       public void runElevatorVelocity(double speed) {
-        if (speed >= 0) {
-          if (!upStopHit) {
-            setVelocitySetPoint(speed);
-          }
-          else {
-             setVelocitySetPoint(0);
-          }
-        }
-        else {
-          if (!downStopHit) {
-            setVelocitySetPoint(speed);
-          }
-          else {
-            setVelocitySetPoint(0);
-          }
-        }
+        // OBE do not use!!!
       }
 
       //elevator basic up/down: Do not use!!!! Use position instead
@@ -332,86 +281,63 @@ public class Elevator extends SubsystemBase {
 
       // Call once to start turn to a position
       public void turnElbowToPosition( double startPos, double targetPosition) {
-        if ((targetPosition >= backwardSoftStopValue) ||
-            (targetPosition <= forwardSoftStopValue)) {
-          
-          elbowTurnStartPos = startPos;
-          elbowInOutData.positionSetPoint = targetPosition;
-          elbowTurnActive = true;
-          // PID does not work so leverage periodic loop to handle this....
-          //elbowClosedLoop.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        double cmdPosition = targetPosition;
+        if (targetPosition <= backwardSoftStopValue) {
+          cmdPosition = backwardSoftStopValue;
         }
+        else if (targetPosition >= forwardSoftStopValue) {
+          cmdPosition = forwardSoftStopValue;
+        }
+
+        // elbowTurnStartPos = startPos;
+          elbowInOutData.positionSetPoint = cmdPosition;
+          elbowInOutData.voltageSetPoint = 0;
+          elbowInOutData.velocitySetPoint = 0;
+          //elbowTurnActive = true;
+          elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
   
+      
       //elbow basics
       public void spinElbowForward(boolean go) {
-         if (go && !forwardStopHit) {elbowController.set(.4);} 
-        else {elbowController.set(0);}
+        double targetPosition = getElbowPos();
+        if (go) {
+          targetPosition += 0.003 / 50; // Advance one degree as rotations per second (1/50 per tick)
+        }
+        
+        if (targetPosition >= forwardSoftStopValue) {
+          targetPosition = forwardSoftStopValue;
+        }
+
+        elbowInOutData.positionSetPoint = targetPosition;
+        elbowInOutData.voltageSetPoint = 0;
+        elbowInOutData.velocitySetPoint = 0;
+        elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
     
       public void spinElbowBackwards(boolean execute) {
-        if (execute && !backwardStopHit) {elbowController.set(-.4);} 
-        else {elbowController.set(0);}
+        double targetPosition = getElbowPos();
+        if (execute) {
+          targetPosition -= 0.003 / 50; // Retreat one degree as rotations per second (1/50 per tick)
+        }
+
+        if (targetPosition <= backwardSoftStopValue) {
+          targetPosition = backwardSoftStopValue;
+        }
+
+        elbowInOutData.positionSetPoint = targetPosition;
+        elbowInOutData.voltageSetPoint = 0;
+        elbowInOutData.velocitySetPoint = 0;
+        elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
+
       public double getElbowPos(){
-        return elbowEncoder.getPosition();
+        return elbowInOutData.absolutePosition;
       }
       public double getElePos(){
         return elevatorInOutData.externalPosition;
       }
     
-
-      //problem range elevator/elbow
-  /*    public void elevatorElbowIssueUp(){ //example transition range 3-5 find real one day
-
-        final double elevatorPosition = elevatorInOutData.externalPosition;
-        final double elbowPosition = elbowInOutData.absolutePosition;
- 
-        if (!elevatorCalibrated) {
-          return;
-        }
-
-        if (upStopHit) {
-           motorController.set(0.0);
-        }
-        else {
-           motorController.set(0.15);
-        }
-
-        if (elevatorPosition > elbowAlternateLimitsElevatorThresh) {
-          if (elbowEncoder.getPosition() < 0.0) {
-            elbowController.set(0.10); // kick elbow out to zero position
-          }
-          else {
-            elbowController.set(0);
-          }
-        }
-      }
-*/
-   /*    public void elevatorElbowIssueDown(){
-        final double elevatorPosition = elevatorInOutData.externalPosition;
-        final double elbowPosition = elbowInOutData.absolutePosition;
- 
-        if (!elevatorCalibrated) {
-          return;
-        }
-
-        if (downStopHit) {
-           motorController.set(0.0);
-        }
-        else {
-           motorController.set(-0.15);
-        }
-
-        if (elevatorPosition > elbowAlternateLimitsElevatorThresh) {
-          if (elbowEncoder.getPosition() >= 0.0) {
-            elbowController.set(-0.10); // kick elbow out to zero position
-          }
-          else {
-            elbowController.set(0);
-          }
-        }
-      }*/
 
    public void updateDashboard(){
     SmartDashboard.putNumber("elevator Speed", encoder.getVelocity());  
@@ -433,11 +359,11 @@ public class Elevator extends SubsystemBase {
           prefix + "/Elbow/absolutePosition", elbowInOutData.absolutePosition);
   }
 
-  // Retrieve elevator height in revolutions
+  // Retrieve elevator position in rotations
   public double getElevatorPosition() {
-    //final double rotationsToInches = 5.53; ??
+    //final double rotationsToInches = 5.53; //??
     // Todo add height from floor to start of elevator?
-    return elevatorInOutData.externalPosition; // return position in rotations
+    return elevatorInOutData.externalPosition ;//* rotationsToInches; // return position in rotations
   }
 
   public boolean withinTolleranceElbow(double setpoint){
@@ -449,52 +375,12 @@ public class Elevator extends SubsystemBase {
   }
     
   // Provide the max elevator speed in radians per second
- private double getMaxElevatorSpeedRadiansPerSec() {
+ /*private double getMaxElevatorSpeedRadiansPerSec() {
     // Radians per second
     final double timeSec = .2;
     final double maxSpeedRadiansPerSecond = 2 * (Math.PI) / timeSec;
     //return getMaxElevatorSpeedPercent() * maxSpeedRadiansPerSecond;
     return maxSpeedRadiansPerSecond;
-  }
+  }*/
   
- /*  private double getMaxElevatorSpeedPercent() {
-    // Ratio of speed vs max possible speed e.g. 1 is full speed, 0.5 is half max speed
-    double elevatorSpeedFactor = 1;
-    
-    final double elePos = elevatorInOutData.externalPosition;
-
-    // TODO clean this logic up....
-    // The goal here is to define speed limits near the ends of the elevator travel
-    if (elePos < 1) {
-      double segmentLength = 1 - 0; // Must match current and prior if boundary values
-      elevatorSpeedFactor = MathUtil.interpolate(0, .2, elePos / segmentLength);
-    }
-    else if (elePos < 2) {
-      double segmentLength = 2 - 1; // Must match current and prior if boundary values
-      elevatorSpeedFactor = MathUtil.interpolate(0.2, .4, (elePos - 1) / segmentLength );
-    }
-    else if (elePos < 2.5) {
-      double segmentLength = 2.5 - 2; // Must match current and prior if boundary values
-      elevatorSpeedFactor = MathUtil.interpolate(0.4, .6, (elePos - 2.5) / segmentLength );
-    }
-    else if (elePos < 7.5) {
-      // todo LIMIT ACCELLERATION....
-      elevatorSpeedFactor = 1;
-    }
-    else if (elePos < 8.5) {
-      double segmentLength = 8.5 - 7.5;
-      elevatorSpeedFactor = MathUtil.interpolate(0.6,0.4, elePos - 8.5 / segmentLength);
-    }
-    else if (elePos < 9.2) {
-      double segmentLength = 9.2 - 8.5;
-      elevatorSpeedFactor = MathUtil.interpolate(0.4,0.1, elePos - 9.2 / segmentLength);
-    }
-    else {
-      elevatorSpeedFactor = 0.05;
-    }
-
-    //return elevatorSpeedFactor;
-    return 1;
-  }
-*/
 }
