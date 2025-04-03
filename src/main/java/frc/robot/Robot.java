@@ -138,13 +138,15 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-
-   // robotContainer.teleopInit(); // Enable when Nicks inversion code is undone
+    
+    robotContainer.teleopInit();
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override

@@ -22,6 +22,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.XboxController;
@@ -265,7 +267,18 @@ public class RobotContainer {
   }
 
   public void teleopInit() {
-      drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
+    // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
+    if (!vision.poseIsReliable()) {
+        // Blue origin coordinate system, robot starts facing alliance driver station.
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
+            }
+            else {
+                drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
+            }
+        }
+    }
   }
 
   /**

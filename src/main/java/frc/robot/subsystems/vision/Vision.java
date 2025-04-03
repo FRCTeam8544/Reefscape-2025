@@ -68,6 +68,11 @@ public class Vision extends SubsystemBase {
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
+  public boolean poseIsReliable() {
+    return false;
+    //return !(camera0Disabled && camera1Disabled);
+  }
+
   @Override
   public void periodic() {
    //SmartDashboard.putData("DisableBlackCamera", camera0Disabled);
