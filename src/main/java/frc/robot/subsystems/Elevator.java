@@ -148,10 +148,10 @@ public class Elevator extends SubsystemBase {
         spinConfig.inverted(false);
         spinConfig.voltageCompensation(12); 
         spinConfig.smartCurrentLimit(40);
-        spinConfig.absoluteEncoder.zeroCentered(true);
+        //spinConfig.absoluteEncoder.zeroCentered(true);
         spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-          .p(0.000005, ClosedLoopSlot.kSlot0)
+          .p(0.000000, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.00000, ClosedLoopSlot.kSlot0)
           .outputRange(-0.3, 0.3, ClosedLoopSlot.kSlot0);

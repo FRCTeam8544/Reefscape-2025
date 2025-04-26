@@ -53,8 +53,9 @@ public class ClawIntake extends SubsystemBase {
   public static SparkMax rollerRight = new SparkMax(Constants.clawIntakeConstants.rollerCANID, MotorType.kBrushed);
   private static SparkMax rollerLeft = new SparkMax(Constants.clawIntakeConstants.roller2CANID, MotorType.kBrushed);
   
-  private final double upSoftRotationLimit = .2; // Rotations
-  private final double downSoftRotationLimit = -.15;  // Rotations
+  private final double upSoftRotationLimit = .095; // Rotations
+  private final double downSoftRotationLimit = -.095;  // Rotations
+  
   private MotorJointIOInputs wristInOutData;
   private static SparkFlex wrist = new SparkFlex(Constants.clawIntakeConstants.wristCANID, MotorType.kBrushless);
   private static SparkClosedLoopController wristController = wrist.getClosedLoopController();
@@ -123,11 +124,11 @@ public class ClawIntake extends SubsystemBase {
     wristConfig.absoluteEncoder.zeroCentered(true);
     wristConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-      // Position control
-      .p(0.0000005, ClosedLoopSlot.kSlot0)
+      // Position control 2 and 0.0020 slow.... 2.5 and 0.005 better
+      .p(2.5, ClosedLoopSlot.kSlot0)
       .i(0, ClosedLoopSlot.kSlot0)
-      .d(0.00000, ClosedLoopSlot.kSlot0)
-      .outputRange(-0.3, 0.3, ClosedLoopSlot.kSlot0);
+      .d(0.0050, ClosedLoopSlot.kSlot0)
+      .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
   //    .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
     //            .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -222,13 +223,13 @@ public class ClawIntake extends SubsystemBase {
   // Provide joint position in rotations from absolute encoder zero
   public void turnWristToPosition(double startPosition, double targetPosition) {
     double cmdPosition = targetPosition;
-    if (targetPosition <= upSoftRotationLimit) {
+   /* if (targetPosition <= upSoftRotationLimit) {
       cmdPosition = upSoftRotationLimit;
     }
     else if (targetPosition >= downSoftRotationLimit) {
       cmdPosition = downSoftRotationLimit;
-    }
-    setPositionSetPoint(cmdPosition);
+    }*/
+    setPositionSetPoint(targetPosition);
   }
 
   //wrist basics
@@ -240,7 +241,9 @@ public class ClawIntake extends SubsystemBase {
       cmdPosition += 0.003 / 50; // Advance one degree per second (1/50th of a degree per tick)
     }
 
-    turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
+    //turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
+     double range = upSoftRotationLimit - downSoftRotationLimit;
+    turnWristToPosition(wristInOutData.absolutePosition, upSoftRotationLimit / 2);
   }
 
   public void wristTurnBack(boolean backwards) {
@@ -249,7 +252,10 @@ public class ClawIntake extends SubsystemBase {
     if (backwards) {
       cmdPosition -= 0.003 / 50; // Retreat one degree
     }
-    turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
+    //0.78 to .99
+    //turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
+    double range = upSoftRotationLimit - downSoftRotationLimit;
+    turnWristToPosition(wristInOutData.absolutePosition, downSoftRotationLimit /2);
   }
 
   public void logPose(String prefix, int snapshotId) {
