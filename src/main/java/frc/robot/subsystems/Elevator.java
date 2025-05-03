@@ -295,50 +295,23 @@ public class Elevator extends SubsystemBase {
       
       //elbow basics
       public void spinElbowForward(boolean go) {
-        
-        /*if (go) {
-          targetPosition += 0.003 / 50; // Advance one degree as rotations per second (1/50 per tick)
-        }
-        
-        if (targetPosition >= forwardSoftStopValue) {
-          targetPosition = forwardSoftStopValue;
-        }*/
-       // double centerPoint = (forwardSoftStopValue -  backwardSoftStopValue) / 2;
-        double targetPosition = 0.05;//elbowInOutData.absolutePosition;
-        if (go)
-        {
-         // targetPosition = centerPoint + 0.1;
-        targetPosition = 0.10;
-        }
+        //double cmdPosition = elbowInOutData.absolutePosition;
 
-        elbowInOutData.positionSetPoint = targetPosition;
-        elbowInOutData.voltageSetPoint = 0;
-        elbowInOutData.velocitySetPoint = 0;
-
-        elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        //if (go) {
+        //  cmdPosition += 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
+        //}
+        //turnElbowToPosition(elbowInOutData.absolutePosition, cmdPosition);
+        turnElbowToPosition(elbowInOutData.absolutePosition, forwardSoftStopValue / 2);
       }
     
       public void spinElbowBackwards(boolean execute) {
-        
-       /* if (execute) {
-          targetPosition -= 0.003 / 50; // Retreat one degree as rotations per second (1/50 per tick)
-        }
+        //double cmdPosition = elbowInOutData.absolutePosition;
 
-        if (targetPosition <= backwardSoftStopValue) {
-          targetPosition = backwardSoftStopValue;
-        }*/
-        double targetPosition = 0;//elbowInOutData.absolutePosition;
-        //double centerPoint = (forwardSoftStopValue -  backwardSoftStopValue) / 2;
-        if (execute)
-        {
-         // targetPosition = centerPoint - 0.1;
-          targetPosition = 0;
-        }
-
-      //  elbowInOutData.positionSetPoint = targetPosition;
-      //  elbowInOutData.voltageSetPoint = 0;
-      //  elbowInOutData.velocitySetPoint = 0;
-       // elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        //if (go) {
+        //  cmdPosition -= 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
+        //}
+        //turnElbowToPosition(elbowInOutData.absolutePosition, cmdPosition);
+        turnElbowToPosition(elbowInOutData.absolutePosition, backwardSoftStopValue / 2);
       }
 
       public double getElbowPos(){
@@ -374,10 +347,6 @@ public class Elevator extends SubsystemBase {
     //final double rotationsToInches = 5.53; //??
     // Todo add height from floor to start of elevator?
     return elevatorInOutData.externalPosition ;//* rotationsToInches; // return position in rotations
-  }
-
-  public boolean withinTolleranceElbow(double setpoint){
-    return (elbowEncoder.getPosition() < setpoint + 0.3 && elbowEncoder.getPosition() > setpoint - 0.3); 
   }
 
   public double getElevatorVelocity(){
