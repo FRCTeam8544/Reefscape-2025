@@ -52,8 +52,12 @@ public class Elevator extends SubsystemBase {
   final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.35; // hard 9.4; Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
-  final static double backwardSoftStopValue = -0.499; // TODO need to set zero point in stow with rev client
-  final static double forwardSoftStopValue = 0.499; // 108 degrees as rotations, TODO confirm this limit
+  final static double backwardSoftStopValue = -0.230; // Zero is now about 45 degrees away from robot, negative is stow pos
+  final static double forwardSoftStopValue = 0.230; // Positive is reaching out away from bot
+  
+  //private final double forwardElbowLimit = 0.220;
+  //private final double backwardElbotLimit = 0.765;
+
   final static double altBackwardSoftStopValue = 0.05;
   final static double altForwardSoftStopValue = forwardSoftStopValue;
   final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
@@ -79,9 +83,6 @@ public class Elevator extends SubsystemBase {
   public boolean upStopHit;
   public boolean downStopHit;
 
-  // Cheesy position control for elbow
-  private boolean elbowTurnActive = false;
-  private double elbowTurnStartPos = 0.0;
 
 /* */      
   public BooleanSupplier upStop =
@@ -148,13 +149,18 @@ public class Elevator extends SubsystemBase {
         spinConfig.inverted(false);
         spinConfig.voltageCompensation(12); 
         spinConfig.smartCurrentLimit(40);
-        //spinConfig.absoluteEncoder.zeroCentered(true);
+        spinConfig.softLimit.forwardSoftLimitEnabled(true);
+        spinConfig.softLimit.forwardSoftLimit(forwardSoftStopValue);
+        spinConfig.softLimit.reverseSoftLimitEnabled(true);
+        spinConfig.softLimit.reverseSoftLimit(backwardSoftStopValue);
+        spinConfig.absoluteEncoder.zeroCentered(true);
+
         spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-          .p(0.000000, ClosedLoopSlot.kSlot0)
+          .p(0.4, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
-          .d(0.00000, ClosedLoopSlot.kSlot0)
-          .outputRange(-0.3, 0.3, ClosedLoopSlot.kSlot0);
+          .d(0.0000, ClosedLoopSlot.kSlot0)
+          .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -171,15 +177,6 @@ public class Elevator extends SubsystemBase {
         elbowMotorIO.updateInputs(elbowInOutData);
         elevatorMotorIO.updateInputs(elevatorInOutData);
         
-        // This must be done after updateInputs so that the external position is accurate
-       /* if (elevatorInOutData.externalPosition >= elbowAlternateLimitsElevatorThresh)
-        {
-          elbowMotorIO.setAlternateLimits(altBackwardSoftStopValue,altForwardSoftStopValue);
-        }
-        else {
-          elbowMotorIO.clearAlternateLimits();
-        }*/
-        
         upStopHit = false;
         downStopHit = false;
 
@@ -195,9 +192,6 @@ public class Elevator extends SubsystemBase {
         if (forwardStopHit || backwardStopHit) {
           elbowController.set(0.0); // Stop imediataly
         } */
-
-        // If active, Implement stupid simple position target control for elbow since position PID does not work yet!
-        //updateElbowPath();
 
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
@@ -237,6 +231,8 @@ public class Elevator extends SubsystemBase {
 
       // Apply a voltage to move the elevator motors, without PID control
       private void setVoltageSetPoint(double voltage) {
+        elevatorInOutData.positionSetPoint = 0;
+        elevatorInOutData.velocitySetPoint =0;
         elevatorInOutData.voltageSetPoint = voltage;
         leftMotorController.setVoltage(voltage);
       }
@@ -282,53 +278,67 @@ public class Elevator extends SubsystemBase {
       // Call once to start turn to a position
       public void turnElbowToPosition( double startPos, double targetPosition) {
         double cmdPosition = targetPosition;
-        if (targetPosition <= backwardSoftStopValue) {
+   /*      if (targetPosition <= backwardSoftStopValue) {
           cmdPosition = backwardSoftStopValue;
         }
         else if (targetPosition >= forwardSoftStopValue) {
           cmdPosition = forwardSoftStopValue;
-        }
+        }*/
 
-        // elbowTurnStartPos = startPos;
-          elbowInOutData.positionSetPoint = cmdPosition;
-          elbowInOutData.voltageSetPoint = 0;
-          elbowInOutData.velocitySetPoint = 0;
-          //elbowTurnActive = true;
-          elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        elbowInOutData.positionSetPoint = cmdPosition;
+        elbowInOutData.voltageSetPoint = 0;
+        elbowInOutData.velocitySetPoint = 0;
+ 
+        elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
   
       
       //elbow basics
       public void spinElbowForward(boolean go) {
-        double targetPosition = getElbowPos();
-        if (go) {
+        
+        /*if (go) {
           targetPosition += 0.003 / 50; // Advance one degree as rotations per second (1/50 per tick)
         }
         
         if (targetPosition >= forwardSoftStopValue) {
           targetPosition = forwardSoftStopValue;
+        }*/
+       // double centerPoint = (forwardSoftStopValue -  backwardSoftStopValue) / 2;
+        double targetPosition = 0.05;//elbowInOutData.absolutePosition;
+        if (go)
+        {
+         // targetPosition = centerPoint + 0.1;
+        targetPosition = 0.10;
         }
 
         elbowInOutData.positionSetPoint = targetPosition;
         elbowInOutData.voltageSetPoint = 0;
         elbowInOutData.velocitySetPoint = 0;
+
         elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
     
       public void spinElbowBackwards(boolean execute) {
-        double targetPosition = getElbowPos();
-        if (execute) {
+        
+       /* if (execute) {
           targetPosition -= 0.003 / 50; // Retreat one degree as rotations per second (1/50 per tick)
         }
 
         if (targetPosition <= backwardSoftStopValue) {
           targetPosition = backwardSoftStopValue;
+        }*/
+        double targetPosition = 0;//elbowInOutData.absolutePosition;
+        //double centerPoint = (forwardSoftStopValue -  backwardSoftStopValue) / 2;
+        if (execute)
+        {
+         // targetPosition = centerPoint - 0.1;
+          targetPosition = 0;
         }
 
-        elbowInOutData.positionSetPoint = targetPosition;
-        elbowInOutData.voltageSetPoint = 0;
-        elbowInOutData.velocitySetPoint = 0;
-        elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+      //  elbowInOutData.positionSetPoint = targetPosition;
+      //  elbowInOutData.voltageSetPoint = 0;
+      //  elbowInOutData.velocitySetPoint = 0;
+       // elbowClosedLoop.setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
 
       public double getElbowPos(){

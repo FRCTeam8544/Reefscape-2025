@@ -129,8 +129,6 @@ public class ClawIntake extends SubsystemBase {
       .i(0, ClosedLoopSlot.kSlot0)
       .d(0.0050, ClosedLoopSlot.kSlot0)
       .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
-  //    .maxMotion.maxVelocity(kMaxWristVelocityRPM, ClosedLoopSlot.kSlot0)
-    //            .maxAcceleration(kMaxWristAcceleration, ClosedLoopSlot.kSlot0);
     wrist.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -150,9 +148,6 @@ public class ClawIntake extends SubsystemBase {
 
     // Check for coral
     checkIntakeForCoral();
-    
-    // Cheesy wrist path
-   // updateWristPath();
 
     LogUtil.logData(wristIO.getName(), wristInOutData);
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
