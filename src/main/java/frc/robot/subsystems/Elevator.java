@@ -146,7 +146,7 @@ public class Elevator extends SubsystemBase {
     
       public void setupElbowConfig() {
         spinConfig.idleMode(IdleMode.kBrake);
-        spinConfig.inverted(false);
+        spinConfig.inverted(false);// todo true?
         spinConfig.voltageCompensation(12); 
         spinConfig.smartCurrentLimit(40);
         spinConfig.softLimit.forwardSoftLimitEnabled(true);
