@@ -239,6 +239,13 @@ public class ClawIntake extends SubsystemBase {
     //turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
      double range = upSoftRotationLimit - downSoftRotationLimit;
     turnWristToPosition(wristInOutData.absolutePosition, upSoftRotationLimit / 2);
+
+    if (forward) {
+      turnWristToPosition(wristInOutData.absolutePosition, upSoftRotationLimit / 2);
+    }
+    else {
+      turnWristToPosition(wristInOutData.absolutePosition, wristInOutData.absolutePosition);
+    }
   }
 
   public void wristTurnBack(boolean backwards) {

@@ -52,6 +52,8 @@ public class Elevator extends SubsystemBase {
   final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.35; // hard 9.4; Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
+ // final static double backwardSoftStopValue = 0.05;
+  //final static double forwardSoftStopValue = 0.51;
   final static double backwardSoftStopValue = -0.230; // Zero is now about 45 degrees away from robot, negative is stow pos
   final static double forwardSoftStopValue = 0.230; // Positive is reaching out away from bot
   
@@ -157,10 +159,12 @@ public class Elevator extends SubsystemBase {
 
         spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-          .p(0.4, ClosedLoopSlot.kSlot0)
-          .i(0, ClosedLoopSlot.kSlot0)
-          .d(0.0000, ClosedLoopSlot.kSlot0)
-          .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
+          .p(0.4, ClosedLoopSlot.kSlot1)
+          .i(0, ClosedLoopSlot.kSlot1)
+          .d(0.0000, ClosedLoopSlot.kSlot1)
+          .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
+          .positionWrappingEnabled(true)
+          .positionWrappingInputRange(backwardSoftStopValue, forwardSoftStopValue);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -289,7 +293,7 @@ public class Elevator extends SubsystemBase {
         elbowInOutData.voltageSetPoint = 0;
         elbowInOutData.velocitySetPoint = 0;
  
-        elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot1);
       }
   
       
@@ -301,7 +305,12 @@ public class Elevator extends SubsystemBase {
         //  cmdPosition += 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
         //}
         //turnElbowToPosition(elbowInOutData.absolutePosition, cmdPosition);
-        turnElbowToPosition(elbowInOutData.absolutePosition, forwardSoftStopValue / 2);
+        if (go) {
+          turnElbowToPosition(elbowInOutData.absolutePosition, forwardSoftStopValue / 2);
+        }
+        else {
+          turnElbowToPosition(elbowInOutData.absolutePosition, elbowInOutData.absolutePosition);
+        }
       }
     
       public void spinElbowBackwards(boolean execute) {
@@ -310,8 +319,10 @@ public class Elevator extends SubsystemBase {
         //if (go) {
         //  cmdPosition -= 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
         //}
-        //turnElbowToPosition(elbowInOutData.absolutePosition, cmdPosition);
-        turnElbowToPosition(elbowInOutData.absolutePosition, backwardSoftStopValue / 2);
+        if (execute) {
+        turnElbowToPosition(elbowInOutData.absolutePosition, 0);
+        //turnElbowToPosition(elbowInOutData.absolutePosition, backwardSoftStopValue / 2);
+        }
       }
 
       public double getElbowPos(){
