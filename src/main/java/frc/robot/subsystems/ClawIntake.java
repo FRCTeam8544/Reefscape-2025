@@ -233,14 +233,14 @@ public class ClawIntake extends SubsystemBase {
     double cmdPosition = wristInOutData.absolutePosition;
 
     if (forward) {
-      cmdPosition += 0.003 / 50; // Advance one degree per second (1/50th of a degree per tick)
+      cmdPosition += 0.125 / 50; // Advance one degree per second (1/50th of a degree per tick)
     }
 
     //turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
-     double range = upSoftRotationLimit - downSoftRotationLimit;
-    turnWristToPosition(wristInOutData.absolutePosition, upSoftRotationLimit / 2);
+   //  double range = upSoftRotationLimit - downSoftRotationLimit;
+   // turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
 
-    if (forward) {
+     if (forward) {
       turnWristToPosition(wristInOutData.absolutePosition, upSoftRotationLimit / 2);
     }
     else {
@@ -252,12 +252,13 @@ public class ClawIntake extends SubsystemBase {
     double cmdPosition = wristInOutData.absolutePosition;
 
     if (backwards) {
-      cmdPosition -= 0.003 / 50; // Retreat one degree
+      cmdPosition -= 0.125 / 50; // Retreat one degree
     }
     //0.78 to .99
-    //turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
-    double range = upSoftRotationLimit - downSoftRotationLimit;
+   // turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
+  // double range = upSoftRotationLimit - downSoftRotationLimit;
     turnWristToPosition(wristInOutData.absolutePosition, downSoftRotationLimit /2);
+  //  turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
   }
 
   public void logPose(String prefix, int snapshotId) {
