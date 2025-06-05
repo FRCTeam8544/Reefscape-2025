@@ -241,6 +241,10 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData.voltageSetPoint = voltage;
         leftMotorController.setVoltage(voltage);
       }
+
+      public void sigmasigmaonthewall(double setpoint){
+        elbowClosedLoop.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot1);
+      }
       
       // Moves elevator to the specified position, in revolutions from zero point, must be positive
       public void runElevatorToPosition(double position)

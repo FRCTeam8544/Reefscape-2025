@@ -5,16 +5,14 @@ import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Elevator;
 
 public class transversepose extends Command{
-
-    ClawIntake clawIntake;
     Elevator elevator;
-    double elbpos = 0.1;
-    double wristpos = 0.96;
+    double elbpos = 0.35;
+    //double wristpos = 0.96;
 
-    public transversepose(ClawIntake clawIntake, Elevator elevator){
-        this.clawIntake = clawIntake;
+    public transversepose(Elevator elevator){
+        //this.clawIntake = clawIntake;
         this.elevator = elevator;
-        addRequirements(clawIntake, elevator);
+        addRequirements(elevator);
     }
 
     @Override
@@ -24,33 +22,36 @@ public class transversepose extends Command{
 
     @Override
     public void execute(){
-        if (elevator.getElbowPos() > elbpos - 0.05 && !(elevator.getElbowPos() < elbpos + 0.05)){
-            elevator.spinElbowForward(true);
-        }else if (elevator.getElbowPos() < elbpos + 0.05 && !(elevator.getElbowPos() > elbpos - 0.05)){
-            elevator.spinElbowBackwards(true);
-        }
-        else{
-            elevator.spinElbowForward(false);
-        }
-        if (clawIntake.getPos() < wristpos + 0.05 && !(clawIntake.getPos() > wristpos - 0.05)){
-            clawIntake.wristTurn(true);
-        }else if (clawIntake.getPos() > wristpos - 0.05 && !(clawIntake.getPos() < wristpos + 0.05)){
-            clawIntake.wristTurnBack(true);
-        }
-        else{
-            clawIntake.wristTurn(false);
-        }
+        elevator.sigmasigmaonthewall(elbpos);
+        // if (elevator.getElbowPos() > elbpos - 0.05 && !(elevator.getElbowPos() < elbpos + 0.05)){
+        //     elevator.spinElbowForward(true);
+        // }else if (elevator.getElbowPos() < elbpos + 0.05 && !(elevator.getElbowPos() > elbpos - 0.05)){
+        //     elevator.spinElbowBackwards(true);
+        // }
+        // else{
+        //     elevator.spinElbowForward(false);
+        // }
+        // if (clawIntake.getPos() < wristpos + 0.05 && !(clawIntake.getPos() > wristpos - 0.05)){
+        //     clawIntake.wristTurn(true);
+        // }else if (clawIntake.getPos() > wristpos - 0.05 && !(clawIntake.getPos() < wristpos + 0.05)){
+        //     clawIntake.wristTurnBack(true);
+        // }
+        // else{
+        //     clawIntake.wristTurn(false);
+        // }
     }
 
     @Override
     public void end(boolean interrupted){
-        elevator.spinElbowForward(false);
-        clawIntake.wristTurn(false);
+        elevator.sigmasigmaonthewall(elevator.getElbowPos());
+        //elevator.spinElbowForward(false);
+        //clawIntake.wristTurn(false);
     }
 
     @Override
     public boolean isFinished(){
-        return (elevator.getElbowPos() < elbpos + 0.05 && elevator.getElbowPos() > elbpos - 0.05 && clawIntake.getPos() > wristpos - 0.05 && clawIntake.getPos() < wristpos + 0.05);
+        //return (elevator.getElbowPos() < elbpos + 0.05 && elevator.getElbowPos() > elbpos - 0.05 && clawIntake.getPos() > wristpos - 0.05 && clawIntake.getPos() < wristpos + 0.05);
+        return (elevator.getElbowPos() < elbpos + 0.05 && elevator.getElbowPos() > elbpos - 0.05);
     }
     
 }

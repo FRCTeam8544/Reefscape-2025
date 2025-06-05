@@ -154,7 +154,7 @@ public class ClawIntake extends SubsystemBase {
 
   }
 
-  private void setPositionSetPoint(double pointSet){
+  public void setPositionSetPoint(double pointSet){
 
     wristInOutData.positionSetPoint = pointSet;
     wristInOutData.velocitySetPoint = 0;

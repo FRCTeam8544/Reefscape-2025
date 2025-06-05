@@ -88,9 +88,17 @@ public class ElevatorCommands {
           //    elevator.spinElbowForward(elbowForward);
           //    elevator.spinElbowBackwards(elbowBackward);
           // }
-          if (elbowBackward){elevator.spinElbowBackwards(true);}
-          else if (elbowForward){elevator.spinElbowForward(true);}
-          else{elevator.spinElbowForward(false);}
+          // if (elbowBackward){elevator.spinElbowBackwards(true);}
+          // else if (elbowForward){elevator.spinElbowForward(true);}
+          // else{elevator.spinElbowForward(false);}
+          if (elbowBackward ^ elbowForward){
+            double skibidi = elevator.getElbowPos();
+            double quanMillz = elbowForward? 0.05 : -0.05;
+
+            elevator.sigmasigmaonthewall(skibidi + quanMillz);
+          }else{
+            elevator.sigmasigmaonthewall(elevator.getElbowPos());
+          }
         },
         elevator);
   }
