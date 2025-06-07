@@ -6,7 +6,7 @@ import frc.robot.subsystems.Elevator;
 
 public class transversepose extends Command{
     Elevator elevator;
-    double elbpos = 0.35;
+    double elbpos = 0.25;
     //double wristpos = 0.96;
 
     public transversepose(Elevator elevator){

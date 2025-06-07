@@ -117,10 +117,10 @@ public class ClawIntake extends SubsystemBase {
         .forwardLimitSwitchEnabled(true)
         .reverseLimitSwitchType(Type.kNormallyOpen)
         .reverseLimitSwitchEnabled(true);
-    wristConfig.softLimit.forwardSoftLimitEnabled(true)
-                         .forwardSoftLimit(upSoftRotationLimit);
-    wristConfig.softLimit.reverseSoftLimitEnabled(true)
-                         .reverseSoftLimit(downSoftRotationLimit);
+    wristConfig.softLimit.forwardSoftLimitEnabled(false);
+                         //.forwardSoftLimit(upSoftRotationLimit);
+    wristConfig.softLimit.reverseSoftLimitEnabled(false);
+                         //.reverseSoftLimit(downSoftRotationLimit);
     wristConfig.absoluteEncoder.zeroCentered(true);
     wristConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)

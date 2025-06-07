@@ -93,7 +93,8 @@ public class ElevatorCommands {
           // else{elevator.spinElbowForward(false);}
           if (elbowBackward ^ elbowForward){
             double skibidi = elevator.getElbowPos();
-            double quanMillz = elbowForward? 0.05 : -0.05;
+            // double quanMillz = elbowForward? 0.05 : -0.05;
+            double quanMillz = elbowForward? 0.1 : -0.1;
 
             elevator.sigmasigmaonthewall(skibidi + quanMillz);
           }else{

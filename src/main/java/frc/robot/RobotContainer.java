@@ -249,10 +249,10 @@ public class RobotContainer {
 
 
 
-    // juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
-    // juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
+    juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
+    juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
     juliet.a().whileTrue(new ElevatorAuto2(elevator, clawIntake));
-    //juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));
+    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));
 
 
 
@@ -276,17 +276,17 @@ public class RobotContainer {
 
   public void teleopInit() {
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
-    if (!vision.poseIsReliable()) {
+    //if (!vision.poseIsReliable()) {
         // Blue origin coordinate system, robot starts facing alliance driver station.
         if (DriverStation.getAlliance().isPresent()) {
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
+                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));//Rotation2d.k180deg));
             }
             else {
-                drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
+                drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
             }
         }
-    }
+    //}
   }
 
   /**
