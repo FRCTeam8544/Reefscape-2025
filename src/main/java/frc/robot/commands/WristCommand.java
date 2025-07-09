@@ -4,10 +4,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClawIntake;
+import frc.robot.subsystems.LEDs;
 
 public class WristCommand {
     public static Command wristCommand(
-        ClawIntake clawIntake, Trigger rightBack, Trigger leftBack, Trigger xButton, Trigger bButton){
+        LEDs leds, ClawIntake clawIntake, Trigger rightBack, Trigger leftBack, Trigger xButton, Trigger bButton){
             return Commands.run(() -> {
                 // if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
                 //     clawIntake.wristTurnBack(true);
@@ -20,16 +21,28 @@ public class WristCommand {
                     clawIntake.setPositionSetPoint(fortnite + clawIntake.getPos());
                 }else{
                     clawIntake.setPositionSetPoint(clawIntake.getPos());
+                if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
+                    clawIntake.wristTurnBack(true);
+                }else if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()){
+                    clawIntake.wristTurn(true);
                 }
+                else {clawIntake.wristTurn(false);}
 
-                if ( (xButton.getAsBoolean() && !clawIntake.hasCoral()) ||
-                    (xButton.getAsBoolean() && bButton.getAsBoolean()) ) {
-                    clawIntake.rollerRoll(true);
+
+                if ( xButton.getAsBoolean() ){
+                    if( !clawIntake.hasCoral())  {
+                    clawIntake.rollerRoll(true); 
+                    leds.clawIntake();  }
+                    else{leds.coralAquired(); clawIntake.rollerRoll(false);}
+                    
                 } else if (bButton.getAsBoolean()){
                     clawIntake.rollerRollBack(true);
+                    leds.violet();
                 } else {
                     clawIntake.rollerRoll(false);
+                    leds.violet();
                 }
-            }, clawIntake);
+            }}, clawIntake);
         }
 }
+

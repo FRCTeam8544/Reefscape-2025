@@ -22,8 +22,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.XboxController;
@@ -69,6 +67,9 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.LEDs;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -83,6 +84,7 @@ public class RobotContainer {
   private final Elevator elevator = new Elevator();
   private final ClawIntake clawIntake = new ClawIntake();
   private final Climber climber = new Climber();
+  private final LEDs leds = new LEDs();
 
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
@@ -238,25 +240,17 @@ public class RobotContainer {
              // back is positive, so need to invert
              // right is positive for tilt, so leave that alone
     clawIntake.setDefaultCommand(
-        WristCommand.wristCommand(clawIntake, rightBack, leftBack, UpDPad, DownDPad)
+        WristCommand.wristCommand(leds, clawIntake, rightBack, leftBack, UpDPad, DownDPad)
     );
     //juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
     //juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
     //juliet.y().whileTrue(new ElevatorAuto3());
     //juliet.rightBumper().whileTrue(new WristForward(clawIntake, juliet, rightBack, leftBack)); // wrist forward
     //juliet.leftBumper().or(juliet.rightBumper()).whileTrue(new WristBack(clawIntake, juliet, leftBack, rightBack)); // wrist backward
-
-
-
-
     juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
     juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
     juliet.a().whileTrue(new ElevatorAuto2(elevator, clawIntake));
     juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));
-
-
-
-
     //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
@@ -273,6 +267,7 @@ public class RobotContainer {
     );
 
   }
+
 
   public void teleopInit() {
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
