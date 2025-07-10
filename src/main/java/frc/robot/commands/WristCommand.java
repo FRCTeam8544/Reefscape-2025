@@ -42,6 +42,12 @@ public class WristCommand {
                     clawIntake.rollerRoll(false);
                     leds.violet();
                 }
+//
+                if (clawIntake.hasCoral()) {
+                    leds.coralAquired();
+                }
+                
+            //
             }}, clawIntake);
         }
 }
