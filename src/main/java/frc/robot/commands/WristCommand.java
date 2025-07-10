@@ -21,12 +21,12 @@ public class WristCommand {
                     clawIntake.setPositionSetPoint(fortnite + clawIntake.getPos());
                 }else{
                     clawIntake.setPositionSetPoint(clawIntake.getPos());
-                if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
+                /*if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
                     clawIntake.wristTurnBack(true);
                 }else if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()){
                     clawIntake.wristTurn(true);
                 }
-                else {clawIntake.wristTurn(false);}
+                else {clawIntake.wristTurn(false);}  */
 
 
                 if ( xButton.getAsBoolean() ){
