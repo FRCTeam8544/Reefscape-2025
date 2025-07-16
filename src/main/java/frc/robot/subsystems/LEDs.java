@@ -4,23 +4,35 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+//import edu.wpi.first.wpilibj.AddressableLED;
+//import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // this is like fake for now...
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class LEDs extends SubsystemBase {
-  public final AddressableLED leds = new AddressableLED(0);
-  public final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(60); // set length
+  
+  Spark spark = new Spark(1);
 
   public LEDs() {
-    leds.setLength(ledBuffer.getLength());
-    leds.setData(ledBuffer);
-    leds.start();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  
+ // spark.set(0.89);
+  }
+  public void clawIntake(){
+    spark.set(0.77);
+  }
+  
+  public void violet(){
+  spark.set(0.11); //0.89
+  }
+
+  public void coralAquired(){
+  spark.set(0.43);
   }
 }
