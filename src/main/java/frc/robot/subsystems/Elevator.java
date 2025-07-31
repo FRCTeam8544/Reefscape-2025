@@ -31,8 +31,14 @@ import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.Constants;
+import java.util.function.DoubleSupplier;
 
-public class Elevator extends SubsystemBase {
+public class Elevator extends SubsystemBase { 
+   
+  public DoubleSupplier elbowSupplier =
+      () -> {
+        return elbowInOutData.absolutePosition;
+      };
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);

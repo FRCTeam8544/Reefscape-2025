@@ -8,7 +8,8 @@ public interface MotorJointIO {
   public static class MotorJointIOInputs {
     // Inputs
     public boolean connected = false;
-
+    public double wristAnglePosition = 0;
+    public double elbowAnglePosition = 0;
     public double zeroOffset = 0;
     public double rawExternalPosition = 0;
     public double rawAbsolutePosition = 0;

@@ -21,6 +21,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -75,6 +76,7 @@ public class ClawIntake extends SubsystemBase {
   public boolean wristForwardStopHit = false;
   public boolean wristBackwardStopHit = false;
 
+  private DoubleSupplier elbowPosSupplier;
 
   // Cheesy position control for elbow
   private boolean wristTurnActive = false;
@@ -90,10 +92,10 @@ public class ClawIntake extends SubsystemBase {
         return reverseLimitSwitch.isPressed();
       };
 
-  public ClawIntake() {
+  public ClawIntake(DoubleSupplier elbowSupplier) {
     coralAcquired = false;
     coralPresentCount = 0;
-
+   elbowPosSupplier = elbowSupplier;
     // Initialize inputs
     this.coralLaserInputs = new LaserCANIOInputsAutoLogged();
     this.wristInOutData = new MotorJointIOInputsAutoLogged();
@@ -153,14 +155,25 @@ public class ClawIntake extends SubsystemBase {
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
 
   }
+  
+  public void setPositionSetPoint(double pointSet){     //public void setPositionSetPoint(double pointSet){
 
-  public void setPositionSetPoint(double pointSet){
-
-    wristInOutData.positionSetPoint = pointSet;
+  double elbowEncoderValue = elbowPosSupplier.getAsDouble() ;  //2.29= gear ratio difference *-.32
+  double BoundpointSet = pointSet;
+  double WristBackwardDeflection = -0.0839;
+  double WristSoftStop = elbowEncoderValue + WristBackwardDeflection *0.95;
+ // if (pointSet < WristSoftStop) {
+ //   BoundpointSet = WristSoftStop;
+ // }
+  double wristRatio = 82.0 /.207; 
+  double elbowRatio = 90.0 /.423;
+    wristInOutData.elbowAnglePosition = elbowEncoderValue * elbowRatio;
+    wristInOutData.wristAnglePosition = wristInOutData.absolutePosition * wristRatio;
+    wristInOutData.positionSetPoint = BoundpointSet;
     wristInOutData.velocitySetPoint = 0;
     wristInOutData.voltageSetPoint = 0;
 
-    wristController.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    wristController.setReference(BoundpointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   // Determine coral intake status

@@ -82,7 +82,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator = new Elevator();
-  private final ClawIntake clawIntake = new ClawIntake();
+  private final ClawIntake clawIntake = new ClawIntake(elevator.elbowSupplier);
   private final Climber climber = new Climber();
   private final LEDs leds = new LEDs();
 

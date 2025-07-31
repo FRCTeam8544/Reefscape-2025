@@ -17,6 +17,10 @@ public class LogUtil {
       Logger.recordOutput(
           prefix + "/Measurement/absolutePosition", inOutData.absolutePosition);
       Logger.recordOutput(
+          prefix + "/Measurement/wristAnglePosition", inOutData.wristAnglePosition);
+      Logger.recordOutput(
+          prefix + "/Measurement/elbowAnglePosition", inOutData.elbowAnglePosition);
+      Logger.recordOutput(
           prefix + "/Measurement/rawExternalPosition", inOutData.rawExternalPosition);
       Logger.recordOutput(
           prefix + "/Measurement/externalPosition", inOutData.externalPosition);
