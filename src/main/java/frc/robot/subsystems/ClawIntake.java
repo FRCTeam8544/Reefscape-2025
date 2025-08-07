@@ -161,10 +161,10 @@ public class ClawIntake extends SubsystemBase {
   double elbowEncoderValue = elbowPosSupplier.getAsDouble() ;  //2.29= gear ratio difference *-.32
   double BoundpointSet = pointSet;
   double WristBackwardDeflection = -0.0839;
-  double WristSoftStop = elbowEncoderValue + WristBackwardDeflection *0.95;
- // if (pointSet < WristSoftStop) {
- //   BoundpointSet = WristSoftStop;
- // }
+  double WristSoftStop = elbowEncoderValue  * -0.45 * 0.90; //+ WristBackwardDeflection 
+  if (pointSet < WristSoftStop) {
+    BoundpointSet = WristSoftStop;
+  }
   double wristRatio = 82.0 /.207; 
   double elbowRatio = 90.0 /.423;
     wristInOutData.elbowAnglePosition = elbowEncoderValue * elbowRatio;
@@ -172,6 +172,7 @@ public class ClawIntake extends SubsystemBase {
     wristInOutData.positionSetPoint = BoundpointSet;
     wristInOutData.velocitySetPoint = 0;
     wristInOutData.voltageSetPoint = 0;
+    wristInOutData.wristSoftStop = WristSoftStop;
 
     wristController.setReference(BoundpointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }

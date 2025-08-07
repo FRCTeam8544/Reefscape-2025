@@ -23,6 +23,8 @@ public class LogUtil {
       Logger.recordOutput(
           prefix + "/Measurement/rawExternalPosition", inOutData.rawExternalPosition);
       Logger.recordOutput(
+          prefix + "/Measurement/WristSoftStop", inOutData.wristSoftStop);
+      Logger.recordOutput(
           prefix + "/Measurement/externalPosition", inOutData.externalPosition);
       Logger.recordOutput(
           prefix + "/Measurement/lowerSoftLimitHit", inOutData.lowerSoftLimitHit);
