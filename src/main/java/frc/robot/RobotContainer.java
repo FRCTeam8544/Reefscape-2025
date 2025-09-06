@@ -83,7 +83,7 @@ public class RobotContainer {
   private final Vision vision;
   private final Elevator elevator = new Elevator();
   private final ClawIntake clawIntake = new ClawIntake(elevator.elbowSupplier);
-  private final Climber climber = new Climber();
+  //private final Climber climber = new Climber();
   private final LEDs leds = new LEDs();
 
   // Controller
@@ -250,12 +250,14 @@ public class RobotContainer {
     juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
     juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
     juliet.a().whileTrue(new ElevatorAuto2(elevator, clawIntake));
-    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));
+    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake)); }
     //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
 //    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
-//    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
+//
+
+/*   juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
     juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
     juliet.back().whileTrue(new ClimbBack(climber, juliet, backButton)); //climber back
@@ -267,7 +269,7 @@ public class RobotContainer {
     );
 
   }
-
+*/
 
   public void teleopInit() {
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
