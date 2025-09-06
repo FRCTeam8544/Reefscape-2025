@@ -36,6 +36,7 @@ import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 
 import frc.robot.util.LogUtil;
+import frc.robot.util.SegmentedMapping;
 
 public class ClawIntake extends SubsystemBase {
   
@@ -79,8 +80,8 @@ public class ClawIntake extends SubsystemBase {
   private DoubleSupplier elbowPosSupplier;
 
   // Cheesy position control for elbow
-  private boolean wristTurnActive = false;
-  private double wristTurnStartPos = 0.0;
+  private SegmentedMapping upperLimitMapping = new SegmentedMapping();
+  private SegmentedMapping lowerLimitMapping = new SegmentedMapping();
 
   public BooleanSupplier wristForwardStop =
       () -> {
@@ -93,6 +94,8 @@ public class ClawIntake extends SubsystemBase {
       };
 
   public ClawIntake(DoubleSupplier elbowSupplier) {
+
+    buildLimitMaps();
     coralAcquired = false;
     coralPresentCount = 0;
    elbowPosSupplier = elbowSupplier;
@@ -160,19 +163,33 @@ public class ClawIntake extends SubsystemBase {
 
   double elbowEncoderValue = elbowPosSupplier.getAsDouble() ;  //2.29= gear ratio difference *-.32
   double BoundpointSet = pointSet;
-  double WristBackwardDeflection = -0.0839;
-  double WristSoftStop = elbowEncoderValue  * -0.45 * 0.90; //+ WristBackwardDeflection 
-  if (pointSet < WristSoftStop) {
-    BoundpointSet = WristSoftStop;
-  }
-  double wristRatio = 82.0 /.207; 
-  double elbowRatio = 90.0 /.423;
+  //double WristBackwardDeflection = -0.0839;
+  //double WristSoftStop = elbowEncoderValue  * -0.45 * 0.90; //+ WristBackwardDeflection 
+  //if (pointSet < WristSoftStop) {
+  //  BoundpointSet = WristSoftStop;
+ // }
+  double wristRatio = 82.0 /.207; // Convert to angle ratio constant
+  double elbowRatio = 90.0 /.423; // Convert to angle ratio
     wristInOutData.elbowAnglePosition = elbowEncoderValue * elbowRatio;
     wristInOutData.wristAnglePosition = wristInOutData.absolutePosition * wristRatio;
     wristInOutData.positionSetPoint = BoundpointSet;
     wristInOutData.velocitySetPoint = 0;
     wristInOutData.voltageSetPoint = 0;
-    wristInOutData.wristSoftStop = WristSoftStop;
+   // wristInOutData.wristSoftStop = WristSoftStop;
+
+    double upperSoftStop = (upperLimitMapping.mapPoint(wristInOutData.elbowAnglePosition) );/// wristRatio) + 0.0035;
+    double lowerSoftStop = lowerLimitMapping.mapPoint(wristInOutData.elbowAnglePosition) / wristRatio;
+ 
+    wristInOutData.wristSoftStop = upperSoftStop;
+
+    if (pointSet < upperSoftStop) // Wrist back/up is negative
+    {
+      //  BoundpointSet = upperSoftStop;
+    }
+    else if (pointSet >  lowerSoftStop) // Write forward/down is positive
+    {
+    //    BoundpointSet = lowerSoftStop;
+    }
 
     wristController.setReference(BoundpointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
@@ -278,6 +295,29 @@ public class ClawIntake extends SubsystemBase {
   public void logPose(String prefix, int snapshotId) {
       Logger.recordOutput(
           prefix + "/Wrist/absolutePosition", wristInOutData.absolutePosition);
+  }
+
+  private void buildLimitMaps()
+  {
+    upperLimitMapping.addPoint(87.172338303, -77.663305877);
+    upperLimitMapping.addPoint(86.139719536, -77.663305876);
+    upperLimitMapping.addPoint(72.039974496, -66.0511456825883);
+    upperLimitMapping.addPoint(63.523206305, -62.98004486710);
+    upperLimitMapping.addPoint(57.087401126, -54.06710433499);
+    upperLimitMapping.addPoint(54.80966669447, -52.93927734024859);
+    upperLimitMapping.addPoint(45.87599571715, -41.33918262334);
+    upperLimitMapping.addPoint(43.599656287, -40.1821009778);
+    upperLimitMapping.addPoint(36.33085717546, -30.13061382920);
+    upperLimitMapping.addPoint(35.30010263970, -28.9832128994);
+    upperLimitMapping.addPoint(32.999033623, -27.40348537187);
+    upperLimitMapping.addPoint(19.09687163981, -9.26399634080);
+    upperLimitMapping.addPoint(3.11763996773, 8.5336689787786);
+    upperLimitMapping.addPoint(1.66744627851, 9.31891669397);
+    upperLimitMapping.addPoint(0.008699741769, 12.377220075487);
+    upperLimitMapping.addPoint(0.00, 12.38);
+
+    lowerLimitMapping.addPoint(0, 2.0);
+    lowerLimitMapping.addPoint(2,4);
   }
 
 }
