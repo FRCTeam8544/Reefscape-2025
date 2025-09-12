@@ -170,25 +170,25 @@ public class ClawIntake extends SubsystemBase {
  // }
   double wristRatio = 82.0 /.207; // Convert to angle ratio constant
   double elbowRatio = 90.0 /.423; // Convert to angle ratio
-    wristInOutData.elbowAnglePosition = elbowEncoderValue * elbowRatio;
+    wristInOutData.elbowAnglePosition = elbowEncoderValue; //* elbowRatio;
     wristInOutData.wristAnglePosition = wristInOutData.absolutePosition * wristRatio;
     wristInOutData.positionSetPoint = BoundpointSet;
     wristInOutData.velocitySetPoint = 0;
     wristInOutData.voltageSetPoint = 0;
    // wristInOutData.wristSoftStop = WristSoftStop;
 
-    double upperSoftStop = (upperLimitMapping.mapPoint(wristInOutData.elbowAnglePosition) );/// wristRatio) + 0.0035;
-    double lowerSoftStop = lowerLimitMapping.mapPoint(wristInOutData.elbowAnglePosition) / wristRatio;
+    double upperSoftStop = (upperLimitMapping.mapPoint(wristInOutData.elbowAnglePosition - 0.05) );/// wristRatio) + 0.0035;
+    double lowerSoftStop = lowerLimitMapping.mapPoint(wristInOutData.elbowAnglePosition);// / wristRatio;
  
     wristInOutData.wristSoftStop = upperSoftStop;
 
     if (pointSet < upperSoftStop) // Wrist back/up is negative
     {
-      //  BoundpointSet = upperSoftStop;
+        BoundpointSet = upperSoftStop;
     }
     else if (pointSet >  lowerSoftStop) // Write forward/down is positive
     {
-    //    BoundpointSet = lowerSoftStop;
+        BoundpointSet = lowerSoftStop;
     }
 
     wristController.setReference(BoundpointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
@@ -299,22 +299,22 @@ public class ClawIntake extends SubsystemBase {
 
   private void buildLimitMaps()
   {
-    upperLimitMapping.addPoint(87.172338303, -77.663305877);
-    upperLimitMapping.addPoint(86.139719536, -77.663305876);
-    upperLimitMapping.addPoint(72.039974496, -66.0511456825883);
-    upperLimitMapping.addPoint(63.523206305, -62.98004486710);
-    upperLimitMapping.addPoint(57.087401126, -54.06710433499);
-    upperLimitMapping.addPoint(54.80966669447, -52.93927734024859);
-    upperLimitMapping.addPoint(45.87599571715, -41.33918262334);
-    upperLimitMapping.addPoint(43.599656287, -40.1821009778);
-    upperLimitMapping.addPoint(36.33085717546, -30.13061382920);
-    upperLimitMapping.addPoint(35.30010263970, -28.9832128994);
-    upperLimitMapping.addPoint(32.999033623, -27.40348537187);
-    upperLimitMapping.addPoint(19.09687163981, -9.26399634080);
-    upperLimitMapping.addPoint(3.11763996773, 8.5336689787786);
-    upperLimitMapping.addPoint(1.66744627851, 9.31891669397);
-    upperLimitMapping.addPoint(0.008699741769, 12.377220075487);
-    upperLimitMapping.addPoint(0.00, 12.38);
+    upperLimitMapping.addPoint( 0.40970999002456665, -0.19605249166488647);
+    upperLimitMapping.addPoint( 0.40393054485321045, -0.19605249166488647);
+    upperLimitMapping.addPoint( 0.3550521731376648, -0.1756407022476196);
+    upperLimitMapping.addPoint( 0.31996268033981323, -0.1628791093826294);
+    upperLimitMapping.addPoint( 0.28971415758132935, -0.14921331405639648 );
+    upperLimitMapping.addPoint( 0.2653238773345947, -0.13559061288833618);
+    upperLimitMapping.addPoint( 0.20975476503372192, -0.10240137577056885);
+    upperLimitMapping.addPoint( 0.16785788536071777, -0.07314079999923706);
+    upperLimitMapping.addPoint( 0.16292601823806763, -0.07212173938751221);
+    upperLimitMapping.addPoint( 0.12783288955688477, -0.04779398441314697);
+    upperLimitMapping.addPoint( 0.08687376976013184, -0.021508395671844482);
+    upperLimitMapping.addPoint( 0.053716301918029785, -0.0008720159530639648);
+    upperLimitMapping.addPoint( 0.019466102123260498, 0.018621087074279785);
+    upperLimitMapping.addPoint( 0.0068323612213134766, 0.02343428134918213);
+   // upperLimitMapping.addPoint(0.008699741769, 12.377220075487);
+   // upperLimitMapping.addPoint(0.00, 12.38);
 
     lowerLimitMapping.addPoint(0, 2.0);
     lowerLimitMapping.addPoint(2,4);
