@@ -13,7 +13,7 @@ public class ElevatorAuto4 extends SequentialCommandGroup{
             new SequentialCommandGroup(
                 new transversepose(elevator).withTimeout(0.5),
                 new ElevatorPose(elevator, 0.2, 9.31),
-                new ElbowPose(elevator, 0.1, 0.366)
+                new ElbowPose(elevator, 0.1, 0.2984) //0.366
             )
         );
     }
