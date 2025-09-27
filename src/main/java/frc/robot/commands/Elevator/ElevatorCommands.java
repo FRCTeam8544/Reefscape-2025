@@ -96,9 +96,9 @@ public class ElevatorCommands {
             // double quanMillz = elbowForward? 0.05 : -0.05;
             double quanMillz = elbowForward? 0.1 : -0.1;
 
-            elevator.sigmasigmaonthewall(skibidi + quanMillz);
+            elevator.turnElbowToPosition(skibidi + quanMillz);
           }else{
-            elevator.sigmasigmaonthewall(elevator.getElbowPos());
+            elevator.turnElbowToPosition(elevator.getElbowPos());
           }
         },
         elevator);

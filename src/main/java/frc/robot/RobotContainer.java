@@ -202,7 +202,7 @@ public class RobotContainer {
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
-                drive, () -> -romeo.getLeftY(), () -> -romeo.getLeftX(), () -> new Rotation2d()));
+                drive, () -> romeo.getLeftY(), () -> romeo.getLeftX(), () -> new Rotation2d()));
 
     // Drive constant velocity field relative while held: DPad UP is away from alliance station
     // Specify the angle of the controller D-Pad (POV) 0, 45, 90, 135, 180 ...
@@ -242,15 +242,13 @@ public class RobotContainer {
     clawIntake.setDefaultCommand(
         WristCommand.wristCommand(leds, clawIntake, rightBack, leftBack, UpDPad, DownDPad)
     );
-    //juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
-    //juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
-    //juliet.y().whileTrue(new ElevatorAuto3());
+    
     //juliet.rightBumper().whileTrue(new WristForward(clawIntake, juliet, rightBack, leftBack)); // wrist forward
     //juliet.leftBumper().or(juliet.rightBumper()).whileTrue(new WristBack(clawIntake, juliet, leftBack, rightBack)); // wrist backward
     juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
     juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
     juliet.a().whileTrue(new ElevatorAuto2(elevator, clawIntake));
-    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake)); }
+    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));}
     //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
@@ -272,12 +270,15 @@ public class RobotContainer {
 */
 
   public void teleopInit() {
+    // Assume elevator is in the home position
+   // elevator.setElevatorHomePosition();
+
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
     //if (!vision.poseIsReliable()) {
         // Blue origin coordinate system, robot starts facing alliance driver station.
         if (DriverStation.getAlliance().isPresent()) {
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));//Rotation2d.k180deg));
+                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
             }
             else {
                 drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
