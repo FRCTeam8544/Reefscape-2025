@@ -33,20 +33,20 @@ public class WristBack extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
+   /* if (leftBack.getAsBoolean() && !clawIntake.wristBackwardStop.getAsBoolean()) {
       clawIntake.wristTurnBack(true);
     }else if (rightBack.getAsBoolean() && !clawIntake.wristForwardStop.getAsBoolean()){
       clawIntake.wristTurn(true);
-    }
+    }*/
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {clawIntake.wristTurnBack(false);}
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }
