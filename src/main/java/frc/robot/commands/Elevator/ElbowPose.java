@@ -22,12 +22,12 @@ public class ElbowPose extends Command{
 
     @Override
     public void execute(){
-        elevator.sigmasigmaonthewall(position);
+        elevator.turnElbowToPosition(position);
     }
 
     @Override
     public void end(boolean end){
-        elevator.sigmasigmaonthewall(elevator.getElbowPos());
+        elevator.turnElbowToPosition(elevator.getElbowPos());
     }
     
     @Override
