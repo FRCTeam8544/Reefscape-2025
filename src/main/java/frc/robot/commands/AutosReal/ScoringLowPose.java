@@ -22,7 +22,7 @@ public class ScoringLowPose extends Command{
 
     @Override
     public void execute(){
-        if (elevator.getElbowPos() > 0.5 && !(elevator.getElbowPos() < 0.6)){
+      /*   if (elevator.getElbowPos() > 0.5 && !(elevator.getElbowPos() < 0.6)){
             elevator.spinElbowBackwards(true);
         }else if (elevator.getElbowPos() < 0.6 && !(elevator.getElbowPos() > 0.5)){
             elevator.spinElbowForward(true);
@@ -37,7 +37,7 @@ public class ScoringLowPose extends Command{
         }
         else{
             clawIntake.wristTurn(true);
-        }
+        }*/
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ScoringLowPose extends Command{
 
     @Override
     public boolean isFinished(){
-        return (elevator.getElbowPos() < 0.6 && elevator.getElbowPos() > 0.5 && clawIntake.getPos() > 0.8 && clawIntake.getPos() < 0.9);
+        return true;//(elevator.getElbowPos() < 0.6 && elevator.getElbowPos() > 0.5 && clawIntake.getPos() > 0.8 && clawIntake.getPos() < 0.9);
     }
     
 }
