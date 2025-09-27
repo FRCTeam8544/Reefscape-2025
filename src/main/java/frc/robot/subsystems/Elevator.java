@@ -215,21 +215,6 @@ public class Elevator extends SubsystemBase {
         return setpoint - getElevatorPosition();
       }
       
-      // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
-      // Note max speed may vary as the elevator nears the extents of its travel.
-      private void setVelocitySetPoint(double setPoint){
-        /*
-
-        final double maxSpeed = getMaxElevatorSpeedRadiansPerSec();
-        double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
-
-        elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
-        elevatorInOutData.positionSetPoint = 0;
-        elevatorInOutData.voltageSetPoint = 0;
-        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-        */
-      }
-
       // Attempt to hit a specific elevator position, via PID
       private void setPositionSetPoint(double pointSet) {
       
@@ -247,10 +232,6 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData.voltageSetPoint = voltage;
         leftMotorController.setVoltage(voltage);
       }
-
-      public void sigmasigmaonthewall(double setpoint){
-        elbowClosedLoop.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot1);
-      }
       
       // Moves elevator to the specified position, in revolutions from zero point, must be positive
       public void runElevatorToPosition(double position)
@@ -264,34 +245,8 @@ public class Elevator extends SubsystemBase {
         setPositionSetPoint(position);
       }
 
-      // Run the elevator by commanding a speed as percent of max elevator speed
-      public void runElevatorVelocity(double speed) {
-        // OBE do not use!!!
-      }
-
-      //elevator basic up/down: Do not use!!!! Use position instead
-      public void elevatorMove(boolean up) {
-        /*if (!upStopHit && up) {
-          setVelocitySetPoint(0.4);
-        }
-        else {
-          setVelocitySetPoint(0);
-        }*/
-      }
-
-      // Using position control do not use
-      public void elevatorLow(boolean down) {
-          
-          /*if (!downStopHit && down) {
-            setVelocitySetPoint(-0.3);
-          }
-          else {
-            setVelocitySetPoint(0);
-          }*/
-      }
-
       // Call once to start turn to a position
-      public void turnElbowToPosition( double startPos, double targetPosition) {
+      public void turnElbowToPosition( double targetPosition) {
         double cmdPosition = targetPosition;
    /*      if (targetPosition <= backwardSoftStopValue) {
           cmdPosition = backwardSoftStopValue;
@@ -299,7 +254,9 @@ public class Elevator extends SubsystemBase {
         else if (targetPosition >= forwardSoftStopValue) {
           cmdPosition = forwardSoftStopValue;
         }*/
-
+        // Zero angle is elbow parallel with the floor/body
+        //double elbowRatio = 90.0 /.423; // Convert to angle ratio
+        //elbowInOutData.anglePosition = elbowInOutData.absolutePosition * elbowRatio;
         elbowInOutData.positionSetPoint = cmdPosition;
         elbowInOutData.voltageSetPoint = 0;
         elbowInOutData.velocitySetPoint = 0;
@@ -307,36 +264,6 @@ public class Elevator extends SubsystemBase {
         elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot1);
       }
   
-      
-      //elbow basics
-      public void spinElbowForward(boolean go) {
-        //double cmdPosition = elbowInOutData.absolutePosition;
-
-        //if (go) {
-        //  cmdPosition += 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
-        //}
-        //turnElbowToPosition(elbowInOutData.absolutePosition, cmdPosition);
-        if (go) {
-          //turnElbowToPosition(elbowInOutData.absolutePosition, forwardSoftStopValue / 2);
-          turnElbowToPosition(elbowInOutData.absolutePosition, .1);
-        }
-        else {
-          turnElbowToPosition(elbowInOutData.absolutePosition, elbowInOutData.absolutePosition);
-        }
-      }
-    
-      public void spinElbowBackwards(boolean execute) {
-        //double cmdPosition = elbowInOutData.absolutePosition;
-
-        //if (go) {
-        //  cmdPosition -= 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
-        //}
-        if (execute) {
-        turnElbowToPosition(elbowInOutData.absolutePosition, 0.35);
-        //turnElbowToPosition(elbowInOutData.absolutePosition, backwardSoftStopValue / 2);
-        }
-      }
-
       public double getElbowPos(){
         return elbowInOutData.absolutePosition;
       }
@@ -372,17 +299,14 @@ public class Elevator extends SubsystemBase {
     return elevatorInOutData.externalPosition ;//* rotationsToInches; // return position in rotations
   }
 
+  public void setElevatorHomePosition() {
+    // Assume the elevator is at bottom.
+    encoder.setPosition(0);
+    setPositionSetPoint(0);
+  }
+
   public double getElevatorVelocity(){
     return encoder.getVelocity();
   }
-    
-  // Provide the max elevator speed in radians per second
- /*private double getMaxElevatorSpeedRadiansPerSec() {
-    // Radians per second
-    final double timeSec = .2;
-    final double maxSpeedRadiansPerSecond = 2 * (Math.PI) / timeSec;
-    //return getMaxElevatorSpeedPercent() * maxSpeedRadiansPerSecond;
-    return maxSpeedRadiansPerSecond;
-  }*/
   
 }
