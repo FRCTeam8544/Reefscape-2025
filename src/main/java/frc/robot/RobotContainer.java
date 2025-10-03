@@ -253,25 +253,32 @@ public class RobotContainer {
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
 //    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
-//
-
-/*   juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
-    juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
+//    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
+ 
+  //  juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
-    juliet.back().whileTrue(new ClimbBack(climber, juliet, backButton)); //climber back
+   // juliet.back().whileTrue(new ClimbBack(climber, juliet, backButton)); //climber back
 
-    juliet.back().and(juliet.start()).onTrue(
+   /* juliet.back().and(juliet.start()).onTrue(
         ElevatorCommands.logPose(elevator, "SnapPose").andThen(
         ElevatorCommands.logPose(clawIntake, "SnapPose")).andThen(
         ElevatorCommands.logPose(climber, "SnapPose"))
-    );
+    );*/
 
+ // }
+
+  public void autoInit() {
+    elevator.setElevatorHomePosition();
   }
-*/
 
   public void teleopInit() {
-    // Assume elevator is in the home position
-   // elevator.setElevatorHomePosition();
+    // Only do this if the robot is not in a match, otherwise auto might leave us in a non-home state, so
+    // we should not update the encoder. For gym testing this should be called.
+    if (!DriverStation.isFMSAttached())
+    {
+        // Assume elevator is already in the home position, update encoder to match
+        elevator.setElevatorHomePosition();
+    }
 
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
     //if (!vision.poseIsReliable()) {

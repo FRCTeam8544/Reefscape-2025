@@ -13,11 +13,9 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -25,7 +23,6 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
@@ -58,18 +55,9 @@ public class Elevator extends SubsystemBase {
   final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.35; // hard 9.4; Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
- // final static double backwardSoftStopValue = 0.05;
-  //final static double forwardSoftStopValue = 0.51;
-  final static double backwardSoftStopValue = 0.01; // Zero is now about 45 degrees away from robot, negative is stow pos
-  final static double forwardSoftStopValue = 0.455; // Positive is reaching out away from bot
+  final static double backwardSoftStopValue = 0.01; // Zero is now about elbow out stretched parallel to earth, positive is to stow pos
+  final static double forwardSoftStopValue = 0.455; // Positive is reaching up to sky
   
-  //private final double forwardElbowLimit = 0.220;
-  //private final double backwardElbotLimit = 0.765;
-
-  final static double altBackwardSoftStopValue = 0.05;
-  final static double altForwardSoftStopValue = forwardSoftStopValue;
-  final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
-
   private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
@@ -82,25 +70,11 @@ public class Elevator extends SubsystemBase {
   private double DEFAULT_ELEVATOR_KG = 0.614;
   private double elevator_kG = DEFAULT_ELEVATOR_KG; // Tunable to determine the needed kG term to resist gravity
 
-  private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
-  private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
-
-  public boolean elevatorCalibrated = false;
   public boolean forwardStopHit;
   public boolean backwardStopHit; // These should not be static...
   public boolean upStopHit;
   public boolean downStopHit;
 
-
-/* */      
-  public BooleanSupplier upStop =
-            () -> {
-              return upLimit.isPressed();
-            };
-        public BooleanSupplier downStop =
-            () -> {
-              return downLimit.isPressed();
-            };
     
       public Elevator() {
 
@@ -109,7 +83,6 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData = new MotorJointIOInputsAutoLogged();
         elbowInOutData = new MotorJointIOInputsAutoLogged();
 
-        elevatorCalibrated = false;
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(stallLimit);
         motorConfig.follow(Constants.elevatorConstants.leftElevatorCANID, true); 
@@ -128,14 +101,10 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.softLimit.forwardSoftLimit(upSoftStopValue);
         leftMotorConfig.softLimit.reverseSoftLimitEnabled(true);
         leftMotorConfig.softLimit.reverseSoftLimit(downSoftStopValue);
-        leftMotorConfig.limitSwitch
-          .forwardLimitSwitchType(Type.kNormallyOpen)
-          .forwardLimitSwitchEnabled(true)
-          .reverseLimitSwitchEnabled(true)
-          .reverseLimitSwitchType(Type.kNormallyOpen); 
+        
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
-          // Position control (untuned)
+          // Position control
           .p(1.2, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.001, ClosedLoopSlot.kSlot0)
@@ -162,7 +131,6 @@ public class Elevator extends SubsystemBase {
         spinConfig.softLimit.forwardSoftLimit(forwardSoftStopValue);
         spinConfig.softLimit.reverseSoftLimitEnabled(true);
         spinConfig.softLimit.reverseSoftLimit(backwardSoftStopValue);
-       //spinConfig.absoluteEncoder.zeroCentered(true);
 
         spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
@@ -170,8 +138,6 @@ public class Elevator extends SubsystemBase {
           .i(0, ClosedLoopSlot.kSlot1)
           .d(0.000, ClosedLoopSlot.kSlot1)
           .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
-    //      .positionWrappingEnabled(true)
-        //  .positionWrappingInputRange(backwardSoftStopValue, forwardSoftStopValue);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -179,30 +145,11 @@ public class Elevator extends SubsystemBase {
       public void periodic() {
         // This method will be called once per scheduler run
 
-        // Zero the relative external encoder, when the elevator touches the bottom limit switch
-        if (downStop.getAsBoolean()) {
-           elevatorMotorIO.setZeroOffset(encoder.getPosition());
-           elevatorCalibrated = true;
-        }
-
         elbowMotorIO.updateInputs(elbowInOutData);
         elevatorMotorIO.updateInputs(elevatorInOutData);
         
         upStopHit = false;
         downStopHit = false;
-
-        //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
-        //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
-        //forwardStopHit = elbowInOutData.upperSoftLimitHit;
-        //backwardStopHit = elbowInOutData.lowerSoftLimitHit;
-    
-        /*if (upStopHit || downStopHit) {
-          motorController.set(0.0); // Stop imediately regardless of the running command
-        }
-
-        if (forwardStopHit || backwardStopHit) {
-          elbowController.set(0.0); // Stop imediataly
-        } */
 
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
@@ -226,6 +173,7 @@ public class Elevator extends SubsystemBase {
       }
 
       // Apply a voltage to move the elevator motors, without PID control
+      // This is an open loop control mode that should only be used by system identification routines
       private void setVoltageSetPoint(double voltage) {
         elevatorInOutData.positionSetPoint = 0;
         elevatorInOutData.velocitySetPoint =0;

@@ -65,7 +65,7 @@ public class ElevatorCommands {
           // Apply velocities
 
           double pos = elevator.getElevatorPosition();
-          double dE_apply_StartRegion = 0.75;
+          double dE_apply_StartRegion = 0.4;
           double dE_apply_StopRegion = 9.3; //TODO update upper limit for joystick
           if ((pos >= dE_apply_StartRegion && dE < 0) || (pos <= dE_apply_StopRegion && dE > 0)) {
             elevator.runElevatorToPosition(pos + dE);
