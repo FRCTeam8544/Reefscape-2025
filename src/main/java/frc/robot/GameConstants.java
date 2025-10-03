@@ -17,6 +17,9 @@ public final class GameConstants {
   public static final double coralPieceWidth_mm = 114.3;
   public static final double coralPieceHalfWidth_mm = coralPieceWidth_mm / 2.0;
 
+  public static final int numCoralStationTags = 2;
+  public static final int numReefFaceTags = 6;
+  
   // BLUE Alliance
   public static final int[] blueReefAprilTagIDs = {17, 18, 19, 20, 21, 22};
 
@@ -27,7 +30,7 @@ public final class GameConstants {
   // RED Alliance
   public static final int[] redReefAprilTagsIDs = {6, 7, 8, 9, 10, 11};
 
-  public static final int[] readCoralStationAprilTagIDs = {1, 2};
+  public static final int[] redCoralStationAprilTagIDs = {1, 2};
 
   public static final int redAlgaeProcessorAprilTagID = 16;
 }
