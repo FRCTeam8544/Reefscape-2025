@@ -82,8 +82,8 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator = new Elevator();
-  private final ClawIntake clawIntake = new ClawIntake();
-  private final Climber climber = new Climber();
+  private final ClawIntake clawIntake = new ClawIntake(elevator.elbowSupplier);
+  //private final Climber climber = new Climber();
   private final LEDs leds = new LEDs();
 
   // Controller
@@ -202,7 +202,7 @@ public class RobotContainer {
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
-                drive, () -> -romeo.getLeftY(), () -> -romeo.getLeftX(), () -> new Rotation2d()));
+                drive, () -> romeo.getLeftY(), () -> romeo.getLeftX(), () -> new Rotation2d()));
 
     // Drive constant velocity field relative while held: DPad UP is away from alliance station
     // Specify the angle of the controller D-Pad (POV) 0, 45, 90, 135, 180 ...
@@ -242,40 +242,50 @@ public class RobotContainer {
     clawIntake.setDefaultCommand(
         WristCommand.wristCommand(leds, clawIntake, rightBack, leftBack, UpDPad, DownDPad)
     );
-    //juliet.y().whileTrue(new elevatorUp(elevator, juliet, yButton)); // elevator up
-    //juliet.a().whileTrue(new elevatorDown(elevator, juliet, aButton)); // elevator down
-    //juliet.y().whileTrue(new ElevatorAuto3());
+    
     //juliet.rightBumper().whileTrue(new WristForward(clawIntake, juliet, rightBack, leftBack)); // wrist forward
     //juliet.leftBumper().or(juliet.rightBumper()).whileTrue(new WristBack(clawIntake, juliet, leftBack, rightBack)); // wrist backward
     juliet.y().whileTrue(new ElevatorAuto4(elevator, clawIntake));
     juliet.x().whileTrue(new ElevatorAuto3(elevator, clawIntake));
     juliet.a().whileTrue(new ElevatorAuto2(elevator, clawIntake));
-    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));
+    juliet.b().whileTrue(new IntakeAuto(elevator, clawIntake));}
     //juliet.x().onTrue(new RollersForward(clawIntake, juliet, xButton, bButton)); // Bring coral in
     //juliet.b().onTrue(new RollersBack(clawIntake, juliet, bButton)); // Spit coral out
 // These are still tied to the triggers, but controlled through the default elevator command
 //    juliet.rightTrigger().onTrue(new ElbowForward(elevator, juliet, rightBackTop)); // elbow forward
 //    juliet.leftTrigger().onTrue(new ElbowBack(elevator, juliet, leftBackTop)); // elbow backwards
-    juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
+ 
+  //  juliet.start().whileTrue(new Climb(juliet, climber, startButton)); // climber
   //  juliet.start().onTrue(new ElevatorStow(elevator, juliet, startButton)); // Stow elevator / calibrate
-    juliet.back().whileTrue(new ClimbBack(climber, juliet, backButton)); //climber back
+   // juliet.back().whileTrue(new ClimbBack(climber, juliet, backButton)); //climber back
 
-    juliet.back().and(juliet.start()).onTrue(
+   /* juliet.back().and(juliet.start()).onTrue(
         ElevatorCommands.logPose(elevator, "SnapPose").andThen(
         ElevatorCommands.logPose(clawIntake, "SnapPose")).andThen(
         ElevatorCommands.logPose(climber, "SnapPose"))
-    );
+    );*/
 
+ // }
+
+  public void autoInit() {
+    elevator.setElevatorHomePosition();
   }
 
-
   public void teleopInit() {
+    // Only do this if the robot is not in a match, otherwise auto might leave us in a non-home state, so
+    // we should not update the encoder. For gym testing this should be called.
+    if (!DriverStation.isFMSAttached())
+    {
+        // Assume elevator is already in the home position, update encoder to match
+        elevator.setElevatorHomePosition();
+    }
+
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
     //if (!vision.poseIsReliable()) {
         // Blue origin coordinate system, robot starts facing alliance driver station.
         if (DriverStation.getAlliance().isPresent()) {
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));//Rotation2d.k180deg));
+                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
             }
             else {
                 drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));

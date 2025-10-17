@@ -18,12 +18,12 @@ public class freakyahElbowAuto extends Command{
 
     @Override
     public void execute(){
-        elevator.spinElbowBackwards(true);
+   //     elevator.spinElbowBackwards(true);
     }
 
     @Override
     public void end(boolean interupted){
-        elevator.spinElbowForward(false);
+    //    elevator.spinElbowForward(false);
     }
 
     @Override

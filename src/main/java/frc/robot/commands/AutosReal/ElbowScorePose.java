@@ -18,8 +18,6 @@ public class ElbowScorePose extends Command {
    addRequirements(elevator);
   }
   
-  public void elbowPosition(){elevator.turnElbowToPosition(0, 0);}
-
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
@@ -27,7 +25,6 @@ public class ElbowScorePose extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elbowPosition();
   }
 
   // Called once the command ends or is interrupted.

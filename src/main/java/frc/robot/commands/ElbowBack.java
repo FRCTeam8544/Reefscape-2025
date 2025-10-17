@@ -32,11 +32,11 @@ public class ElbowBack extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (leftBackTop.getAsBoolean()) {
+   /*  if (leftBackTop.getAsBoolean()) {
       elevator.spinElbowBackwards(true);
     } else {
       elevator.spinElbowBackwards(false);
-    }
+    }*/
   }
 
   // Called once the command ends or is interrupted.

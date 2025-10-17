@@ -65,7 +65,7 @@ public class ElevatorCommands {
           // Apply velocities
 
           double pos = elevator.getElevatorPosition();
-          double dE_apply_StartRegion = 0.75;
+          double dE_apply_StartRegion = 0.4;
           double dE_apply_StopRegion = 9.3; //TODO update upper limit for joystick
           if ((pos >= dE_apply_StartRegion && dE < 0) || (pos <= dE_apply_StopRegion && dE > 0)) {
             elevator.runElevatorToPosition(pos + dE);
@@ -96,9 +96,9 @@ public class ElevatorCommands {
             // double quanMillz = elbowForward? 0.05 : -0.05;
             double quanMillz = elbowForward? 0.1 : -0.1;
 
-            elevator.sigmasigmaonthewall(skibidi + quanMillz);
+            elevator.turnElbowToPosition(skibidi + quanMillz);
           }else{
-            elevator.sigmasigmaonthewall(elevator.getElbowPos());
+            elevator.turnElbowToPosition(elevator.getElbowPos());
           }
         },
         elevator);

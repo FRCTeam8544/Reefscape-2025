@@ -13,11 +13,9 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -25,14 +23,19 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.MotorJointSparkFlex;
 import frc.robot.util.LogUtil;
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.Constants;
+import java.util.function.DoubleSupplier;
 
-public class Elevator extends SubsystemBase {
+public class Elevator extends SubsystemBase { 
+   
+  public DoubleSupplier elbowSupplier =
+      () -> {
+        return elbowInOutData.absolutePosition;
+      };
   /** Creates a new elevator. */
   private static SparkFlex motorController = new SparkFlex(Constants.elevatorConstants.rightElevatorCANID, MotorType.kBrushless);
   private static SparkFlex leftMotorController = new SparkFlex(Constants.elevatorConstants.leftElevatorCANID, MotorType.kBrushless);
@@ -52,18 +55,9 @@ public class Elevator extends SubsystemBase {
   final static double elevatorMaxSpeed = .2; // % of max speed ???
   final static double upSoftStopValue = 9.35; // hard 9.4; Rotations, enough to reach level 4 coral
   final static double downSoftStopValue = 0;
- // final static double backwardSoftStopValue = 0.05;
-  //final static double forwardSoftStopValue = 0.51;
-  final static double backwardSoftStopValue = 0.01; // Zero is now about 45 degrees away from robot, negative is stow pos
-  final static double forwardSoftStopValue = 0.455; // Positive is reaching out away from bot
+  final static double backwardSoftStopValue = 0.01; // Zero is now about elbow out stretched parallel to earth, positive is to stow pos
+  final static double forwardSoftStopValue = 0.455; // Positive is reaching up to sky
   
-  //private final double forwardElbowLimit = 0.220;
-  //private final double backwardElbotLimit = 0.765;
-
-  final static double altBackwardSoftStopValue = 0.05;
-  final static double altForwardSoftStopValue = forwardSoftStopValue;
-  final static double elbowAlternateLimitsElevatorThresh = 6; // Above this there is risk of elevator collision, leaving slack to allow elbow push out time
-
   private static MotorJointIOInputs elevatorInOutData;
   // Encoder is on the  robot left motor!!!
   private static MotorJointIO elevatorMotorIO = new MotorJointSparkFlex(leftMotorController, "Elevator", Constants.elevatorConstants.rightElevatorCANID, 
@@ -76,25 +70,11 @@ public class Elevator extends SubsystemBase {
   private double DEFAULT_ELEVATOR_KG = 0.614;
   private double elevator_kG = DEFAULT_ELEVATOR_KG; // Tunable to determine the needed kG term to resist gravity
 
-  private SparkLimitSwitch upLimit = leftMotorController.getForwardLimitSwitch();
-  private SparkLimitSwitch downLimit = leftMotorController.getReverseLimitSwitch();
-
-  public boolean elevatorCalibrated = false;
   public boolean forwardStopHit;
   public boolean backwardStopHit; // These should not be static...
   public boolean upStopHit;
   public boolean downStopHit;
 
-
-/* */      
-  public BooleanSupplier upStop =
-            () -> {
-              return upLimit.isPressed();
-            };
-        public BooleanSupplier downStop =
-            () -> {
-              return downLimit.isPressed();
-            };
     
       public Elevator() {
 
@@ -103,7 +83,6 @@ public class Elevator extends SubsystemBase {
         elevatorInOutData = new MotorJointIOInputsAutoLogged();
         elbowInOutData = new MotorJointIOInputsAutoLogged();
 
-        elevatorCalibrated = false;
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.smartCurrentLimit(stallLimit);
         motorConfig.follow(Constants.elevatorConstants.leftElevatorCANID, true); 
@@ -122,14 +101,10 @@ public class Elevator extends SubsystemBase {
         leftMotorConfig.softLimit.forwardSoftLimit(upSoftStopValue);
         leftMotorConfig.softLimit.reverseSoftLimitEnabled(true);
         leftMotorConfig.softLimit.reverseSoftLimit(downSoftStopValue);
-        leftMotorConfig.limitSwitch
-          .forwardLimitSwitchType(Type.kNormallyOpen)
-          .forwardLimitSwitchEnabled(true)
-          .reverseLimitSwitchEnabled(true)
-          .reverseLimitSwitchType(Type.kNormallyOpen); 
+        
         leftMotorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
-          // Position control (untuned)
+          // Position control
           .p(1.2, ClosedLoopSlot.kSlot0)
           .i(0, ClosedLoopSlot.kSlot0)
           .d(0.001, ClosedLoopSlot.kSlot0)
@@ -156,7 +131,6 @@ public class Elevator extends SubsystemBase {
         spinConfig.softLimit.forwardSoftLimit(forwardSoftStopValue);
         spinConfig.softLimit.reverseSoftLimitEnabled(true);
         spinConfig.softLimit.reverseSoftLimit(backwardSoftStopValue);
-       //spinConfig.absoluteEncoder.zeroCentered(true);
 
         spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
@@ -164,8 +138,6 @@ public class Elevator extends SubsystemBase {
           .i(0, ClosedLoopSlot.kSlot1)
           .d(0.000, ClosedLoopSlot.kSlot1)
           .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
-    //      .positionWrappingEnabled(true)
-        //  .positionWrappingInputRange(backwardSoftStopValue, forwardSoftStopValue);
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 
@@ -173,30 +145,11 @@ public class Elevator extends SubsystemBase {
       public void periodic() {
         // This method will be called once per scheduler run
 
-        // Zero the relative external encoder, when the elevator touches the bottom limit switch
-        if (downStop.getAsBoolean()) {
-           elevatorMotorIO.setZeroOffset(encoder.getPosition());
-           elevatorCalibrated = true;
-        }
-
         elbowMotorIO.updateInputs(elbowInOutData);
         elevatorMotorIO.updateInputs(elevatorInOutData);
         
         upStopHit = false;
         downStopHit = false;
-
-        //forwardStopHit = forwardStop.getAsBoolean() || elbowInOutData.upperSoftLimitHit;
-        //backwardStopHit = backwardStop.getAsBoolean() || elbowInOutData.lowerSoftLimitHit;
-        //forwardStopHit = elbowInOutData.upperSoftLimitHit;
-        //backwardStopHit = elbowInOutData.lowerSoftLimitHit;
-    
-        /*if (upStopHit || downStopHit) {
-          motorController.set(0.0); // Stop imediately regardless of the running command
-        }
-
-        if (forwardStopHit || backwardStopHit) {
-          elbowController.set(0.0); // Stop imediataly
-        } */
 
         LogUtil.logData(elbowMotorIO.getName(), elbowInOutData);
         LogUtil.logData(elevatorMotorIO.getName(), elevatorInOutData);
@@ -209,21 +162,6 @@ public class Elevator extends SubsystemBase {
         return setpoint - getElevatorPosition();
       }
       
-      // Drive the motor at a specific velocity setPoint ( setPoint / maxSpeed )
-      // Note max speed may vary as the elevator nears the extents of its travel.
-      private void setVelocitySetPoint(double setPoint){
-        /*
-
-        final double maxSpeed = getMaxElevatorSpeedRadiansPerSec();
-        double commandedSpeedInRPM = setPoint * Units.radiansPerSecondToRotationsPerMinute(maxSpeed);
-
-        elevatorInOutData.velocitySetPoint = commandedSpeedInRPM;
-        elevatorInOutData.positionSetPoint = 0;
-        elevatorInOutData.voltageSetPoint = 0;
-        closedLoop.setReference(commandedSpeedInRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-        */
-      }
-
       // Attempt to hit a specific elevator position, via PID
       private void setPositionSetPoint(double pointSet) {
       
@@ -235,15 +173,12 @@ public class Elevator extends SubsystemBase {
       }
 
       // Apply a voltage to move the elevator motors, without PID control
+      // This is an open loop control mode that should only be used by system identification routines
       private void setVoltageSetPoint(double voltage) {
         elevatorInOutData.positionSetPoint = 0;
         elevatorInOutData.velocitySetPoint =0;
         elevatorInOutData.voltageSetPoint = voltage;
         leftMotorController.setVoltage(voltage);
-      }
-
-      public void sigmasigmaonthewall(double setpoint){
-        elbowClosedLoop.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot1);
       }
       
       // Moves elevator to the specified position, in revolutions from zero point, must be positive
@@ -258,34 +193,8 @@ public class Elevator extends SubsystemBase {
         setPositionSetPoint(position);
       }
 
-      // Run the elevator by commanding a speed as percent of max elevator speed
-      public void runElevatorVelocity(double speed) {
-        // OBE do not use!!!
-      }
-
-      //elevator basic up/down: Do not use!!!! Use position instead
-      public void elevatorMove(boolean up) {
-        /*if (!upStopHit && up) {
-          setVelocitySetPoint(0.4);
-        }
-        else {
-          setVelocitySetPoint(0);
-        }*/
-      }
-
-      // Using position control do not use
-      public void elevatorLow(boolean down) {
-          
-          /*if (!downStopHit && down) {
-            setVelocitySetPoint(-0.3);
-          }
-          else {
-            setVelocitySetPoint(0);
-          }*/
-      }
-
       // Call once to start turn to a position
-      public void turnElbowToPosition( double startPos, double targetPosition) {
+      public void turnElbowToPosition( double targetPosition) {
         double cmdPosition = targetPosition;
    /*      if (targetPosition <= backwardSoftStopValue) {
           cmdPosition = backwardSoftStopValue;
@@ -293,7 +202,9 @@ public class Elevator extends SubsystemBase {
         else if (targetPosition >= forwardSoftStopValue) {
           cmdPosition = forwardSoftStopValue;
         }*/
-
+        // Zero angle is elbow parallel with the floor/body
+        //double elbowRatio = 90.0 /.423; // Convert to angle ratio
+        //elbowInOutData.anglePosition = elbowInOutData.absolutePosition * elbowRatio;
         elbowInOutData.positionSetPoint = cmdPosition;
         elbowInOutData.voltageSetPoint = 0;
         elbowInOutData.velocitySetPoint = 0;
@@ -301,36 +212,6 @@ public class Elevator extends SubsystemBase {
         elbowClosedLoop.setReference(cmdPosition, ControlType.kPosition, ClosedLoopSlot.kSlot1);
       }
   
-      
-      //elbow basics
-      public void spinElbowForward(boolean go) {
-        //double cmdPosition = elbowInOutData.absolutePosition;
-
-        //if (go) {
-        //  cmdPosition += 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
-        //}
-        //turnElbowToPosition(elbowInOutData.absolutePosition, cmdPosition);
-        if (go) {
-          //turnElbowToPosition(elbowInOutData.absolutePosition, forwardSoftStopValue / 2);
-          turnElbowToPosition(elbowInOutData.absolutePosition, .1);
-        }
-        else {
-          turnElbowToPosition(elbowInOutData.absolutePosition, elbowInOutData.absolutePosition);
-        }
-      }
-    
-      public void spinElbowBackwards(boolean execute) {
-        //double cmdPosition = elbowInOutData.absolutePosition;
-
-        //if (go) {
-        //  cmdPosition -= 0.006 / 50; // Advance one degree per second (1/50th of a degree per tick)
-        //}
-        if (execute) {
-        turnElbowToPosition(elbowInOutData.absolutePosition, 0.35);
-        //turnElbowToPosition(elbowInOutData.absolutePosition, backwardSoftStopValue / 2);
-        }
-      }
-
       public double getElbowPos(){
         return elbowInOutData.absolutePosition;
       }
@@ -366,17 +247,14 @@ public class Elevator extends SubsystemBase {
     return elevatorInOutData.externalPosition ;//* rotationsToInches; // return position in rotations
   }
 
+  public void setElevatorHomePosition() {
+    // Assume the elevator is at bottom.
+    encoder.setPosition(0);
+    setPositionSetPoint(0);
+  }
+
   public double getElevatorVelocity(){
     return encoder.getVelocity();
   }
-    
-  // Provide the max elevator speed in radians per second
- /*private double getMaxElevatorSpeedRadiansPerSec() {
-    // Radians per second
-    final double timeSec = .2;
-    final double maxSpeedRadiansPerSecond = 2 * (Math.PI) / timeSec;
-    //return getMaxElevatorSpeedPercent() * maxSpeedRadiansPerSecond;
-    return maxSpeedRadiansPerSecond;
-  }*/
   
 }

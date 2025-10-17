@@ -21,6 +21,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -35,6 +36,7 @@ import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.MotorJointIOInputsAutoLogged;
 
 import frc.robot.util.LogUtil;
+import frc.robot.util.SegmentedMapping;
 
 public class ClawIntake extends SubsystemBase {
   
@@ -75,10 +77,11 @@ public class ClawIntake extends SubsystemBase {
   public boolean wristForwardStopHit = false;
   public boolean wristBackwardStopHit = false;
 
+  private DoubleSupplier elbowPosSupplier;
 
   // Cheesy position control for elbow
-  private boolean wristTurnActive = false;
-  private double wristTurnStartPos = 0.0;
+  private SegmentedMapping upperLimitMapping = new SegmentedMapping();
+  private SegmentedMapping lowerLimitMapping = new SegmentedMapping();
 
   public BooleanSupplier wristForwardStop =
       () -> {
@@ -90,10 +93,12 @@ public class ClawIntake extends SubsystemBase {
         return reverseLimitSwitch.isPressed();
       };
 
-  public ClawIntake() {
+  public ClawIntake(DoubleSupplier elbowSupplier) {
+
+    buildLimitMaps();
     coralAcquired = false;
     coralPresentCount = 0;
-
+   elbowPosSupplier = elbowSupplier;
     // Initialize inputs
     this.coralLaserInputs = new LaserCANIOInputsAutoLogged();
     this.wristInOutData = new MotorJointIOInputsAutoLogged();
@@ -153,14 +158,40 @@ public class ClawIntake extends SubsystemBase {
     LogUtil.logData(seabassIO.getName(), coralLaserInputs);
 
   }
+  
+  public void setPositionSetPoint(double pointSet){     //public void setPositionSetPoint(double pointSet){
 
-  public void setPositionSetPoint(double pointSet){
-
-    wristInOutData.positionSetPoint = pointSet;
+  double elbowEncoderValue = elbowPosSupplier.getAsDouble() ;  //2.29= gear ratio difference *-.32
+  double BoundpointSet = pointSet;
+  //double WristBackwardDeflection = -0.0839;
+  //double WristSoftStop = elbowEncoderValue  * -0.45 * 0.90; //+ WristBackwardDeflection 
+  //if (pointSet < WristSoftStop) {
+  //  BoundpointSet = WristSoftStop;
+ // }
+  double wristRatio = 82.0 /.207; // Convert to angle ratio constant
+  double elbowRatio = 90.0 /.423; // Convert to angle ratio
+    wristInOutData.elbowAnglePosition = elbowEncoderValue; //* elbowRatio;
+    wristInOutData.wristAnglePosition = wristInOutData.absolutePosition * wristRatio;
+    wristInOutData.positionSetPoint = BoundpointSet;
     wristInOutData.velocitySetPoint = 0;
     wristInOutData.voltageSetPoint = 0;
+   // wristInOutData.wristSoftStop = WristSoftStop;
 
-    wristController.setReference(pointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    double upperSoftStop = (upperLimitMapping.mapPoint(wristInOutData.elbowAnglePosition - 0.05) );/// wristRatio) + 0.0035;
+    double lowerSoftStop = lowerLimitMapping.mapPoint(wristInOutData.elbowAnglePosition);// / wristRatio;
+ 
+    wristInOutData.wristSoftStop = upperSoftStop;
+
+    if (pointSet < upperSoftStop) // Wrist back/up is negative
+    {
+        BoundpointSet = upperSoftStop;
+    }
+    else if (pointSet >  lowerSoftStop) // Write forward/down is positive
+    {
+        BoundpointSet = lowerSoftStop;
+    }
+
+    wristController.setReference(BoundpointSet, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   // Determine coral intake status
@@ -216,7 +247,7 @@ public class ClawIntake extends SubsystemBase {
   }
   
   // Provide joint position in rotations from absolute encoder zero
-  public void turnWristToPosition(double startPosition, double targetPosition) {
+  public void turnWristToPosition(double targetPosition) {
     double cmdPosition = targetPosition;
    /* if (targetPosition <= upSoftRotationLimit) {
       cmdPosition = upSoftRotationLimit;
@@ -226,44 +257,33 @@ public class ClawIntake extends SubsystemBase {
     }*/
     setPositionSetPoint(targetPosition);
   }
-
-  //wrist basics
-  public void wristTurn(boolean forward) {
-
-    double cmdPosition = wristInOutData.absolutePosition;
-
-    if (forward) {
-      cmdPosition += 0.125 / 50; // Advance one degree per second (1/50th of a degree per tick)
-    }
-
-    //turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
-   //  double range = upSoftRotationLimit - downSoftRotationLimit;
-   // turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
-
-     if (forward) {
-      turnWristToPosition(wristInOutData.absolutePosition, upSoftRotationLimit / 2);
-    }
-    else {
-      turnWristToPosition(wristInOutData.absolutePosition, wristInOutData.absolutePosition);
-    }
-  }
-
-  public void wristTurnBack(boolean backwards) {
-    double cmdPosition = wristInOutData.absolutePosition;
-
-    if (backwards) {
-      cmdPosition -= 0.125 / 50; // Retreat one degree
-    }
-    //0.78 to .99
-   // turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
-  // double range = upSoftRotationLimit - downSoftRotationLimit;
-    turnWristToPosition(wristInOutData.absolutePosition, downSoftRotationLimit /2);
-  //  turnWristToPosition(wristInOutData.absolutePosition, cmdPosition);
-  }
-
+  
   public void logPose(String prefix, int snapshotId) {
       Logger.recordOutput(
           prefix + "/Wrist/absolutePosition", wristInOutData.absolutePosition);
+  }
+
+  private void buildLimitMaps()
+  {
+    upperLimitMapping.addPoint( 0.40970999002456665, -0.19605249166488647);
+    upperLimitMapping.addPoint( 0.40393054485321045, -0.19605249166488647);
+    upperLimitMapping.addPoint( 0.3550521731376648, -0.1756407022476196);
+    upperLimitMapping.addPoint( 0.31996268033981323, -0.1628791093826294);
+    upperLimitMapping.addPoint( 0.28971415758132935, -0.14921331405639648 );
+    upperLimitMapping.addPoint( 0.2653238773345947, -0.13559061288833618);
+    upperLimitMapping.addPoint( 0.20975476503372192, -0.10240137577056885);
+    upperLimitMapping.addPoint( 0.16785788536071777, -0.07314079999923706);
+    upperLimitMapping.addPoint( 0.16292601823806763, -0.07212173938751221);
+    upperLimitMapping.addPoint( 0.12783288955688477, -0.04779398441314697);
+    upperLimitMapping.addPoint( 0.08687376976013184, -0.021508395671844482);
+    upperLimitMapping.addPoint( 0.053716301918029785, -0.0008720159530639648);
+    upperLimitMapping.addPoint( 0.019466102123260498, 0.018621087074279785);
+    upperLimitMapping.addPoint( 0.0068323612213134766, 0.02343428134918213);
+   // upperLimitMapping.addPoint(0.008699741769, 12.377220075487);
+   // upperLimitMapping.addPoint(0.00, 12.38);
+
+    lowerLimitMapping.addPoint(0, 2.0);
+    lowerLimitMapping.addPoint(2,4);
   }
 
 }

@@ -17,7 +17,7 @@ public class WristCommand {
                 // }
                 // else {clawIntake.wristTurn(false);}
                 if (leftBack.getAsBoolean() ^ rightBack.getAsBoolean()){
-                    double fortnite = leftBack.getAsBoolean()? 0.1 : -0.1;
+                    double fortnite = leftBack.getAsBoolean()? -0.1 : 0.1;
                     clawIntake.setPositionSetPoint(fortnite + clawIntake.getPos());
                 }else{
                     clawIntake.setPositionSetPoint(clawIntake.getPos());

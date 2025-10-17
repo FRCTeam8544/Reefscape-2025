@@ -26,7 +26,7 @@ public class ElevatorPose3 extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevator.runElevatorToPosition(4);
+    //elevator.runElevatorToPosition(4);
   }
 
   // Called once the command ends or is interrupted.
@@ -36,6 +36,7 @@ public class ElevatorPose3 extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return elevator.getElePos() < 3.1 && elevator.getElePos() > 2.9;
+    return true;
+    //return elevator.getElePos() < 3.1 && elevator.getElePos() > 2.9;
   }
 }

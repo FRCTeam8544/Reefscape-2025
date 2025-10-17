@@ -42,10 +42,10 @@ public class VisionConstants {
   // Gyro will be offset from this.
   public static Transform3d robotToCamera0 = //left camera - white
   new Transform3d(
-      Units.inchesToMeters(8),
-      Units.inchesToMeters(-12.25),
-      Units.inchesToMeters(27.75),
-      new Rotation3d(0.0, 0, 180));
+      Units.inchesToMeters(11),
+      Units.inchesToMeters(-10.5),// might be negative
+      Units.inchesToMeters(10.0),
+      new Rotation3d(0.0, 0, 0));
   public static Transform3d robotToCamera1 = //right camera - black/blue
       new Transform3d(
           Units.inchesToMeters(8),

@@ -11,9 +11,9 @@ public class ElevatorAuto4 extends SequentialCommandGroup{
     public ElevatorAuto4(Elevator elevator, ClawIntake clawIntake){
         addCommands(
             new SequentialCommandGroup(
-                new transversepose(elevator).withTimeout(0.5),
+                new transversepose(elevator, clawIntake).withTimeout(0.5),
                 new ElevatorPose(elevator, 0.2, 9.31),
-                new ElbowPose(elevator, 0.1, 0.366)
+                new GildedPoseClawAndElbow(elevator, clawIntake, 0.02, 0.29843, 0.06154)
             )
         );
     }
