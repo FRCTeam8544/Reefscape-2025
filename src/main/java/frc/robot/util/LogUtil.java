@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.LaserCANIO.LaserCANIOInputs;
+import frc.robot.subsystems.Navigation;
 
 public class LogUtil {
     public static void logData(String prefix, MotorJointIOInputs inOutData) {
@@ -65,4 +66,18 @@ public class LogUtil {
       Logger.recordOutput(prefix + "/Measurement/status", inputs.status);
       Logger.recordOutput(prefix + "/Measurement/distance_mm", inputs.distance_mm);
     }
+
+public static void logData(String prefix, double fullFaceAngle, 
+double currentTargetTag, double bestApproachAngle ) 
+{
+    Logger.recordOutput(
+        prefix + "/Measurement/fullFaceAngle",fullFaceAngle);
+
+    Logger.recordOutput(
+        prefix + "/Measurement/currentTargetTag",currentTargetTag );
+
+    Logger.recordOutput(
+        prefix + "/Measurement/bestApproachAngle",bestApproachAngle);
+}
+
 }

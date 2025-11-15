@@ -25,7 +25,9 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.GameConstants;
+import frc.robot.subsystems.MotorJointIO.MotorJointIOInputs;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.util.LogUtil;
 
 
 public class Navigation extends SubsystemBase {
@@ -35,6 +37,7 @@ public class Navigation extends SubsystemBase {
   private double bestApproachAngle = 0.0;
 
   private Supplier<Pose2d> robotPoseSupplier;
+
 
   // Reef data
   private ArrayList<Pose2d> reefFacePoses = new ArrayList<Pose2d>();
@@ -46,6 +49,12 @@ public class Navigation extends SubsystemBase {
       () -> {
         return bestApproachAngle;
       };
+ // public byte[] fullFaceAngle;
+
+
+ Rotation2d currentFace = Rotation2d.kZero; // Starts with Down field face
+ Rotation2d halfFaceAngle = Rotation2d.fromDegrees(360 / (2 * GameConstants.numReefFaceTags) );
+ Rotation2d fullFaceAngle = Rotation2d.fromDegrees(360 / GameConstants.numReefFaceTags); //was 60
 
 
   public Navigation(Supplier<Pose2d> poseSupplier, Alliance alliance) {
@@ -75,7 +84,10 @@ public class Navigation extends SubsystemBase {
     // Log summary data
     // log current pose, selected tag, approach angle
     //LogUtil.logData("Climber", climberInOutData);
+    LogUtil.logData("Navigation", fullFaceAngle.getDegrees(), currentTargetTag, bestApproachAngle);
   }
+
+
 
 
   // Determine which reef face wedge contains the robot and provide the tag associated with that face.
@@ -196,13 +208,15 @@ public class Navigation extends SubsystemBase {
     reefCentroid = new Translation2d(xCentroid, yCentroid);
 
     // Build the wedge angles counter clockwise starting at positive X "down field from blue"
-    Rotation2d currentFace = Rotation2d.kZero; // Starts with Down field face
-    Rotation2d halfFaceAngle = Rotation2d.fromDegrees(360 / (2 * GameConstants.numReefFaceTags) );
-    Rotation2d fullFaceAngle = Rotation2d.fromDegrees(60 / GameConstants.numReefFaceTags);
+
     for (int faceIdx = 0; faceIdx < GameConstants.numReefFaceTags; ++faceIdx) {
         reefWedgeAngles.add( currentFace.rotateBy(halfFaceAngle) );
         currentFace = currentFace.rotateBy( fullFaceAngle ); // Advance to next face counter clockwise from positive X
     }
+
+
+
+
 
     // Build reef wedge tag ids that match the face selection order from above
     if (alliance == Alliance.Blue) {

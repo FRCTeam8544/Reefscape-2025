@@ -132,12 +132,12 @@ public class Elevator extends SubsystemBase {
         spinConfig.softLimit.reverseSoftLimitEnabled(true);
         spinConfig.softLimit.reverseSoftLimit(backwardSoftStopValue);
 
-        spinConfig.closedLoop
+ /*        spinConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
           .p(5, ClosedLoopSlot.kSlot1)
           .i(0, ClosedLoopSlot.kSlot1)
           .d(0.000, ClosedLoopSlot.kSlot1)
-          .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
+          .outputRange(-1, 1, ClosedLoopSlot.kSlot1);  */
         elbowController.configure(spinConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       }
 

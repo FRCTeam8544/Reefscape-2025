@@ -123,12 +123,12 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        /*vision =
+       // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision(leftChassisApriltag, robotToCamera0),
-                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));*/
+                new VisionIOPhotonVision(rightChassisApriltag, robotToCamera1));
         break;
 
       case SIM:
@@ -283,14 +283,14 @@ public class RobotContainer {
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
     //if (!vision.poseIsReliable()) {
         // Blue origin coordinate system, robot starts facing alliance driver station.
-        if (DriverStation.getAlliance().isPresent()) {
-            if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
-            }
-            else {
-                drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
-            }
-        }
+    //    if (DriverStation.getAlliance().isPresent()) {
+      //      if (DriverStation.getAlliance().get() == Alliance.Blue) {
+        //        drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
+          //  }
+            //else {
+              //  drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
+          //  }
+      //  }
     //}
   }
 
