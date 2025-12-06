@@ -195,14 +195,14 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive, () -> romeo.getLeftY(), () -> romeo.getLeftX(), () -> -romeo.getRightX()));
+            drive, () -> -romeo.getLeftY(), () -> romeo.getLeftX(), () -> romeo.getRightX())); // Y was +
 
     // Lock to 0° when A button is held
     romeo
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
-                drive, () -> romeo.getLeftY(), () -> romeo.getLeftX(), () -> new Rotation2d()));
+                drive, () -> -romeo.getLeftY(), () -> romeo.getLeftX(), () -> new Rotation2d())); //Y was +
 
     // Drive constant velocity field relative while held: DPad UP is away from alliance station
     // Specify the angle of the controller D-Pad (POV) 0, 45, 90, 135, 180 ...
@@ -281,17 +281,17 @@ public class RobotContainer {
     }
 
     // If vison pose is not reliable, attempt to use driver station to setPose facing driving station
-    //if (!vision.poseIsReliable()) {
+    if (!vision.poseIsReliable()) {
         // Blue origin coordinate system, robot starts facing alliance driver station.
-    //    if (DriverStation.getAlliance().isPresent()) {
-      //      if (DriverStation.getAlliance().get() == Alliance.Blue) {
-        //        drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero));
-          //  }
-            //else {
-              //  drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg));
-          //  }
-      //  }
-    //}
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                drive.setPose( new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)); //was 0
+            }
+            else {
+                drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg)); //was 180
+            }
+        }
+    } // */
   }
 
   /**

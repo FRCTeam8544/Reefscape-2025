@@ -92,15 +92,17 @@ public class DriveCommands {
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                   linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                   omega * drive.getMaxAngularSpeedRadPerSec());
-          boolean isFlipped =
+
+         //     drive.runVelocity(speeds);
+           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Blue;//red
+                  && DriverStation.getAlliance().get() == Alliance.Red;//red
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
+                      : drive.getRotation()));  // */
         },
         drive);
   }
@@ -143,16 +145,17 @@ public class DriveCommands {
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                       omega);
-              boolean isFlipped =
+                    //  drive.runVelocity(speeds); // bypass field relative control
+            boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get() == Alliance.Blue; //blue
+                      && DriverStation.getAlliance().get() == Alliance.Red; //blue
               drive.runVelocity(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
                       isFlipped
                           ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                          : drive.getRotation()));
-            },
+                          : drive.getRotation()));  // */
+            },  
             drive)
 
         // Reset PID controller when command starts
