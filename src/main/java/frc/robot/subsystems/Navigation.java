@@ -37,7 +37,7 @@ public class Navigation extends SubsystemBase {
   private double bestApproachAngle = 0.0;
 
   private Supplier<Pose2d> robotPoseSupplier;
-
+  private Pose2d currentPose;
 
   // Reef data
   private ArrayList<Pose2d> reefFacePoses = new ArrayList<Pose2d>();
@@ -57,12 +57,17 @@ public class Navigation extends SubsystemBase {
  Rotation2d fullFaceAngle = Rotation2d.fromDegrees(360 / GameConstants.numReefFaceTags); //was 60
 
 
-  public Navigation(Supplier<Pose2d> poseSupplier, Alliance alliance) {
-    this.robotPoseSupplier = poseSupplier;
-    this.alliance = alliance;
+  public Navigation() {  //Supplier<Pose2d> poseSupplier, Alliance alliance
+ //   this.robotPoseSupplier = poseSupplier;
+    this.alliance = Alliance.Blue;// was alliance
     
-    initializeGameRegions(alliance);
+    initializeGameRegions(alliance); 
   }
+
+public void updateInputs(Pose2d inputPose2d){
+currentPose = inputPose2d;
+
+}
 
 
   @Override
@@ -70,7 +75,8 @@ public class Navigation extends SubsystemBase {
     // This method will be called once per scheduler run
     //navigationIO.updateInputs(climberInOutData);
 
-    final Pose2d currentPose = robotPoseSupplier.get();
+    // currentPose = robotPoseSupplier.get();
+
  
     // Determine which tag should be targeted
     currentTargetTag = getBestReefTarget(currentPose);

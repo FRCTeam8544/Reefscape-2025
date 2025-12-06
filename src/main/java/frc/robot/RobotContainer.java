@@ -70,6 +70,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import frc.robot.subsystems.LEDs;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.subsystems.Navigation;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -85,6 +86,7 @@ public class RobotContainer {
   private final ClawIntake clawIntake = new ClawIntake(elevator.elbowSupplier);
   //private final Climber climber = new Climber();
   private final LEDs leds = new LEDs();
+  private final Navigation navigation = new Navigation(); //set alliance properly //drive.getPose(), DriverStation.Alliance.Blue
 
   // Controller
   private final CommandXboxController romeo = new CommandXboxController(0); // driver
@@ -293,6 +295,12 @@ public class RobotContainer {
         }
     } // */
   }
+
+public void teleopPeriodic() {
+    navigation.updateInputs(drive.getPose());
+   // drive.getPose();
+}
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
