@@ -60,7 +60,7 @@ public class Navigation extends SubsystemBase {
   public Navigation() {  //Supplier<Pose2d> poseSupplier, Alliance alliance
  //   this.robotPoseSupplier = poseSupplier;
     this.alliance = Alliance.Blue;// was alliance
-    
+    currentPose = new Pose2d();
     initializeGameRegions(alliance); 
   }
 
